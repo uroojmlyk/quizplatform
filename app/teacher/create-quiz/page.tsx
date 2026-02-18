@@ -279,9 +279,6 @@
 
 
 
-
-
-
 'use client';
 
 import { useState } from 'react';
@@ -294,8 +291,16 @@ export default function CreateQuizPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [duration, setDuration] = useState(30);
+  
+  // ✅ FIXED: ab id bhi hai initial state mein
   const [questions, setQuestions] = useState([
-    { text: '', options: ['', '', '', ''], correctOption: 0, marks: 10 }
+    { 
+      id: Date.now().toString(),
+      text: '', 
+      options: ['', '', '', ''], 
+      correctOption: 0, 
+      marks: 10 
+    }
   ]);
 
   const addQuestion = () => {
@@ -329,7 +334,6 @@ export default function CreateQuizPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
     if (!title.trim()) {
       alert('Please enter a quiz title');
       return;
@@ -349,7 +353,6 @@ export default function CreateQuizPage() {
     }
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
     const totalMarks = questions.reduce((sum, q) => sum + (q.marks || 0), 0);
     
     const newQuiz = {
@@ -373,7 +376,7 @@ export default function CreateQuizPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header - Responsive */}
+      {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -381,30 +384,27 @@ export default function CreateQuizPage() {
               <button
                 onClick={() => router.back()}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                aria-label="Go back"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </button>
               <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Create New Quiz</h1>
             </div>
-            <div className="flex items-center gap-2 ml-auto sm:ml-0">
-              <button
-                onClick={handleSubmit}
-                className="flex items-center justify-center gap-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base w-full sm:w-auto"
-              >
-                <Save className="w-4 h-4" />
-                <span className="hidden sm:inline">Save Quiz</span>
-                <span className="sm:hidden">Save</span>
-              </button>
-            </div>
+            <button
+              onClick={handleSubmit}
+              className="flex items-center justify-center gap-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base w-full sm:w-auto"
+            >
+              <Save className="w-4 h-4" />
+              <span className="hidden sm:inline">Save Quiz</span>
+              <span className="sm:hidden">Save</span>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Form - Responsive Padding */}
+      {/* Form */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-          {/* Basic Info Card */}
+          {/* Basic Info */}
           <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
             <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Quiz Details</h2>
             
@@ -452,7 +452,7 @@ export default function CreateQuizPage() {
             </div>
           </div>
 
-          {/* Questions Card */}
+          {/* Questions */}
           <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">Questions</h2>
@@ -462,14 +462,12 @@ export default function CreateQuizPage() {
                 className="flex items-center justify-center gap-1 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm sm:text-base w-full sm:w-auto"
               >
                 <PlusCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">Add Question</span>
-                <span className="sm:hidden">Add</span>
+                Add Question
               </button>
             </div>
 
             {questions.map((q, qIndex) => (
               <div key={qIndex} className="mb-4 sm:mb-6 p-3 sm:p-4 border border-gray-200 rounded-lg bg-gray-50">
-                {/* Question Header */}
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
                   <h3 className="font-medium text-gray-700 text-sm sm:text-base">
                     Question {qIndex + 1}
@@ -486,7 +484,6 @@ export default function CreateQuizPage() {
                   )}
                 </div>
 
-                {/* Question Text */}
                 <input
                   type="text"
                   value={q.text}
@@ -496,7 +493,6 @@ export default function CreateQuizPage() {
                   required
                 />
 
-                {/* Options Grid - Responsive */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-3">
                   {q.options.map((opt, oIndex) => (
                     <div key={oIndex} className="flex items-center gap-2">
@@ -515,7 +511,6 @@ export default function CreateQuizPage() {
                   ))}
                 </div>
 
-                {/* Correct Answer & Marks - Responsive */}
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <div className="flex-1">
                     <label className="block text-xs text-gray-500 mb-1">Correct Answer</label>
@@ -524,7 +519,7 @@ export default function CreateQuizPage() {
                       onChange={(e) => updateQuestion(qIndex, 'correctOption', Number(e.target.value))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white text-sm"
                     >
-                      {q.options.map((_: any, i: number) => (
+                      {q.options.map((_, i) => (
                         <option key={i} value={i}>Option {String.fromCharCode(65 + i)}</option>
                       ))}
                     </select>
@@ -544,7 +539,6 @@ export default function CreateQuizPage() {
               </div>
             ))}
 
-            {/* Total Marks - Responsive */}
             {questions.length > 0 && (
               <div className="mt-4 pt-4 border-t border-gray-200 flex justify-end">
                 <div className="bg-gray-100 px-3 sm:px-4 py-2 rounded-lg">
