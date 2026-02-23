@@ -1,34 +1,51 @@
 
-
-
 // 'use client';
 
 // import { useEffect, useState } from 'react';
-// import { useRouter, useParams } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 // import { 
+//   BookOpen, 
+//   Award, 
 //   Clock, 
-//   AlertCircle, 
-//   CheckCircle, 
-//   ChevronLeft, 
-//   ChevronRight,
+//   TrendingUp, 
+//   LogOut, 
+//   User, 
+//   ChevronRight, 
 //   Sparkles,
-//   Flag,
-//   Circle,
-//   CircleDot
+//   Zap,
+//   BarChart3,
+//   Target,
+//   Activity,
+//   Calendar,
+//   Star
 // } from 'lucide-react';
 
-// export default function TakeQuizPage() {
+// interface Quiz {
+//   id: string;
+//   title: string;
+//   description: string;
+//   duration: number;
+//   questions: any[];
+//   totalMarks: number;
+//   createdByName: string;
+// }
+
+// interface Result {
+//   id: string;
+//   quizId: string;
+//   quizTitle: string;
+//   percentage: number;
+//   score: number;
+//   totalMarks: number;
+//   submittedAt: string;
+// }
+
+// export default function StudentDashboard() {
 //   const router = useRouter();
-//   const params = useParams();
-//   const [quiz, setQuiz] = useState<any>(null);
 //   const [user, setUser] = useState<any>(null);
+//   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+//   const [results, setResults] = useState<Result[]>([]);
 //   const [loading, setLoading] = useState(true);
-//   const [currentQuestion, setCurrentQuestion] = useState(0);
-//   const [answers, setAnswers] = useState<number[]>([]);
-//   const [timeLeft, setTimeLeft] = useState(0);
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-//   const [showConfirm, setShowConfirm] = useState(false);
-//   const [error, setError] = useState('');
 
 //   useEffect(() => {
 //     const storedUser = localStorage.getItem('user');
@@ -41,134 +58,62 @@
 
 //     const userData = JSON.parse(storedUser);
 //     setUser(userData);
-
-//     const quizId = params?.id as string;
     
-//     if (!quizId) {
-//       setError('Invalid quiz ID');
-//       return;
-//     }
+//     // Fetch data from APIs
+//     fetchData(userData.id);
+//   }, [router]);
 
-//     fetchQuiz(quizId, userData.id);
-//   }, [params?.id]);
-
-//   const fetchQuiz = async (quizId: string, userId: string) => {
+//   const fetchData = async (userId: string) => {
 //     try {
-//       const quizRes = await fetch(`/api/quizzes/${quizId}`);
-//       const quizData = await quizRes.json();
-
-//       if (!quizRes.ok || !quizData.success) {
-//         setError('Quiz not found!');
-//         setLoading(false);
-//         return;
+//       // Fetch all quizzes
+//       const quizzesRes = await fetch('/api/quizzes');
+//       const quizzesData = await quizzesRes.json();
+      
+//       if (quizzesData.success) {
+//         setQuizzes(quizzesData.data);
 //       }
 
-//       const checkRes = await fetch(`/api/results/check?userId=${userId}&quizId=${quizId}`);
-//       const checkData = await checkRes.json();
-
-//       if (checkData.attempted) {
-//         alert('You have already taken this quiz!');
-//         router.push('/dashboard');
-//         return;
-//       }
-
-//       setQuiz(quizData.data);
-//       setTimeLeft(quizData.data.duration * 60);
-//       setAnswers(new Array(quizData.data.questions.length).fill(-1));
-//       setLoading(false);
-//     } catch (error) {
-//       console.error('Error fetching quiz:', error);
-//       setError('Error loading quiz');
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (!quiz || timeLeft <= 0 || isSubmitting) return;
-
-//     const timer = setInterval(() => {
-//       setTimeLeft(prev => {
-//         if (prev <= 1) {
-//           clearInterval(timer);
-//           handleAutoSubmit();
-//           return 0;
-//         }
-//         return prev - 1;
-//       });
-//     }, 1000);
-
-//     return () => clearInterval(timer);
-//   }, [timeLeft, quiz, isSubmitting]);
-
-//   const handleAnswer = (optionIndex: number) => {
-//     const newAnswers = [...answers];
-//     newAnswers[currentQuestion] = optionIndex;
-//     setAnswers(newAnswers);
-//   };
-
-//   const handleAutoSubmit = () => {
-//     if (isSubmitting) return;
-//     alert('⏰ Time is up! Submitting your quiz...');
-//     handleSubmit();
-//   };
-
-//   const handleSubmit = async () => {
-//     if (!quiz || !user || isSubmitting) return;
-//     setIsSubmitting(true);
-
-//     let score = 0;
-//     quiz.questions.forEach((q: any, index: number) => {
-//       if (answers[index] === q.correctOption) {
-//         score += q.marks;
-//       }
-//     });
-
-//     const percentage = Math.round((score / quiz.totalMarks) * 100);
-
-//     try {
-//       const res = await fetch('/api/results', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({
-//           quizId: quiz.id,
-//           quizTitle: quiz.title,
-//           userId: user.id,
-//           userName: user.name,
-//           score,
-//           totalMarks: quiz.totalMarks,
-//           percentage,
-//           submittedAt: new Date().toISOString()
-//         })
-//       });
-
-//       const data = await res.json();
-
-//       if (res.ok && data.success) {
-//         alert(`🎉 Quiz submitted! Your score: ${score}/${quiz.totalMarks} (${percentage}%)`);
-//         router.push('/dashboard');
+//       // Fetch user results
+//       const resultsRes = await fetch(`/api/results/user/${userId}`);
+//       const resultsData = await resultsRes.json();
+      
+//       console.log('Results for user:', userId, resultsData);
+      
+//       if (resultsData.success) {
+//         setResults(resultsData.data);
 //       } else {
-//         alert('Error saving result');
-//         setIsSubmitting(false);
-//         setShowConfirm(false);
+//         console.error('Failed to fetch results:', resultsData.error);
 //       }
 //     } catch (error) {
-//       alert('Network error. Please try again.');
-//       setIsSubmitting(false);
-//       setShowConfirm(false);
+//       console.error('Error fetching data:', error);
+//     } finally {
+//       setLoading(false);
 //     }
 //   };
 
-//   const formatTime = (seconds: number) => {
-//     const mins = Math.floor(seconds / 60);
-//     const secs = seconds % 60;
-//     return `${mins}:${secs.toString().padStart(2, '0')}`;
+//   const handleLogout = () => {
+//     localStorage.removeItem('token');
+//     localStorage.removeItem('user');
+//     router.push('/login');
 //   };
 
-//   const getTimeColor = () => {
-//     if (timeLeft < 60) return 'text-red-400 bg-red-500/10 border-red-500/20';
-//     if (timeLeft < 180) return 'text-orange-400 bg-orange-500/10 border-orange-500/20';
-//     return 'text-green-400 bg-green-500/10 border-green-500/20';
+//   const formatDate = (dateString: string) => {
+//     const date = new Date(dateString);
+//     const now = new Date();
+//     const diffTime = Math.abs(now.getTime() - date.getTime());
+//     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+//     if (diffDays === 0) return 'Today';
+//     if (diffDays === 1) return 'Yesterday';
+//     if (diffDays < 7) return `${diffDays} days ago`;
+//     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 //   };
+
+//   // ✅ FIXED: quizId se compare kar rahe hain, title se nahi
+//   const attemptedQuizIds = results.map(r => r.quizId);
+//   const availableQuizzes = quizzes.filter(quiz => 
+//     !attemptedQuizIds.includes(quiz.id)
+//   );
 
 //   if (loading) {
 //     return (
@@ -183,25 +128,50 @@
 //     );
 //   }
 
-//   if (error || !quiz) {
-//     return (
-//       <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
-//         <div className="text-center">
-//           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-//           <p className="text-red-400 mb-4">{error || 'Quiz not found!'}</p>
-//           <button
-//             onClick={() => router.push('/dashboard')}
-//             className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-blue-500 transition-all"
-//           >
-//             Go to Dashboard
-//           </button>
-//         </div>
-//       </div>
-//     );
-//   }
+//   const completedQuizzes = results.length;
+//   const availableQuizzesCount = availableQuizzes.length;
+//   const averageScore = results.length 
+//     ? Math.round(results.reduce((acc, r) => acc + r.percentage, 0) / results.length) 
+//     : 0;
 
-//   const progress = ((currentQuestion + 1) / quiz.questions.length) * 100;
-//   const answeredCount = answers.filter(a => a !== -1).length;
+//   const stats = [
+//     { 
+//       title: 'Available Quizzes', 
+//       value: availableQuizzesCount, 
+//       icon: BookOpen, 
+//       change: 'Ready to start',
+//       gradient: 'from-blue-500 to-cyan-500',
+//       bg: 'bg-blue-500/10',
+//       text: 'text-blue-400'
+//     },
+//     { 
+//       title: 'Completed', 
+//       value: completedQuizzes, 
+//       icon: Award, 
+//       change: `${completedQuizzes} total`,
+//       gradient: 'from-green-500 to-emerald-500',
+//       bg: 'bg-green-500/10',
+//       text: 'text-green-400'
+//     },
+//     { 
+//       title: 'Average Score', 
+//       value: `${averageScore}%`, 
+//       icon: Target, 
+//       change: averageScore >= 70 ? 'Good job! 👏' : 'Keep practicing! 💪',
+//       gradient: 'from-purple-500 to-pink-500',
+//       bg: 'bg-purple-500/10',
+//       text: 'text-purple-400'
+//     },
+//     { 
+//       title: 'Study Streak', 
+//       value: '7 days', 
+//       icon: Activity, 
+//       change: '🔥 +2 this week',
+//       gradient: 'from-orange-500 to-red-500',
+//       bg: 'bg-orange-500/10',
+//       text: 'text-orange-400'
+//     },
+//   ];
 
 //   return (
 //     <div className="min-h-screen bg-[#0A0A0F]">
@@ -209,232 +179,262 @@
 //       <div className="fixed inset-0">
 //         <div className="absolute top-20 left-10 w-96 h-96 bg-purple-600/10 rounded-full filter blur-3xl animate-pulse"></div>
 //         <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-600/10 rounded-full filter blur-3xl animate-pulse animation-delay-2000"></div>
+//         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-purple-600/5 to-blue-600/5 rounded-full filter blur-3xl"></div>
 //         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f1f2e_1px,transparent_1px),linear-gradient(to_bottom,#1f1f2e_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
 //       </div>
 
-//       {/* Header */}
-//       <div className="sticky top-0 z-50 backdrop-blur-xl bg-[#111117]/80 border-b border-[#2a2a35]">
-//         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-//           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-//             <div className="flex items-center gap-3">
-//               <button
-//                 onClick={() => router.back()}
-//                 className="p-2 hover:bg-[#1a1a23] rounded-xl transition-colors group"
-//               >
-//                 <ChevronLeft className="w-5 h-5 text-gray-400 group-hover:text-white" />
-//               </button>
-//               <div>
-//                 <h1 className="text-base sm:text-lg font-semibold text-white">{quiz.title}</h1>
-//                 <p className="text-xs sm:text-sm text-gray-400 mt-0.5">
-//                   Question {currentQuestion + 1} of {quiz.questions.length}
-//                 </p>
-//               </div>
-//             </div>
-
-//             <div className="flex items-center gap-3 sm:gap-4">
-//               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-[#1a1a23] rounded-lg border border-[#2a2a35]">
-//                 <CheckCircle className="w-4 h-4 text-green-400" />
-//                 <span className="text-xs text-gray-300">{answeredCount}/{quiz.questions.length}</span>
-//               </div>
-
-//               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${getTimeColor()}`}>
-//                 <Clock className="w-4 h-4" />
-//                 <span className="font-mono font-medium text-sm">{formatTime(timeLeft)}</span>
-//               </div>
-//             </div>
-//           </div>
-          
-//           <div className="mt-3 h-1.5 bg-[#1a1a23] rounded-full overflow-hidden">
-//             <div 
-//               className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-300"
-//               style={{ width: `${progress}%` }}
-//             />
-//           </div>
-//         </div>
-//       </div>
-
 //       {/* Main Content */}
-//       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-//         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-//           {/* Question Area */}
-//           <div className="lg:col-span-3">
-//             <div className="bg-[#111117] border border-[#2a2a35] rounded-xl p-5 sm:p-6">
-//               <div className="flex items-center justify-between mb-4">
-//                 <div className="flex items-center gap-2">
-//                   <span className="text-xs font-medium text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
-//                     {quiz.questions[currentQuestion].marks} marks
-//                   </span>
-//                   {answers[currentQuestion] !== -1 && (
-//                     <span className="text-xs font-medium text-green-400 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20 flex items-center gap-1">
-//                       <CheckCircle className="w-3 h-3" /> Answered
-//                     </span>
-//                   )}
+//       <div className="relative z-10">
+//         {/* Header */}
+//         <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#111117]/80 border-b border-[#2a2a35]">
+//           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//             <div className="flex justify-between items-center h-16 sm:h-20">
+//               {/* Logo */}
+//               <div className="flex items-center gap-2 sm:gap-3">
+//                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-600/20">
+//                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+//                 </div>
+//                 <span className="font-bold text-lg sm:text-xl bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+//                   QuizMaster
+//                 </span>
+//               </div>
+
+//               {/* User Menu */}
+//               <div className="flex items-center gap-3 sm:gap-4">
+//                 <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 sm:py-2 bg-[#1a1a23] rounded-xl border border-[#2a2a35]">
+//                   <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xs sm:text-sm">
+//                     {user?.name?.charAt(0) || 'U'}
+//                   </div>
+//                   <div className="hidden sm:block">
+//                     <p className="text-sm font-medium text-white">{user?.name}</p>
+//                     <p className="text-xs text-gray-400 capitalize">{user?.role}</p>
+//                   </div>
+//                 </div>
+                
+//                 <button
+//                   onClick={handleLogout}
+//                   className="p-2 sm:p-2.5 bg-[#1a1a23] border border-[#2a2a35] rounded-xl text-gray-400 hover:text-white hover:border-red-500/50 hover:bg-red-500/10 transition-all group"
+//                   title="Logout"
+//                 >
+//                   <LogOut className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
+//                 </button>
+//               </div>
+//             </div>
+//           </div>
+//         </header>
+
+//         {/* Main Content */}
+//         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+//           {/* Welcome Section */}
+//           <div className="relative mb-6 sm:mb-8 group">
+//             <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+//             <div className="relative bg-gradient-to-r from-[#1a1a23] to-[#111117] border border-[#2a2a35] rounded-2xl p-4 sm:p-6 overflow-hidden">
+//               <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-purple-600/10 rounded-full filter blur-3xl"></div>
+//               <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+//                 <div>
+//                   <h1 className="text-xl sm:text-2xl font-bold text-white mb-2 flex items-center gap-2">
+//                     Welcome back, {user?.name}! 
+//                     <span className="inline-block animate-wave text-2xl sm:text-3xl">👋</span>
+//                   </h1>
+//                   <p className="text-sm sm:text-base text-gray-400">Ready for your next challenge?</p>
+//                 </div>
+//                 <button 
+//                   onClick={() => router.push('/quiz')}
+//                   className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-blue-500 transition-all transform hover:scale-105 shadow-lg shadow-purple-600/25 w-full sm:w-auto"
+//                 >
+//                   <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
+//                   Start New Quiz
+//                 </button>
+//               </div>
+//             </div>
+//           </div>
+
+//           {/* Stats Grid */}
+//           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+//             {stats.map((stat, index) => (
+//               <div
+//                 key={index}
+//                 className="group relative animate-fadeInUp"
+//                 style={{ animationDelay: `${index * 100}ms` }}
+//               >
+//                 <div className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl blur-xl"
+//                      style={{ background: `linear-gradient(to right, ${stat.gradient})` }}></div>
+//                 <div className="relative bg-[#111117] border border-[#2a2a35] rounded-xl p-4 sm:p-5 hover:border-transparent transition-all">
+//                   <div className="flex items-center justify-between mb-2 sm:mb-3">
+//                     <div className={`p-2 sm:p-2.5 ${stat.bg} rounded-lg`}>
+//                       <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${stat.text}`} />
+//                     </div>
+//                     <span className="text-[10px] sm:text-xs text-gray-500">{stat.change}</span>
+//                   </div>
+//                   <p className="text-xs sm:text-sm text-gray-400">{stat.title}</p>
+//                   <p className="text-xl sm:text-2xl font-bold text-white mt-1">{stat.value}</p>
 //                 </div>
 //               </div>
+//             ))}
+//           </div>
 
-//               <h2 className="text-lg sm:text-xl text-white mb-6">
-//                 {quiz.questions[currentQuestion].text}
-//               </h2>
-
-//               {/* Options - Working Version */}
-//               <div className="space-y-3 mb-6">
-//                 {quiz.questions[currentQuestion].options.map((opt: string, idx: number) => {
-//                   const isSelected = answers[currentQuestion] === idx;
-//                   return (
-//                     <div
-//                       key={idx}
-//                       onClick={() => handleAnswer(idx)}
-//                       className={`flex items-center p-3 sm:p-4 border rounded-xl cursor-pointer transition-all ${
-//                         isSelected
-//                           ? 'border-purple-500 bg-purple-500/10'
-//                           : 'border-[#2a2a35] hover:border-purple-500/50 hover:bg-[#1a1a23]'
-//                       }`}
-//                     >
-//                       <div className="flex items-center w-full">
-//                         <div className="relative mr-3">
-//                           {isSelected ? (
-//                             <CircleDot className="w-5 h-5 text-purple-500" />
-//                           ) : (
-//                             <Circle className="w-5 h-5 text-gray-500" />
-//                           )}
-//                         </div>
-//                         <span className="text-sm sm:text-base text-gray-300">
-//                           <span className="font-medium text-purple-400 mr-2">{String.fromCharCode(65 + idx)}.</span>
-//                           {opt}
-//                         </span>
-//                       </div>
-//                     </div>
-//                   );
-//                 })}
-//               </div>
-
-//               {/* Navigation Buttons */}
-//               <div className="flex items-center justify-between pt-4 border-t border-[#2a2a35]">
-//                 <button
-//                   onClick={() => setCurrentQuestion(prev => Math.max(0, prev - 1))}
-//                   disabled={currentQuestion === 0}
-//                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-//                 >
-//                   <ChevronLeft className="w-4 h-4" />
-//                   Previous
-//                 </button>
-
-//                 {currentQuestion === quiz.questions.length - 1 ? (
-//                   <button
-//                     onClick={() => setShowConfirm(true)}
-//                     disabled={isSubmitting}
-//                     className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl text-white font-medium hover:from-green-500 hover:to-emerald-500 transition-all disabled:opacity-50"
-//                   >
-//                     <Flag className="w-4 h-4" />
-//                     Submit Quiz
-//                   </button>
+//           {/* Main Grid */}
+//           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+//             {/* Available Quizzes */}
+//             <div className="lg:col-span-2">
+//               <div className="bg-[#111117] border border-[#2a2a35] rounded-xl overflow-hidden">
+//                 <div className="p-4 sm:p-5 border-b border-[#2a2a35]">
+//                   <h2 className="text-base sm:text-lg font-semibold text-white">Available Quizzes</h2>
+//                   <p className="text-xs sm:text-sm text-gray-400 mt-1">Start a new quiz challenge</p>
+//                 </div>
+                
+//                 {availableQuizzes.length === 0 ? (
+//                   <div className="p-8 sm:p-10 text-center">
+//                     <BookOpen className="w-10 h-10 sm:w-12 sm:h-12 text-gray-600 mx-auto mb-3" />
+//                     <p className="text-sm sm:text-base text-gray-400">No quizzes available</p>
+//                   </div>
 //                 ) : (
-//                   <button
-//                     onClick={() => setCurrentQuestion(prev => prev + 1)}
-//                     className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-blue-500 transition-all"
-//                   >
-//                     Next
-//                     <ChevronRight className="w-4 h-4" />
-//                   </button>
+//                   <div className="divide-y divide-[#2a2a35]">
+//                     {availableQuizzes.map((quiz, index) => (
+//                       <div key={quiz.id} className="p-4 sm:p-5 hover:bg-[#1a1a23] transition-colors group">
+//                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+//                           <div className="flex-1">
+//                             <h3 className="text-sm sm:text-base font-medium text-white group-hover:text-purple-400 transition-colors">
+//                               {quiz.title}
+//                             </h3>
+//                             <p className="text-xs sm:text-sm text-gray-400 mt-1 line-clamp-1">{quiz.description}</p>
+//                             <div className="flex items-center gap-2 sm:gap-3 mt-2 text-[10px] sm:text-xs text-gray-500">
+//                               <span className="flex items-center gap-1">
+//                                 <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {quiz.duration} mins
+//                               </span>
+//                               <span>•</span>
+//                               <span>{quiz.questions?.length || 0} questions</span>
+//                               <span>•</span>
+//                               <span>{quiz.totalMarks} marks</span>
+//                             </div>
+//                           </div>
+//                           <button
+//                             onClick={() => router.push(`/quiz/${quiz.id}`)}
+//                             className="flex items-center justify-center gap-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-purple-600/10 hover:bg-purple-600 border border-purple-600/20 hover:border-purple-500 rounded-lg text-purple-400 hover:text-white transition-all text-xs sm:text-sm"
+//                           >
+//                             <span>Start</span>
+//                             <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+//                           </button>
+//                         </div>
+//                       </div>
+//                     ))}
+//                   </div>
 //                 )}
 //               </div>
 //             </div>
-//           </div>
 
-//           {/* Question Navigator */}
-//           <div className="lg:col-span-1">
-//             <div className="bg-[#111117] border border-[#2a2a35] rounded-xl p-4 sticky top-24">
-//               <h3 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
-//                 Questions
-//               </h3>
-              
-//               <div className="grid grid-cols-5 gap-2">
-//                 {quiz.questions.map((_: any, idx: number) => (
-//                   <button
-//                     key={idx}
-//                     onClick={() => setCurrentQuestion(idx)}
-//                     className={`
-//                       aspect-square flex items-center justify-center text-xs font-medium rounded-lg transition-all
-//                       ${currentQuestion === idx 
-//                         ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white ring-2 ring-purple-500 ring-offset-2 ring-offset-[#111117]' 
-//                         : answers[idx] !== -1
-//                           ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'
-//                           : 'bg-[#1a1a23] text-gray-400 border border-[#2a2a35] hover:border-purple-500/50 hover:text-white'
-//                       }
-//                     `}
-//                   >
-//                     {idx + 1}
-//                   </button>
-//                 ))}
+//             {/* Right Sidebar */}
+//             <div className="space-y-4 sm:space-y-6">
+//               {/* Recent Results */}
+//               <div className="bg-[#111117] border border-[#2a2a35] rounded-xl p-4 sm:p-5">
+//                 <h3 className="text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
+//                   <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+//                   Recent Results
+//                 </h3>
+                
+//                 {results.length === 0 ? (
+//                   <div className="text-center py-4 sm:py-6">
+//                     <Award className="w-8 h-8 sm:w-10 sm:h-10 text-gray-600 mx-auto mb-2" />
+//                     <p className="text-xs sm:text-sm text-gray-400">No results yet</p>
+//                     <p className="text-xs text-gray-500 mt-1">Complete a quiz to see your results here</p>
+//                   </div>
+//                 ) : (
+//                   <div className="space-y-2 sm:space-y-3">
+//                     {results.slice(0, 3).map((result) => (
+//                       <div key={result.id} className="flex items-center justify-between p-2 sm:p-3 bg-[#1a1a23] rounded-lg">
+//                         <div className="flex-1 min-w-0">
+//                           <p className="text-xs sm:text-sm font-medium text-white truncate">{result.quizTitle}</p>
+//                           <p className="text-[10px] sm:text-xs text-gray-400 mt-1">
+//                             {formatDate(result.submittedAt)}
+//                           </p>
+//                         </div>
+//                         <div className={`ml-2 px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium ${
+//                           result.percentage >= 70 
+//                             ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+//                             : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+//                         }`}>
+//                           {result.percentage}%
+//                         </div>
+//                       </div>
+//                     ))}
+                    
+//                     {results.length > 3 && (
+//                       <button 
+//                         onClick={() => router.push('/results')}
+//                         className="w-full mt-2 text-xs text-purple-400 hover:text-purple-300 transition-colors text-center"
+//                       >
+//                         View all {results.length} results →
+//                       </button>
+//                     )}
+//                   </div>
+//                 )}
 //               </div>
 
-//               <div className="mt-4 pt-4 border-t border-[#2a2a35] space-y-2">
-//                 <div className="flex items-center justify-between text-xs">
-//                   <span className="text-gray-400">Answered</span>
-//                   <span className="font-medium text-green-400">{answeredCount}</span>
+//               {/* Quick Stats */}
+//               <div className="grid grid-cols-2 gap-3 sm:gap-4">
+//                 <div className="bg-gradient-to-br from-purple-600/20 to-blue-600/20 border border-purple-500/20 rounded-xl p-3 sm:p-4">
+//                   <div className="flex items-center gap-2 mb-2">
+//                     <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400" />
+//                     <span className="text-[10px] sm:text-xs text-gray-400">Points</span>
+//                   </div>
+//                   <p className="text-lg sm:text-xl font-bold text-white">1,250</p>
+//                   <p className="text-[8px] sm:text-xs text-gray-500 mt-1">+150 this week</p>
 //                 </div>
-//                 <div className="flex items-center justify-between text-xs">
-//                   <span className="text-gray-400">Remaining</span>
-//                   <span className="font-medium text-orange-400">
-//                     {quiz.questions.length - answeredCount}
-//                   </span>
+//                 <div className="bg-gradient-to-br from-orange-600/20 to-red-600/20 border border-orange-500/20 rounded-xl p-3 sm:p-4">
+//                   <div className="flex items-center gap-2 mb-2">
+//                     <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400" />
+//                     <span className="text-[10px] sm:text-xs text-gray-400">Streak</span>
+//                   </div>
+//                   <p className="text-lg sm:text-xl font-bold text-white">7</p>
+//                   <p className="text-[8px] sm:text-xs text-gray-500 mt-1">🔥 Best: 12</p>
 //                 </div>
 //               </div>
 
-//               <button
-//                 onClick={() => setShowConfirm(true)}
-//                 disabled={isSubmitting}
-//                 className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg text-white font-medium text-sm hover:from-green-500 hover:to-emerald-500 transition-all disabled:opacity-50"
-//               >
-//                 <Flag className="w-4 h-4" />
-//                 Submit Quiz
-//               </button>
+//               {/* Motivational Quote */}
+//               <div className="bg-gradient-to-r from-purple-600/10 to-blue-600/10 border border-purple-500/20 rounded-xl p-4 sm:p-5">
+//                 <p className="text-xs sm:text-sm text-gray-300 italic">
+//                   "The expert in anything was once a beginner."
+//                 </p>
+//                 <p className="text-[10px] sm:text-xs text-gray-500 mt-2">Keep learning! 📚</p>
+//               </div>
 //             </div>
 //           </div>
-//         </div>
+//         </main>
 //       </div>
 
-//       {/* Confirmation Modal */}
-//       {showConfirm && (
-//         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-//           <div className="bg-[#111117] border border-[#2a2a35] rounded-xl max-w-md w-full p-6">
-//             <div className="flex items-center gap-3 mb-4">
-//               <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center">
-//                 <AlertCircle className="w-5 h-5 text-orange-400" />
-//               </div>
-//               <h3 className="text-lg font-semibold text-white">Submit Quiz?</h3>
-//             </div>
-            
-//             <p className="text-sm text-gray-400 mb-4">
-//               You have answered {answeredCount} out of {quiz.questions.length} questions.
-//               {answeredCount < quiz.questions.length && (
-//                 <span className="block mt-2 text-orange-400">
-//                   ⚠️ {quiz.questions.length - answeredCount} questions remaining
-//                 </span>
-//               )}
-//             </p>
-
-//             <div className="flex gap-3">
-//               <button
-//                 onClick={() => setShowConfirm(false)}
-//                 className="flex-1 px-4 py-2.5 bg-[#1a1a23] border border-[#2a2a35] rounded-lg text-gray-300 hover:bg-[#252530] transition-all text-sm"
-//               >
-//                 Continue
-//               </button>
-//               <button
-//                 onClick={handleSubmit}
-//                 disabled={isSubmitting}
-//                 className="flex-1 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg text-white font-medium hover:from-green-500 hover:to-emerald-500 transition-all text-sm disabled:opacity-50"
-//               >
-//                 {isSubmitting ? 'Submitting...' : 'Submit'}
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
+//       <style jsx>{`
+//         @keyframes fadeInUp {
+//           from {
+//             opacity: 0;
+//             transform: translateY(20px);
+//           }
+//           to {
+//             opacity: 1;
+//             transform: translateY(0);
+//           }
+//         }
+        
+//         .animate-fadeInUp {
+//           animation: fadeInUp 0.6s ease-out forwards;
+//         }
+        
+//         @keyframes wave {
+//           0%, 100% { transform: rotate(0deg); }
+//           25% { transform: rotate(15deg); }
+//           75% { transform: rotate(-15deg); }
+//         }
+        
+//         .animate-wave {
+//           animation: wave 1s ease-in-out infinite;
+//         }
+        
+//         .animation-delay-2000 {
+//           animation-delay: 2s;
+//         }
+//       `}</style>
 //     </div>
 //   );
-// }   
+// } 
 
 
 
@@ -445,33 +445,51 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { 
+  BookOpen, 
+  Award, 
   Clock, 
-  AlertCircle, 
-  CheckCircle, 
-  ChevronLeft, 
-  ChevronRight,
+  TrendingUp, 
+  LogOut, 
+  User, 
+  ChevronRight, 
   Sparkles,
-  Flag,
-  Circle,
-  CircleDot
+  Zap,
+  BarChart3,
+  Target,
+  Activity,
+  Calendar,
+  Star
 } from 'lucide-react';
 
-export default function TakeQuizPage() {
-  const router = useRouter();
-  const params = useParams();
-  const [quiz, setQuiz] = useState<any>(null);
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<number[]>([]);
-  const [timeLeft, setTimeLeft] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [error, setError] = useState('');
+interface Quiz {
+  id: string;
+  title: string;
+  description: string;
+  duration: number;
+  questions: any[];
+  totalMarks: number;
+  createdByName: string;
+}
 
-  // Load user and quiz data
+interface Result {
+  id: string;
+  quizId: string;
+  quizTitle: string;
+  percentage: number;
+  score: number;
+  totalMarks: number;
+  submittedAt: string;
+}
+
+export default function StudentDashboard() {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [results, setResults] = useState<Result[]>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
@@ -481,185 +499,58 @@ export default function TakeQuizPage() {
       return;
     }
 
-    try {
-      const userData = JSON.parse(storedUser);
-      setUser(userData);
-
-      const quizId = params?.id as string;
-      
-      if (!quizId) {
-        setError('Invalid quiz ID');
-        setLoading(false);
-        return;
-      }
-
-      fetchQuiz(quizId, userData.id);
-    } catch (error) {
-      console.error('Error parsing user data:', error);
-      router.push('/login');
-    }
-  }, [params?.id]);
-
-  // Fetch quiz data
-  const fetchQuiz = async (quizId: string, userId: string) => {
-    try {
-      const quizRes = await fetch(`/api/quizzes/${quizId}`);
-      const quizData = await quizRes.json();
-
-      if (!quizRes.ok || !quizData.success) {
-        setError('Quiz not found!');
-        setLoading(false);
-        return;
-      }
-
-      // Check if already attempted
-      try {
-        const checkRes = await fetch(`/api/results/check?userId=${userId}&quizId=${quizId}`);
-        if (checkRes.ok) {
-          const checkData = await checkRes.json();
-          if (checkData.attempted) {
-            alert('You have already taken this quiz!');
-            router.push('/dashboard');
-            return;
-          }
-        }
-      } catch (error) {
-        console.error('Error checking attempt:', error);
-        // Continue anyway - let them try
-      }
-
-      setQuiz(quizData.data);
-      setTimeLeft(quizData.data.duration * 60);
-      setAnswers(new Array(quizData.data.questions.length).fill(-1));
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching quiz:', error);
-      setError('Error loading quiz');
-      setLoading(false);
-    }
-  };
-
-  // Timer effect
-  useEffect(() => {
-    if (!quiz || timeLeft <= 0 || isSubmitting) return;
-
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          handleAutoSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft, quiz, isSubmitting]);
-
-  // Handle answer selection
-  const handleAnswer = (optionIndex: number) => {
-    const newAnswers = [...answers];
-    newAnswers[currentQuestion] = optionIndex;
-    setAnswers(newAnswers);
-  };
-
-  // Auto submit when time runs out
-  const handleAutoSubmit = () => {
-    if (isSubmitting) return;
-    alert('⏰ Time is up! Submitting your quiz...');
-    handleSubmit();
-  };
-
-  // Submit quiz
-  const handleSubmit = async () => {
-    if (!quiz || !user || isSubmitting) {
-      console.log('Submission blocked:', { quiz: !!quiz, user: !!user, isSubmitting });
-      return;
-    }
+    const userData = JSON.parse(storedUser);
+    setUser(userData);
     
-    console.log('Starting quiz submission...');
-    setIsSubmitting(true);
-    setShowConfirm(false);
+    fetchData(userData.id);
+  }, [router]);
 
-    // Calculate score
-    let score = 0;
-    quiz.questions.forEach((q: any, index: number) => {
-      if (answers[index] === q.correctOption) {
-        score += q.marks;
-      }
-    });
-
-    const percentage = Math.round((score / quiz.totalMarks) * 100);
-
-    console.log('Submitting result:', {
-      quizId: quiz.id,
-      quizTitle: quiz.title,
-      userId: user.id,
-      userName: user.name,
-      score,
-      totalMarks: quiz.totalMarks,
-      percentage
-    });
-
+  const fetchData = async (userId: string) => {
     try {
-      const res = await fetch('/api/results', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          quizId: quiz.id,
-          quizTitle: quiz.title,
-          userId: user.id,
-          userName: user.name,
-          score,
-          totalMarks: quiz.totalMarks,
-          percentage,
-          submittedAt: new Date().toISOString()
-        })
-      });
-
-      console.log('Response status:', res.status);
+      const quizzesRes = await fetch('/api/quizzes');
+      const quizzesData = await quizzesRes.json();
       
-      let data;
-      try {
-        data = await res.json();
-        console.log('Response data:', data);
-      } catch (e) {
-        console.error('Failed to parse response:', e);
-        throw new Error('Invalid server response');
+      if (quizzesData.success) {
+        setQuizzes(quizzesData.data);
       }
 
-      if (res.ok && data.success) {
-        alert(`🎉 Quiz submitted! Your score: ${score}/${quiz.totalMarks} (${percentage}%)`);
-        router.push('/dashboard');
-      } else {
-        alert(data.error || 'Error saving result');
-        setIsSubmitting(false);
+      const resultsRes = await fetch(`/api/results/user/${userId}`);
+      const resultsData = await resultsRes.json();
+      
+      if (resultsData.success) {
+        setResults(resultsData.data);
       }
     } catch (error) {
-      console.error('Network error:', error);
-      alert('Network error. Please check your connection and try again.');
-      setIsSubmitting(false);
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Format time
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    router.push('/login');
   };
 
-  // Timer color based on time left
-  const getTimeColor = () => {
-    if (timeLeft < 60) return 'text-red-400 bg-red-500/10 border-red-500/20';
-    if (timeLeft < 180) return 'text-orange-400 bg-orange-500/10 border-orange-500/20';
-    return 'text-green-400 bg-green-500/10 border-green-500/20';
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  // Loading state
+  // ✅ FIXED: Quiz IDs se compare karo
+  const attemptedQuizIds = results.map(r => r.quizId);
+  const availableQuizzes = quizzes.filter(quiz => 
+    !attemptedQuizIds.includes(quiz.id)
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
@@ -673,256 +564,299 @@ export default function TakeQuizPage() {
     );
   }
 
-  // Error state
-  if (error || !quiz) {
-    return (
-      <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <p className="text-red-400 mb-4">{error || 'Quiz not found!'}</p>
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-blue-500 transition-all"
-          >
-            Go to Dashboard
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const completedQuizzes = results.length;
+  const availableQuizzesCount = availableQuizzes.length;
+  const averageScore = results.length 
+    ? Math.round(results.reduce((acc, r) => acc + r.percentage, 0) / results.length) 
+    : 0;
 
-  const progress = ((currentQuestion + 1) / quiz.questions.length) * 100;
-  const answeredCount = answers.filter(a => a !== -1).length;
+  const stats = [
+    { 
+      title: 'Available Quizzes', 
+      value: availableQuizzesCount, 
+      icon: BookOpen, 
+      change: 'Ready to start',
+      gradient: 'from-blue-500 to-cyan-500',
+      bg: 'bg-blue-500/10',
+      text: 'text-blue-400'
+    },
+    { 
+      title: 'Completed', 
+      value: completedQuizzes, 
+      icon: Award, 
+      change: `${completedQuizzes} total`,
+      gradient: 'from-green-500 to-emerald-500',
+      bg: 'bg-green-500/10',
+      text: 'text-green-400'
+    },
+    { 
+      title: 'Average Score', 
+      value: `${averageScore}%`, 
+      icon: Target, 
+      change: averageScore >= 70 ? 'Good job! 👏' : 'Keep practicing! 💪',
+      gradient: 'from-purple-500 to-pink-500',
+      bg: 'bg-purple-500/10',
+      text: 'text-purple-400'
+    },
+    { 
+      title: 'Study Streak', 
+      value: '7 days', 
+      icon: Activity, 
+      change: '🔥 +2 this week',
+      gradient: 'from-orange-500 to-red-500',
+      bg: 'bg-orange-500/10',
+      text: 'text-orange-400'
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-[#0A0A0F]">
-      {/* Animated Background */}
       <div className="fixed inset-0">
         <div className="absolute top-20 left-10 w-96 h-96 bg-purple-600/10 rounded-full filter blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-600/10 rounded-full filter blur-3xl animate-pulse animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-purple-600/5 to-blue-600/5 rounded-full filter blur-3xl"></div>
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f1f2e_1px,transparent_1px),linear-gradient(to_bottom,#1f1f2e_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
       </div>
 
-      {/* Header */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl bg-[#111117]/80 border-b border-[#2a2a35]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => router.back()}
-                className="p-2 hover:bg-[#1a1a23] rounded-xl transition-colors group"
+      <div className="relative z-10">
+        <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#111117]/80 border-b border-[#2a2a35]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16 sm:h-20">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-600/20">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </div>
+                <span className="font-bold text-lg sm:text-xl bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                  QuizMaster
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 sm:py-2 bg-[#1a1a23] rounded-xl border border-[#2a2a35]">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xs sm:text-sm">
+                    {user?.name?.charAt(0) || 'U'}
+                  </div>
+                  <div className="hidden sm:block">
+                    <p className="text-sm font-medium text-white">{user?.name}</p>
+                    <p className="text-xs text-gray-400 capitalize">{user?.role}</p>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={handleLogout}
+                  className="p-2 sm:p-2.5 bg-[#1a1a23] border border-[#2a2a35] rounded-xl text-gray-400 hover:text-white hover:border-red-500/50 hover:bg-red-500/10 transition-all group"
+                  title="Logout"
+                >
+                  <LogOut className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="relative mb-6 sm:mb-8 group">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
+            <div className="relative bg-gradient-to-r from-[#1a1a23] to-[#111117] border border-[#2a2a35] rounded-2xl p-4 sm:p-6 overflow-hidden">
+              <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-purple-600/10 rounded-full filter blur-3xl"></div>
+              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                    Welcome back, {user?.name}! 
+                    <span className="inline-block animate-wave text-2xl sm:text-3xl">👋</span>
+                  </h1>
+                  <p className="text-sm sm:text-base text-gray-400">Ready for your next challenge?</p>
+                </div>
+                <button 
+                  onClick={() => router.push('/quiz')}
+                  className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-blue-500 transition-all transform hover:scale-105 shadow-lg shadow-purple-600/25 w-full sm:w-auto"
+                >
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
+                  Start New Quiz
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            {stats.map((stat, index) => (
+              <div
+                key={index}
+                className="group relative animate-fadeInUp"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                <ChevronLeft className="w-5 h-5 text-gray-400 group-hover:text-white" />
-              </button>
-              <div>
-                <h1 className="text-base sm:text-lg font-semibold text-white">{quiz.title}</h1>
-                <p className="text-xs sm:text-sm text-gray-400 mt-0.5">
-                  Question {currentQuestion + 1} of {quiz.questions.length}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-[#1a1a23] rounded-lg border border-[#2a2a35]">
-                <CheckCircle className="w-4 h-4 text-green-400" />
-                <span className="text-xs text-gray-300">{answeredCount}/{quiz.questions.length}</span>
-              </div>
-
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${getTimeColor()}`}>
-                <Clock className="w-4 h-4" />
-                <span className="font-mono font-medium text-sm">{formatTime(timeLeft)}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-3 h-1.5 bg-[#1a1a23] rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Question Area */}
-          <div className="lg:col-span-3">
-            <div className="bg-[#111117] border border-[#2a2a35] rounded-xl p-5 sm:p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
-                    {quiz.questions[currentQuestion].marks} marks
-                  </span>
-                  {answers[currentQuestion] !== -1 && (
-                    <span className="text-xs font-medium text-green-400 bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20 flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3" /> Answered
-                    </span>
-                  )}
+                <div className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl blur-xl"
+                     style={{ background: `linear-gradient(to right, ${stat.gradient})` }}></div>
+                <div className="relative bg-[#111117] border border-[#2a2a35] rounded-xl p-4 sm:p-5 hover:border-transparent transition-all">
+                  <div className="flex items-center justify-between mb-2 sm:mb-3">
+                    <div className={`p-2 sm:p-2.5 ${stat.bg} rounded-lg`}>
+                      <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${stat.text}`} />
+                    </div>
+                    <span className="text-[10px] sm:text-xs text-gray-500">{stat.change}</span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-gray-400">{stat.title}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-white mt-1">{stat.value}</p>
                 </div>
               </div>
+            ))}
+          </div>
 
-              <h2 className="text-lg sm:text-xl text-white mb-6">
-                {quiz.questions[currentQuestion].text}
-              </h2>
-
-              {/* Options - Working Version */}
-              <div className="space-y-3 mb-6">
-                {quiz.questions[currentQuestion].options.map((opt: string, idx: number) => {
-                  const isSelected = answers[currentQuestion] === idx;
-                  return (
-                    <div
-                      key={idx}
-                      onClick={() => handleAnswer(idx)}
-                      className={`flex items-center p-3 sm:p-4 border rounded-xl cursor-pointer transition-all ${
-                        isSelected
-                          ? 'border-purple-500 bg-purple-500/10'
-                          : 'border-[#2a2a35] hover:border-purple-500/50 hover:bg-[#1a1a23]'
-                      }`}
-                    >
-                      <div className="flex items-center w-full">
-                        <div className="relative mr-3">
-                          {isSelected ? (
-                            <CircleDot className="w-5 h-5 text-purple-500" />
-                          ) : (
-                            <Circle className="w-5 h-5 text-gray-500" />
-                          )}
-                        </div>
-                        <span className="text-sm sm:text-base text-gray-300">
-                          <span className="font-medium text-purple-400 mr-2">{String.fromCharCode(65 + idx)}.</span>
-                          {opt}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Navigation Buttons */}
-              <div className="flex items-center justify-between pt-4 border-t border-[#2a2a35]">
-                <button
-                  onClick={() => setCurrentQuestion(prev => Math.max(0, prev - 1))}
-                  disabled={currentQuestion === 0}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Previous
-                </button>
-
-                {currentQuestion === quiz.questions.length - 1 ? (
-                  <button
-                    onClick={() => setShowConfirm(true)}
-                    disabled={isSubmitting}
-                    className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl text-white font-medium hover:from-green-500 hover:to-emerald-500 transition-all disabled:opacity-50"
-                  >
-                    <Flag className="w-4 h-4" />
-                    Submit Quiz
-                  </button>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="lg:col-span-2">
+              <div className="bg-[#111117] border border-[#2a2a35] rounded-xl overflow-hidden">
+                <div className="p-4 sm:p-5 border-b border-[#2a2a35]">
+                  <h2 className="text-base sm:text-lg font-semibold text-white">Available Quizzes</h2>
+                  <p className="text-xs sm:text-sm text-gray-400 mt-1">Start a new quiz challenge</p>
+                </div>
+                
+                {availableQuizzes.length === 0 ? (
+                  <div className="p-8 sm:p-10 text-center">
+                    <BookOpen className="w-10 h-10 sm:w-12 sm:h-12 text-gray-600 mx-auto mb-3" />
+                    <p className="text-sm sm:text-base text-gray-400">No quizzes available</p>
+                  </div>
                 ) : (
-                  <button
-                    onClick={() => setCurrentQuestion(prev => prev + 1)}
-                    className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-blue-500 transition-all"
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
+                  <div className="divide-y divide-[#2a2a35]">
+                    {availableQuizzes.map((quiz) => (
+                      <div key={quiz.id} className="p-4 sm:p-5 hover:bg-[#1a1a23] transition-colors group">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex-1">
+                            <h3 className="text-sm sm:text-base font-medium text-white group-hover:text-purple-400 transition-colors">
+                              {quiz.title}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-gray-400 mt-1 line-clamp-1">{quiz.description}</p>
+                            <div className="flex items-center gap-2 sm:gap-3 mt-2 text-[10px] sm:text-xs text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {quiz.duration} mins
+                              </span>
+                              <span>•</span>
+                              <span>{quiz.questions?.length || 0} questions</span>
+                              <span>•</span>
+                              <span>{quiz.totalMarks} marks</span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              console.log('🔘 Starting quiz:', quiz.id);
+                              router.push(`/quiz/${quiz.id}`);
+                            }}
+                            className="flex items-center justify-center gap-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-purple-600/10 hover:bg-purple-600 border border-purple-600/20 hover:border-purple-500 rounded-lg text-purple-400 hover:text-white transition-all text-xs sm:text-sm"
+                          >
+                            <span>Start</span>
+                            <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
-          </div>
 
-          {/* Question Navigator */}
-          <div className="lg:col-span-1">
-            <div className="bg-[#111117] border border-[#2a2a35] rounded-xl p-4 sticky top-24">
-              <h3 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
-                Questions
-              </h3>
-              
-              <div className="grid grid-cols-5 gap-2">
-                {quiz.questions.map((_: any, idx: number) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentQuestion(idx)}
-                    className={`
-                      aspect-square flex items-center justify-center text-xs font-medium rounded-lg transition-all
-                      ${currentQuestion === idx 
-                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white ring-2 ring-purple-500 ring-offset-2 ring-offset-[#111117]' 
-                        : answers[idx] !== -1
-                          ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30'
-                          : 'bg-[#1a1a23] text-gray-400 border border-[#2a2a35] hover:border-purple-500/50 hover:text-white'
-                      }
-                    `}
-                  >
-                    {idx + 1}
-                  </button>
-                ))}
+            <div className="space-y-4 sm:space-y-6">
+              <div className="bg-[#111117] border border-[#2a2a35] rounded-xl p-4 sm:p-5">
+                <h3 className="text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+                  Recent Results
+                </h3>
+                
+                {results.length === 0 ? (
+                  <div className="text-center py-4 sm:py-6">
+                    <Award className="w-8 h-8 sm:w-10 sm:h-10 text-gray-600 mx-auto mb-2" />
+                    <p className="text-xs sm:text-sm text-gray-400">No results yet</p>
+                    <p className="text-xs text-gray-500 mt-1">Complete a quiz to see your results here</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 sm:space-y-3">
+                    {results.slice(0, 3).map((result) => (
+                      <div key={result.id} className="flex items-center justify-between p-2 sm:p-3 bg-[#1a1a23] rounded-lg">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs sm:text-sm font-medium text-white truncate">{result.quizTitle}</p>
+                          <p className="text-[10px] sm:text-xs text-gray-400 mt-1">
+                            {formatDate(result.submittedAt)}
+                          </p>
+                        </div>
+                        <div className={`ml-2 px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium ${
+                          result.percentage >= 70 
+                            ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                            : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                        }`}>
+                          {result.percentage}%
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {results.length > 3 && (
+                      <button 
+                        onClick={() => router.push('/results')}
+                        className="w-full mt-2 text-xs text-purple-400 hover:text-purple-300 transition-colors text-center"
+                      >
+                        View all {results.length} results →
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
-              <div className="mt-4 pt-4 border-t border-[#2a2a35] space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-400">Answered</span>
-                  <span className="font-medium text-green-400">{answeredCount}</span>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div className="bg-gradient-to-br from-purple-600/20 to-blue-600/20 border border-purple-500/20 rounded-xl p-3 sm:p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400" />
+                    <span className="text-[10px] sm:text-xs text-gray-400">Points</span>
+                  </div>
+                  <p className="text-lg sm:text-xl font-bold text-white">1,250</p>
+                  <p className="text-[8px] sm:text-xs text-gray-500 mt-1">+150 this week</p>
                 </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-400">Remaining</span>
-                  <span className="font-medium text-orange-400">
-                    {quiz.questions.length - answeredCount}
-                  </span>
+                <div className="bg-gradient-to-br from-orange-600/20 to-red-600/20 border border-orange-500/20 rounded-xl p-3 sm:p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400" />
+                    <span className="text-[10px] sm:text-xs text-gray-400">Streak</span>
+                  </div>
+                  <p className="text-lg sm:text-xl font-bold text-white">7</p>
+                  <p className="text-[8px] sm:text-xs text-gray-500 mt-1">🔥 Best: 12</p>
                 </div>
               </div>
 
-              <button
-                onClick={() => setShowConfirm(true)}
-                disabled={isSubmitting}
-                className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg text-white font-medium text-sm hover:from-green-500 hover:to-emerald-500 transition-all disabled:opacity-50"
-              >
-                <Flag className="w-4 h-4" />
-                Submit Quiz
-              </button>
+              <div className="bg-gradient-to-r from-purple-600/10 to-blue-600/10 border border-purple-500/20 rounded-xl p-4 sm:p-5">
+                <p className="text-xs sm:text-sm text-gray-300 italic">
+                  "The expert in anything was once a beginner."
+                </p>
+                <p className="text-[10px] sm:text-xs text-gray-500 mt-2">Keep learning! 📚</p>
+              </div>
             </div>
           </div>
-        </div>
+        </main>
       </div>
 
-      {/* Confirmation Modal */}
-      {showConfirm && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-          <div className="bg-[#111117] border border-[#2a2a35] rounded-xl max-w-md w-full p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center">
-                <AlertCircle className="w-5 h-5 text-orange-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-white">Submit Quiz?</h3>
-            </div>
-            
-            <p className="text-sm text-gray-400 mb-4">
-              You have answered {answeredCount} out of {quiz.questions.length} questions.
-              {answeredCount < quiz.questions.length && (
-                <span className="block mt-2 text-orange-400">
-                  ⚠️ {quiz.questions.length - answeredCount} questions remaining
-                </span>
-              )}
-            </p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="flex-1 px-4 py-2.5 bg-[#1a1a23] border border-[#2a2a35] rounded-lg text-gray-300 hover:bg-[#252530] transition-all text-sm"
-              >
-                Continue
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="flex-1 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg text-white font-medium hover:from-green-500 hover:to-emerald-500 transition-all text-sm disabled:opacity-50"
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fadeInUp {
+          animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        @keyframes wave {
+          0%, 100% { transform: rotate(0deg); }
+          25% { transform: rotate(15deg); }
+          75% { transform: rotate(-15deg); }
+        }
+        
+        .animate-wave {
+          animation: wave 1s ease-in-out infinite;
+        }
+        
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+      `}</style>
     </div>
   );
 }
