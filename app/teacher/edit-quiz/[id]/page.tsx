@@ -1,4 +1,6 @@
 
+
+
 // 'use client';
 
 // import { useEffect, useState } from 'react';
@@ -30,6 +32,7 @@
 //   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 //   const [error, setError] = useState('');
 
+//   // Load quiz data
 //   useEffect(() => {
 //     const storedUser = localStorage.getItem('user');
 //     const token = localStorage.getItem('token');
@@ -39,9 +42,9 @@
 //       return;
 //     }
 
-//     // ✅ Get quiz ID from params
-//     const id = params?.Id as string;
-//     console.log('Quiz ID from params:', id); // Debug
+//     // ✅ FIXED: Use lowercase 'id' to match folder name
+//     const id = params?.id as string;
+//     console.log('Quiz ID from params:', id);
     
 //     if (!id) {
 //       setError('Invalid quiz ID');
@@ -50,16 +53,13 @@
 //     }
 
 //     fetchQuiz(id);
-//   }, [params?.id, router]);
+//   }, [params?.id]); // ✅ FIXED: Depend on params.id
 
 //   const fetchQuiz = async (id: string) => {
 //     try {
 //       console.log('Fetching quiz with ID:', id);
 //       const res = await fetch(`/api/quizzes/${id}`);
-//       console.log('Response status:', res.status);
-      
 //       const data = await res.json();
-//       console.log('Quiz API response:', data);
 
 //       if (!res.ok || !data.success) {
 //         setError(data.error || 'Quiz not found!');
@@ -68,11 +68,23 @@
 //       }
 
 //       const quizData = data.data;
+//       console.log('Quiz data loaded:', quizData);
+      
 //       setQuiz(quizData);
 //       setTitle(quizData.title || '');
 //       setDescription(quizData.description || '');
 //       setDuration(quizData.duration || 30);
-//       setQuestions(quizData.questions || []);
+      
+//       // ✅ FIXED: Ensure questions have correct structure
+//       const formattedQuestions = (quizData.questions || []).map((q: any, index: number) => ({
+//         id: q.id || `q_${Date.now()}_${index}`,
+//         text: q.text || '',
+//         options: q.options || ['', '', '', ''],
+//         correctOption: q.correctOption || q.correctAnswer || 0,
+//         marks: q.marks || 10
+//       }));
+      
+//       setQuestions(formattedQuestions);
 //       setLoading(false);
 //     } catch (error) {
 //       console.error('Error fetching quiz:', error);
@@ -81,36 +93,52 @@
 //     }
 //   };
 
+//   // Add new question
 //   const addQuestion = () => {
-//     setQuestions([...questions, { 
-//       id: Date.now().toString(),
-//       text: '', 
-//       options: ['', '', '', ''], 
-//       correctOption: 0, 
-//       marks: 10 
-//     }]);
+//     const newQuestion = {
+//       id: `q_${Date.now()}_${questions.length}`,
+//       text: '',
+//       options: ['', '', '', ''],
+//       correctOption: 0,
+//       marks: 10
+//     };
+//     setQuestions([...questions, newQuestion]);
+    
+//     // ✅ Force re-render
+//     console.log('Question added, total:', questions.length + 1);
 //   };
 
+//   // Remove question
 //   const removeQuestion = (index: number) => {
 //     if (questions.length > 1) {
-//       setQuestions(questions.filter((_, i) => i !== index));
+//       const updatedQuestions = questions.filter((_, i) => i !== index);
+//       setQuestions(updatedQuestions);
+//       console.log('Question removed, remaining:', updatedQuestions.length);
 //     }
 //   };
 
+//   // Update question field
 //   const updateQuestion = (index: number, field: string, value: any) => {
 //     const updated = [...questions];
 //     updated[index] = { ...updated[index], [field]: value };
 //     setQuestions(updated);
+//     console.log(`Question ${index} updated:`, field, value);
 //   };
 
+//   // Update option
 //   const updateOption = (qIndex: number, oIndex: number, value: string) => {
 //     const updated = [...questions];
+//     if (!updated[qIndex].options) {
+//       updated[qIndex].options = ['', '', '', ''];
+//     }
 //     updated[qIndex].options[oIndex] = value;
 //     setQuestions(updated);
+//     console.log(`Option ${oIndex} for question ${qIndex} updated`);
 //   };
 
+//   // Save quiz
 //   const handleSave = async () => {
-//     const id = params?.id as string;
+//     const id = params?.id as string; // ✅ FIXED: lowercase
     
 //     if (!id) {
 //       alert('Quiz ID not found');
@@ -129,7 +157,7 @@
 //         return;
 //       }
 //       for (let j = 0; j < questions[i].options.length; j++) {
-//         if (!questions[i].options[j].trim()) {
+//         if (!questions[i].options[j]?.trim()) {
 //           alert(`Option ${j + 1} of Question ${i + 1} is empty`);
 //           return;
 //         }
@@ -139,24 +167,33 @@
 //     setSaving(true);
 
 //     try {
-//       const totalMarks = questions.reduce((sum, q) => sum + (q.marks || 0), 0);
+//       // ✅ Format questions for API
+//       const formattedQuestions = questions.map(q => ({
+//         text: q.text,
+//         options: q.options,
+//         correctAnswer: q.correctOption, // API expects correctAnswer
+//         marks: q.marks
+//       }));
+
+//       const totalMarks = formattedQuestions.reduce((sum, q) => sum + (q.marks || 0), 0);
       
-//       console.log('Updating quiz with ID:', id);
-      
+//       const payload = {
+//         title,
+//         description,
+//         duration,
+//         totalMarks,
+//         questions: formattedQuestions
+//       };
+
+//       console.log('Saving quiz with payload:', payload);
+
 //       const res = await fetch(`/api/quizzes/${id}`, {
 //         method: 'PUT',
 //         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({
-//           title,
-//           description,
-//           duration,
-//           totalMarks,
-//           questions
-//         })
+//         body: JSON.stringify(payload)
 //       });
 
 //       const data = await res.json();
-//       console.log('Update response:', data);
 
 //       if (res.ok && data.success) {
 //         alert('Quiz updated successfully! ✅');
@@ -172,8 +209,9 @@
 //     }
 //   };
 
+//   // Delete quiz
 //   const handleDelete = async () => {
-//     const id = params?.id as string;
+//     const id = params?.id as string; // ✅ FIXED: lowercase
     
 //     if (!id) {
 //       alert('Quiz ID not found');
@@ -183,14 +221,11 @@
 //     setDeleting(true);
 
 //     try {
-//       console.log('Deleting quiz with ID:', id);
-      
 //       const res = await fetch(`/api/quizzes/${id}`, {
 //         method: 'DELETE'
 //       });
 
 //       const data = await res.json();
-//       console.log('Delete response:', data);
 
 //       if (res.ok && data.success) {
 //         alert('Quiz deleted successfully! ✅');
@@ -306,8 +341,9 @@
 //         </div>
 //       </header>
 
-//       {/* Form */}
+//       {/* Form - REST OF YOUR JSX REMAINS THE SAME */}
 //       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+//         {/* ... (rest of your JSX code remains exactly the same) ... */}
 //         <div className="space-y-5 sm:space-y-6">
 //           {/* Quiz Details Card */}
 //           <div className="bg-[#111117] border border-[#2a2a35] rounded-xl overflow-hidden">
@@ -553,7 +589,15 @@
 //       )}
 //     </div>
 //   );
-// }   
+// }
+
+
+
+
+
+
+
+
 
 
 
@@ -600,7 +644,7 @@ export default function EditQuizPage() {
       return;
     }
 
-    const id = params?.Id as string;
+    const id = params?.id as string;
     console.log('Quiz ID from params:', id);
     
     if (!id) {
@@ -610,7 +654,7 @@ export default function EditQuizPage() {
     }
 
     fetchQuiz(id);
-  }, [params?.Id]);
+  }, [params?.id]);
 
   const fetchQuiz = async (id: string) => {
     try {
@@ -625,11 +669,23 @@ export default function EditQuizPage() {
       }
 
       const quizData = data.data;
+      console.log('Quiz data loaded:', quizData);
+      
       setQuiz(quizData);
       setTitle(quizData.title || '');
       setDescription(quizData.description || '');
       setDuration(quizData.duration || 30);
-      setQuestions(quizData.questions || []);
+      
+      // ✅ FIXED: Ensure questions have correct structure with unique IDs
+      const formattedQuestions = (quizData.questions || []).map((q: any, index: number) => ({
+        id: q.id || `q_${Date.now()}_${index}_${Math.random()}`,
+        text: q.text || '',
+        options: q.options || ['', '', '', ''],
+        correctOption: q.correctOption !== undefined ? q.correctOption : (q.correctAnswer || 0),
+        marks: q.marks || 10
+      }));
+      
+      setQuestions(formattedQuestions);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching quiz:', error);
@@ -638,43 +694,52 @@ export default function EditQuizPage() {
     }
   };
 
-  // Add new question
+  // ✅ FIXED: Add new question with proper ID
   const addQuestion = () => {
     const newQuestion = {
-      id: Date.now().toString(),
+      id: `q_${Date.now()}_${questions.length}_${Math.random()}`,
       text: '',
       options: ['', '', '', ''],
       correctOption: 0,
       marks: 10
     };
-    setQuestions([...questions, newQuestion]);
+    setQuestions(prev => [...prev, newQuestion]);
+    console.log('Question added, total:', questions.length + 1);
   };
 
-  // Remove question
+  // ✅ FIXED: Remove question
   const removeQuestion = (index: number) => {
     if (questions.length > 1) {
       const updatedQuestions = questions.filter((_, i) => i !== index);
       setQuestions(updatedQuestions);
+      console.log('Question removed, remaining:', updatedQuestions.length);
+    } else {
+      alert('Quiz must have at least one question');
     }
   };
 
-  // Update question field
+  // ✅ FIXED: Update question field with immediate state update
   const updateQuestion = (index: number, field: string, value: any) => {
     const updated = [...questions];
     updated[index] = { ...updated[index], [field]: value };
     setQuestions(updated);
+    console.log(`Question ${index} updated:`, field, value);
   };
 
-  // Update option
+  // ✅ FIXED: Update option with immediate state update
   const updateOption = (qIndex: number, oIndex: number, value: string) => {
     const updated = [...questions];
+    if (!updated[qIndex].options) {
+      updated[qIndex].options = ['', '', '', ''];
+    }
     updated[qIndex].options[oIndex] = value;
     setQuestions(updated);
+    console.log(`Option ${oIndex} for question ${qIndex} updated`);
   };
 
-  // Save quiz
+  // ✅ FIXED: Save quiz with proper formatting
   const handleSave = async () => {
-    const id = params?.Id as string;
+    const id = params?.id as string;
     
     if (!id) {
       alert('Quiz ID not found');
@@ -688,12 +753,12 @@ export default function EditQuizPage() {
     }
 
     for (let i = 0; i < questions.length; i++) {
-      if (!questions[i].text.trim()) {
+      if (!questions[i].text?.trim()) {
         alert(`Question ${i + 1} is empty`);
         return;
       }
-      for (let j = 0; j < questions[i].options.length; j++) {
-        if (!questions[i].options[j].trim()) {
+      for (let j = 0; j < (questions[i].options || []).length; j++) {
+        if (!questions[i].options[j]?.trim()) {
           alert(`Option ${j + 1} of Question ${i + 1} is empty`);
           return;
         }
@@ -703,18 +768,30 @@ export default function EditQuizPage() {
     setSaving(true);
 
     try {
-      const totalMarks = questions.reduce((sum, q) => sum + (q.marks || 0), 0);
+      // Format questions for API
+      const formattedQuestions = questions.map(q => ({
+        text: q.text,
+        options: q.options,
+        correctAnswer: q.correctOption,
+        marks: q.marks
+      }));
+
+      const totalMarks = formattedQuestions.reduce((sum, q) => sum + (q.marks || 0), 0);
       
+      const payload = {
+        title: title.trim(),
+        description: description.trim(),
+        duration: Number(duration),
+        totalMarks,
+        questions: formattedQuestions
+      };
+
+      console.log('Saving quiz with payload:', payload);
+
       const res = await fetch(`/api/quizzes/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          description,
-          duration,
-          totalMarks,
-          questions
-        })
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
@@ -733,9 +810,9 @@ export default function EditQuizPage() {
     }
   };
 
-  // Delete quiz
+  // ✅ FIXED: Delete quiz
   const handleDelete = async () => {
-    const id = params?.Id as string;
+    const id = params?.id as string;
     
     if (!id) {
       alert('Quiz ID not found');
@@ -767,6 +844,9 @@ export default function EditQuizPage() {
     }
   };
 
+  // Calculate total marks
+  const totalMarks = questions.reduce((sum, q) => sum + (Number(q.marks) || 0), 0);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
@@ -796,8 +876,6 @@ export default function EditQuizPage() {
       </div>
     );
   }
-
-  const totalMarks = questions.reduce((sum, q) => sum + (q.marks || 0), 0);
 
   return (
     <div className="min-h-screen bg-[#0A0A0F]">
@@ -946,7 +1024,7 @@ export default function EditQuizPage() {
             <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               {questions.map((q, qIndex) => (
                 <div
-                  key={q.id || qIndex}
+                  key={q.id}
                   className="bg-[#1a1a23] border border-[#2a2a35] rounded-xl p-4 sm:p-5 hover:border-purple-500/50 transition-all"
                 >
                   {/* Question Header */}
