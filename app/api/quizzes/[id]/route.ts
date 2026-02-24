@@ -1,4 +1,8 @@
 
+
+
+
+
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
@@ -54,14 +58,15 @@ export async function GET(
     
   } catch (error) {
     console.error('❌ Error fetching quiz:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch quiz: ' + error.message },
+      { success: false, error: 'Failed to fetch quiz: ' + errorMessage },
       { status: 500 }
     );
   }
 }
 
-// PUT /api/quizzes/:id - Quiz update karo ✅ FIXED
+// PUT /api/quizzes/:id - Quiz update karo
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -99,7 +104,7 @@ export async function PUT(
     
     console.log('✅ Quiz found, updating...');
     
-    // ✅ FIXED: Properly format update data
+    // Properly format update data
     const updateData = {
       title: body.title,
       description: body.description,
@@ -147,14 +152,15 @@ export async function PUT(
     
   } catch (error) {
     console.error('❌ Error updating quiz:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { success: false, error: 'Failed to update quiz: ' + error.message },
+      { success: false, error: 'Failed to update quiz: ' + errorMessage },
       { status: 500 }
     );
   }
 }
 
-// DELETE /api/quizzes/:id - Quiz delete karo ✅ FIXED
+// DELETE /api/quizzes/:id - Quiz delete karo
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -212,9 +218,17 @@ export async function DELETE(
     
   } catch (error) {
     console.error('❌ Error deleting quiz:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { success: false, error: 'Failed to delete quiz: ' + error.message },
+      { success: false, error: 'Failed to delete quiz: ' + errorMessage },
       { status: 500 }
     );
   }
-}
+}   
+
+
+
+
+
+
+

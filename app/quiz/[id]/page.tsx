@@ -111,7 +111,7 @@ export default function QuizPage() {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       
       const resultData = {
-        quizId: quiz?.id,
+        quizId: quiz?._id,
         quizTitle: quiz?.title,
         userId: user.id || user._id,
         userName: user.name,
