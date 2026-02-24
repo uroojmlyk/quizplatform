@@ -191,7 +191,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, LogIn, Sparkles, Eye, EyeOff, Github, Google } from 'lucide-react';
+import { Mail, Lock, LogIn, Sparkles, Eye, EyeOff, Github} from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
