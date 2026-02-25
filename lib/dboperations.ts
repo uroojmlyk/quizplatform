@@ -1,6 +1,10 @@
+
+
+
 // // lib/dbOperations.ts
 // import clientPromise from './mongodb';
-// import { User, Quiz, Result } from './types';
+// import { ObjectId } from 'mongodb';
+// import { User, Quiz, Result } from './type';  // ✅ Fixed: './type' instead of './types'
 
 // // ========== DATABASE CONNECTION ==========
 // const dbName = 'quizDB';
@@ -16,12 +20,20 @@
 //   const db = client.db(dbName);
   
 //   const newUser = {
-//     ...user,
+//     name: user.name,
+//     email: user.email,
+//     password: user.password,  // Add this if you have password field
+//     role: user.role,
 //     createdAt: new Date()
 //   };
   
 //   const result = await db.collection(collections.users).insertOne(newUser);
-//   return { ...newUser, id: result.insertedId.toString() } as User;
+//   return { 
+//     id: result.insertedId.toString(), 
+//     name: user.name,
+//     email: user.email,
+//     role: user.role
+//   } as User;
 // }
 
 // export async function findUserByEmail(email: string): Promise<User | null> {
@@ -43,6 +55,8 @@
 //   const client = await clientPromise;
 //   const db = client.db(dbName);
   
+//   if (!ObjectId.isValid(id)) return null;
+  
 //   const user = await db.collection(collections.users).findOne({ _id: new ObjectId(id) });
 //   if (!user) return null;
   
@@ -61,7 +75,7 @@
   
 //   const newQuiz = {
 //     ...quiz,
-//     createdAt: new Date()
+//     createdAt: new Date().toISOString()
 //   };
   
 //   const result = await db.collection(collections.quizzes).insertOne(newQuiz);
@@ -90,6 +104,8 @@
 //   const client = await clientPromise;
 //   const db = client.db(dbName);
   
+//   if (!ObjectId.isValid(id)) return null;
+  
 //   const quiz = await db.collection(collections.quizzes).findOne({ _id: new ObjectId(id) });
 //   if (!quiz) return null;
   
@@ -110,7 +126,11 @@
 //   const client = await clientPromise;
 //   const db = client.db(dbName);
   
-//   const quizzes = await db.collection(collections.quizzes).find({ createdBy: teacherId }).toArray();
+//   const quizzes = await db.collection(collections.quizzes)
+//     .find({ createdBy: teacherId })
+//     .sort({ createdAt: -1 })
+//     .toArray();
+    
 //   return quizzes.map(q => ({
 //     id: q._id.toString(),
 //     title: q.title,
@@ -131,7 +151,7 @@
   
 //   const newResult = {
 //     ...result,
-//     submittedAt: new Date()
+//     submittedAt: new Date().toISOString()
 //   };
   
 //   const dbResult = await db.collection(collections.results).insertOne(newResult);
@@ -142,7 +162,11 @@
 //   const client = await clientPromise;
 //   const db = client.db(dbName);
   
-//   const results = await db.collection(collections.results).find({ userId }).toArray();
+//   const results = await db.collection(collections.results)
+//     .find({ userId })
+//     .sort({ submittedAt: -1 })
+//     .toArray();
+    
 //   return results.map(r => ({
 //     id: r._id.toString(),
 //     quizId: r.quizId,
@@ -160,7 +184,11 @@
 //   const client = await clientPromise;
 //   const db = client.db(dbName);
   
-//   const results = await db.collection(collections.results).find({ quizId }).toArray();
+//   const results = await db.collection(collections.results)
+//     .find({ quizId })
+//     .sort({ percentage: -1 })
+//     .toArray();
+    
 //   return results.map(r => ({
 //     id: r._id.toString(),
 //     quizId: r.quizId,
@@ -182,6 +210,41 @@
 //   return allQuizzes.filter(q => !attemptedQuizIds.includes(q.id));
 // }
 
+// export async function checkAttempted(userId: string, quizId: string): Promise<boolean> {
+//   const client = await clientPromise;
+//   const db = client.db(dbName);
+  
+//   const result = await db.collection(collections.results).findOne({ userId, quizId });
+//   return !!result;
+// }
+
+// export async function getTeacherResults(teacherId: string): Promise<Result[]> {
+//   // First get all quizzes by this teacher
+//   const quizzes = await getQuizzesByTeacher(teacherId);
+//   const quizIds = quizzes.map(q => q.id);
+  
+//   if (quizIds.length === 0) return [];
+  
+//   const client = await clientPromise;
+//   const db = client.db(dbName);
+  
+//   const results = await db.collection(collections.results)
+//     .find({ quizId: { $in: quizIds } })
+//     .sort({ submittedAt: -1 })
+//     .toArray();
+    
+//   return results.map(r => ({
+//     id: r._id.toString(),
+//     quizId: r.quizId,
+//     quizTitle: r.quizTitle,
+//     userId: r.userId,
+//     userName: r.userName,
+//     score: r.score,
+//     totalMarks: r.totalMarks,
+//     percentage: r.percentage,
+//     submittedAt: r.submittedAt
+//   }));
+// }   
 
 
 
@@ -189,7 +252,7 @@
 // lib/dbOperations.ts
 import clientPromise from './mongodb';
 import { ObjectId } from 'mongodb';
-import { User, Quiz, Result } from './type';  // ✅ Fixed: './type' instead of './types'
+import { User, Quiz, Result } from './type';
 
 // ========== DATABASE CONNECTION ==========
 const dbName = 'quizDB';
@@ -207,7 +270,7 @@ export async function createUser(user: Omit<User, 'id'>): Promise<User> {
   const newUser = {
     name: user.name,
     email: user.email,
-    password: user.password,  // Add this if you have password field
+    password: user.password,
     role: user.role,
     createdAt: new Date()
   };
@@ -217,6 +280,7 @@ export async function createUser(user: Omit<User, 'id'>): Promise<User> {
     id: result.insertedId.toString(), 
     name: user.name,
     email: user.email,
+    password: user.password,
     role: user.role
   } as User;
 }
@@ -232,6 +296,7 @@ export async function findUserByEmail(email: string): Promise<User | null> {
     id: user._id.toString(),
     name: user.name,
     email: user.email,
+    password: user.password,
     role: user.role
   };
 }
@@ -249,6 +314,7 @@ export async function getUserById(id: string): Promise<User | null> {
     id: user._id.toString(),
     name: user.name,
     email: user.email,
+    password: user.password,
     role: user.role
   };
 }
@@ -259,12 +325,21 @@ export async function createQuiz(quiz: Omit<Quiz, 'id' | 'createdAt'>): Promise<
   const db = client.db(dbName);
   
   const newQuiz = {
-    ...quiz,
+    title: quiz.title,
+    description: quiz.description,
+    duration: quiz.duration,
+    totalMarks: quiz.totalMarks,
+    questions: quiz.questions,
+    createdBy: quiz.createdBy,
+    isPublished: quiz.isPublished ?? true,
     createdAt: new Date().toISOString()
   };
   
   const result = await db.collection(collections.quizzes).insertOne(newQuiz);
-  return { ...newQuiz, id: result.insertedId.toString() } as Quiz;
+  return { 
+    ...newQuiz, 
+    id: result.insertedId.toString() 
+  } as Quiz;
 }
 
 export async function getAllQuizzes(): Promise<Quiz[]> {
@@ -278,10 +353,10 @@ export async function getAllQuizzes(): Promise<Quiz[]> {
     description: q.description,
     duration: q.duration,
     totalMarks: q.totalMarks,
-    questions: q.questions,
+    questions: q.questions || [],
     createdBy: q.createdBy,
     createdAt: q.createdAt,
-    isPublished: q.isPublished
+    isPublished: q.isPublished ?? true
   }));
 }
 
@@ -300,10 +375,10 @@ export async function getQuizById(id: string): Promise<Quiz | null> {
     description: quiz.description,
     duration: quiz.duration,
     totalMarks: quiz.totalMarks,
-    questions: quiz.questions,
+    questions: quiz.questions || [],
     createdBy: quiz.createdBy,
     createdAt: quiz.createdAt,
-    isPublished: quiz.isPublished
+    isPublished: quiz.isPublished ?? true
   };
 }
 
@@ -322,10 +397,10 @@ export async function getQuizzesByTeacher(teacherId: string): Promise<Quiz[]> {
     description: q.description,
     duration: q.duration,
     totalMarks: q.totalMarks,
-    questions: q.questions,
+    questions: q.questions || [],
     createdBy: q.createdBy,
     createdAt: q.createdAt,
-    isPublished: q.isPublished
+    isPublished: q.isPublished ?? true
   }));
 }
 
@@ -335,12 +410,21 @@ export async function saveResult(result: Omit<Result, 'id'>): Promise<Result> {
   const db = client.db(dbName);
   
   const newResult = {
-    ...result,
+    quizId: result.quizId,
+    quizTitle: result.quizTitle,
+    userId: result.userId,
+    userName: result.userName,
+    score: result.score,
+    totalMarks: result.totalMarks,
+    percentage: result.percentage,
     submittedAt: new Date().toISOString()
   };
   
   const dbResult = await db.collection(collections.results).insertOne(newResult);
-  return { ...newResult, id: dbResult.insertedId.toString() } as Result;
+  return { 
+    ...newResult, 
+    id: dbResult.insertedId.toString() 
+  } as Result;
 }
 
 export async function getResultsByUser(userId: string): Promise<Result[]> {
