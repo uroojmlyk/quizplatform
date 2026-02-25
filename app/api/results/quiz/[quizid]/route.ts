@@ -47,18 +47,15 @@
 
 
 
-
-
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 
-// GET /api/results/quiz/:quizId - Quiz ke saare results
 export async function GET(
-  request: Request,
-  { params }: { params: { quizId: string } }  // ✅ no Promise, matches folder [quizId]
+  request: NextRequest, 
+  context: { params: Promise<{ quizId: string }> }  // ✅ Next.js type expects Promise
 ) {
   try {
-    const { quizId } = params;  // ✅ direct access
+    const { quizId } = await context.params;  // ✅ await params
 
     const client = await clientPromise;
     const db = client.db('quizDB');
