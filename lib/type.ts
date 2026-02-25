@@ -27,3 +27,14 @@ export interface Quiz {
   createdAt: string;
   isPublished: boolean;
 }
+export interface Result {
+  id: string;
+  quizId: string;
+  quizTitle: string;
+  userId: string;
+  userName: string;
+  score: number;
+  totalMarks: number;
+  percentage: number;
+  submittedAt: string;
+}
