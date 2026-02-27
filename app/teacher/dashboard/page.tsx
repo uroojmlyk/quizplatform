@@ -512,15 +512,11 @@
 
 
 
-
-
-
-
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';  // ✅ Import Link
 import { Toaster } from 'react-hot-toast';
 import { 
   PlusCircle, 
@@ -749,16 +745,19 @@ export default function TeacherDashboard() {
                 </span>
               </div>
 
+              {/* User Menu - WITH PROFILE LINK */}
               <div className="flex items-center gap-3 sm:gap-4">
-                <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 sm:py-2 bg-[#1a1a23] rounded-xl border border-[#2a2a35]">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xs sm:text-sm">
-                    {user?.name?.charAt(0) || 'T'}
+                <Link href="/profile">
+                  <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 sm:py-2 bg-[#1a1a23] rounded-xl border border-[#2a2a35] cursor-pointer hover:bg-[#252530] transition-colors">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xs sm:text-sm">
+                      {user?.name?.charAt(0) || 'T'}
+                    </div>
+                    <div className="hidden sm:block">
+                      <p className="text-sm font-medium text-white">{user?.name}</p>
+                      <p className="text-xs text-gray-400">Teacher</p>
+                    </div>
                   </div>
-                  <div className="hidden sm:block">
-                    <p className="text-sm font-medium text-white">{user?.name}</p>
-                    <p className="text-xs text-gray-400">Teacher</p>
-                  </div>
-                </div>
+                </Link>
                 
                 <button
                   onClick={handleLogout}
@@ -772,7 +771,7 @@ export default function TeacherDashboard() {
           </div>
         </header>
 
-        {/* Main Content */}
+        {/* Rest of the code - exactly same */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Welcome Section */}
           <div className="relative mb-6 sm:mb-8 group">
