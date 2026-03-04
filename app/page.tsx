@@ -1,11 +1,50 @@
 
-
 // 'use client';
 
 // import Link from 'next/link';
-// import { ArrowRight, CheckCircle, Database, Lock, BarChart3, Users } from 'lucide-react';
+// import { ArrowRight, Lock, Database, BarChart3 } from 'lucide-react';
 
 // export default function HomePage() {
+//   // Array of student images (using Unsplash URLs)
+//   const students = [
+//     { 
+//       id: 1, 
+//       name: 'Alex Chen',
+//       image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=faces',
+//       delay: 0 
+//     },
+//     { 
+//       id: 2, 
+//       name: 'Sarah Johnson',
+//       image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150&fit=crop&crop=faces',
+//       delay: 200 
+//     },
+//     { 
+//       id: 3, 
+//       name: 'Michael Park',
+//       image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&h=150&fit=crop&crop=faces',
+//       delay: 400 
+//     },
+//     { 
+//       id: 4, 
+//       name: 'Emma Watson',
+//       image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&h=150&fit=crop&crop=faces',
+//       delay: 600 
+//     },
+//     { 
+//       id: 5, 
+//       name: 'James Lee',
+//       image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=faces',
+//       delay: 800 
+//     },
+//      { 
+//       id: 6, 
+//       name: 'Urooj Rasheed',
+//       image: '/women2.jpg',
+//       delay: 800 
+//     },
+//   ];
+
 //   return (
 //     <div className="min-h-screen bg-[#0B0B0F]">
 //       {/* Subtle radial gradient background */}
@@ -37,60 +76,139 @@
 
 //       {/* Hero Section */}
 //       <main className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-24">
-//         <div className="max-w-4xl">
-//           {/* Eyebrow */}
-//           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/10 mb-8">
-//             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-//             <span className="text-xs font-mono text-white/60">v2.0.0 · mongodb + next.js 14</span>
+//         <div className="grid lg:grid-cols-2 gap-12 items-center">
+//           {/* Left column - Text content */}
+//           <div>
+//             {/* Eyebrow */}
+//             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/10 mb-8">
+//               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+//               <span className="text-xs font-mono text-white/60">v2.0.0 · mongodb + next.js 14</span>
+//             </div>
+
+//             {/* Main headline */}
+//             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-medium text-white tracking-tight leading-[1.1] mb-6">
+//               quiz platform
+//               <br />
+//               <span className="text-white/40">with real-time analytics</span>
+//             </h1>
+            
+//             {/* Description */}
+//             <p className="text-lg text-white/50 max-w-2xl mb-10 leading-relaxed">
+//               Full-stack quiz system built with Next.js 14, MongoDB, and REST APIs. 
+//               Complete authentication flow, CRUD operations, and performance tracking.
+//             </p>
+
+//             {/* CTA buttons */}
+//             <div className="flex flex-wrap gap-4 mb-16">
+//               <Link 
+//                 href="/signup"
+//                 className="group inline-flex items-center gap-2 px-6 py-3 bg-white text-[#0B0B0F] rounded-lg hover:bg-white/90 transition-all font-medium"
+//               >
+//                 Get started
+//                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+//               </Link>
+//               <Link 
+//                 href="/demo"
+//                 className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 text-white rounded-lg hover:bg-white/10 transition-all border border-white/10"
+//               >
+//                 View demo
+//               </Link>
+//             </div>
+
+//             {/* Stats grid */}
+//             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-white/10 pt-12">
+//               <div>
+//                 <div className="text-2xl font-medium text-white mb-1">1.2k+</div>
+//                 <div className="text-sm text-white/40">quizzes created</div>
+//               </div>
+//               <div>
+//                 <div className="text-2xl font-medium text-white mb-1">5.8k+</div>
+//                 <div className="text-sm text-white/40">active users</div>
+//               </div>
+//               <div>
+//                 <div className="text-2xl font-medium text-white mb-1">92%</div>
+//                 <div className="text-sm text-white/40">completion rate</div>
+//               </div>
+//               <div>
+//                 <div className="text-2xl font-medium text-white mb-1">24ms</div>
+//                 <div className="text-sm text-white/40">avg. response</div>
+//               </div>
+//             </div>
 //           </div>
 
-//           {/* Main headline */}
-//           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-medium text-white tracking-tight leading-[1.1] mb-6">
-//             quiz platform
-//             <br />
-//             <span className="text-white/40">with real-time analytics</span>
-//           </h1>
-          
-//           {/* Description */}
-//           <p className="text-lg text-white/50 max-w-2xl mb-10 leading-relaxed">
-//             Full-stack quiz system built with Next.js 14, MongoDB, and REST APIs. 
-//             Complete authentication flow, CRUD operations, and performance tracking.
-//           </p>
+//           {/* Right column - Student images with modern animation */}
+//           <div className="relative hidden lg:block">
+//             {/* Background glow */}
+//             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent rounded-3xl blur-3xl"></div>
+            
+//             {/* Image grid */}
+//             <div className="relative grid grid-cols-3 gap-3">
+//               {students.map((student) => (
+//                 <div
+//                   key={student.id}
+//                   className="group relative aspect-square"
+//                   style={{
+//                     animation: `floatIn 0.6s ease-out ${student.delay}ms forwards`,
+//                     opacity: 0,
+//                     transform: 'translateY(20px)'
+//                   }}
+//                 >
+//                   {/* Image container with hover effects */}
+//                   <div className="relative w-full h-full rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-500 hover:scale-105 hover:z-10">
+//                     {/* Image */}
+//                     <img
+//                       src={student.image}
+//                       alt={student.name}
+//                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+//                     />
+                    
+//                     {/* Gradient overlay */}
+//                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
+//                     {/* Name tooltip on hover */}
+//                     <div className="absolute bottom-0 left-0 right-0 p-2 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+//                       <p className="text-xs text-white/90 bg-black/50 backdrop-blur-sm px-2 py-1 rounded">
+//                         {student.name}
+//                       </p>
+//                     </div>
+                    
+//                     {/* Status indicator */}
+//                     <div className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
 
-//           {/* CTA buttons */}
-//           <div className="flex flex-wrap gap-4 mb-16">
-//             <Link 
-//               href="/signup"
-//               className="group inline-flex items-center gap-2 px-6 py-3 bg-white text-[#0B0B0F] rounded-lg hover:bg-white/90 transition-all font-medium"
-//             >
-//               Get started
-//               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-//             </Link>
-//             <Link 
-//               href="/demo"
-//               className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 text-white rounded-lg hover:bg-white/10 transition-all border border-white/10"
-//             >
-//               View demo
-//             </Link>
-//           </div>
+//             {/* Floating stats card */}
+//             <div className="absolute -bottom-6 -left-6 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl p-4 animate-float">
+//               <div className="flex items-center gap-3">
+//                 <div className="flex -space-x-2">
+//                   {students.slice(0, 3).map((s) => (
+//                     <img
+//                       key={`mini-${s.id}`}
+//                       src={s.image}
+//                       alt=""
+//                       className="w-6 h-6 rounded-full border-2 border-white/20"
+//                     />
+//                   ))}
+//                 </div>
+//                 <div>
+//                   <p className="text-sm text-white font-medium">+247 students</p>
+//                   <p className="text-xs text-white/40">joined this week</p>
+//                 </div>
+//               </div>
+//             </div>
 
-//           {/* Stats grid */}
-//           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-white/10 pt-12">
-//             <div>
-//               <div className="text-2xl font-medium text-white mb-1">1.2k+</div>
-//               <div className="text-sm text-white/40">quizzes created</div>
-//             </div>
-//             <div>
-//               <div className="text-2xl font-medium text-white mb-1">5.8k+</div>
-//               <div className="text-sm text-white/40">active users</div>
-//             </div>
-//             <div>
-//               <div className="text-2xl font-medium text-white mb-1">92%</div>
-//               <div className="text-sm text-white/40">completion rate</div>
-//             </div>
-//             <div>
-//               <div className="text-2xl font-medium text-white mb-1">24ms</div>
-//               <div className="text-sm text-white/40">avg. response</div>
+//             {/* Activity indicator */}
+//             <div className="absolute -top-6 -right-6 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl p-3 animate-float-delayed">
+//               <div className="flex items-center gap-2">
+//                 <div className="flex gap-0.5">
+//                   <div className="w-1 h-4 bg-emerald-400 rounded-full animate-pulse"></div>
+//                   <div className="w-1 h-6 bg-emerald-400 rounded-full animate-pulse delay-75"></div>
+//                   <div className="w-1 h-3 bg-emerald-400/50 rounded-full animate-pulse delay-150"></div>
+//                 </div>
+//                 <span className="text-xs text-white/60">live activity</span>
+//               </div>
 //             </div>
 //           </div>
 //         </div>
@@ -222,6 +340,35 @@
 //           </div>
 //         </div>
 //       </footer>
+
+//       <style jsx>{`
+//         @keyframes floatIn {
+//           to {
+//             opacity: 1;
+//             transform: translateY(0);
+//           }
+//         }
+//         @keyframes float {
+//           0%, 100% {
+//             transform: translateY(0px);
+//           }
+//           50% {
+//             transform: translateY(-10px);
+//           }
+//         }
+//         .animate-float {
+//           animation: float 4s ease-in-out infinite;
+//         }
+//         .animate-float-delayed {
+//           animation: float 4s ease-in-out 2s infinite;
+//         }
+//         .delay-75 {
+//           animation-delay: 75ms;
+//         }
+//         .delay-150 {
+//           animation-delay: 150ms;
+//         }
+//       `}</style>
 //     </div>
 //   );
 // }
@@ -230,12 +377,10 @@
 
 
 
-
-
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Lock, Database, BarChart3 } from 'lucide-react';
+import { ArrowRight, Lock, Database, BarChart3, Compass } from 'lucide-react'; // ✅ Compass icon add kiya
 
 export default function HomePage() {
   // Array of student images (using Unsplash URLs)
@@ -290,7 +435,15 @@ export default function HomePage() {
             <span className="text-xl font-medium text-white tracking-tight">quizmaster</span>
             <span className="px-2 py-0.5 text-[10px] font-mono bg-white/5 text-white/40 rounded-md border border-white/10">beta</span>
           </div>
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6">
+            {/* ✅ EXPLORE LINK ADD KIYA */}
+            <Link 
+              href="/explore"
+              className="text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1"
+            >
+              <Compass className="w-4 h-4" />
+              Explore
+            </Link>
             <Link 
               href="/login"
               className="text-sm text-white/60 hover:text-white transition-colors"
@@ -345,6 +498,14 @@ export default function HomePage() {
                 className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 text-white rounded-lg hover:bg-white/10 transition-all border border-white/10"
               >
                 View demo
+              </Link>
+              {/* ✅ EXPLORE BUTTON ADD KIYA */}
+              <Link 
+                href="/explore"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-purple-500/10 text-purple-400 rounded-lg hover:bg-purple-500/20 transition-all border border-purple-500/20"
+              >
+                <Compass className="w-4 h-4" />
+                Explore quizzes
               </Link>
             </div>
 
@@ -560,14 +721,15 @@ export default function HomePage() {
               <span className="text-xs px-2 py-0.5 bg-white/5 text-white/30 rounded border border-white/10">mit license</span>
             </div>
             <div className="flex gap-8">
+              {/* ✅ EXPLORE LINK FOOTER MEIN BHI */}
+              <Link href="/explore" className="text-sm text-white/40 hover:text-white transition-colors">
+                explore
+              </Link>
               <a href="https://github.com" className="text-sm text-white/40 hover:text-white transition-colors">
                 github
               </a>
               <a href="#" className="text-sm text-white/40 hover:text-white transition-colors">
                 documentation
-              </a>
-              <a href="#" className="text-sm text-white/40 hover:text-white transition-colors">
-                api
               </a>
             </div>
           </div>
