@@ -1,9 +1,14 @@
 
 
+
+
+
 // 'use client';
 
 // import { useEffect, useState } from 'react';
 // import { useRouter } from 'next/navigation';
+// import Link from 'next/link';
+// import { motion } from 'framer-motion';
 // import { Toaster } from 'react-hot-toast';
 // import { 
 //   PlusCircle, 
@@ -19,6 +24,12 @@
 //   ChevronRight,
 //   FileText,
 //   Loader2,
+//   BookOpen,
+//   Star,
+//   Target,
+//   Activity,
+//   Settings,
+//   HelpCircle
 // } from 'lucide-react';
 // import { showToast } from '@/lib/toast';
 
@@ -31,6 +42,8 @@
 //   totalMarks: number;
 //   questions: any[];
 //   createdAt: string;
+//   difficulty?: 'beginner' | 'intermediate' | 'advanced';
+//   category?: string;
 // }
 
 // interface Result {
@@ -51,8 +64,15 @@
 //   const [results, setResults] = useState<Result[]>([]);
 //   const [loading, setLoading] = useState(true);
 //   const [deletingId, setDeletingId] = useState<string | null>(null);
+//   const [greeting, setGreeting] = useState('');
 
 //   useEffect(() => {
+//     // Set greeting based on time
+//     const hour = new Date().getHours();
+//     if (hour < 12) setGreeting('good morning');
+//     else if (hour < 18) setGreeting('good afternoon');
+//     else setGreeting('good evening');
+
 //     const storedUser = localStorage.getItem('user');
 //     const token = localStorage.getItem('token');
 
@@ -84,16 +104,22 @@
 //       const resultsData = await resultsRes.json();
 
 //       if (quizzesData.success) {
-//         setQuizzes(quizzesData.data);
+//         // Add mock difficulty for demo
+//         const quizzesWithMeta = quizzesData.data.map((q: Quiz) => ({
+//           ...q,
+//           difficulty: ['beginner', 'intermediate', 'advanced'][Math.floor(Math.random() * 3)] as any,
+//           category: ['web development', 'programming', 'database', 'design', 'business'][Math.floor(Math.random() * 5)]
+//         }));
+//         setQuizzes(quizzesWithMeta);
 //       }
 
 //       if (resultsData.success) {
 //         setResults(resultsData.data);
 //       }
 
-//       showToast.success('Dashboard updated');
+//       showToast.success('dashboard updated');
 //     } catch (error) {
-//       showToast.error('Failed to load dashboard');
+//       showToast.error('failed to load dashboard');
 //     } finally {
 //       setLoading(false);
 //     }
@@ -105,7 +131,7 @@
 //     console.log('🔍 Using quizId:', quizId);
     
 //     if (!quizId) {
-//       showToast.error('Quiz ID not found');
+//       showToast.error('quiz id not found');
 //       return;
 //     }
     
@@ -113,7 +139,7 @@
 //   };
 
 //   const handleDeleteQuiz = async (quizId: string, quizTitle: string) => {
-//     if (!confirm(`Are you sure you want to delete "${quizTitle}"? This action cannot be undone.`)) {
+//     if (!confirm(`are you sure you want to delete "${quizTitle}"? this action cannot be undone.`)) {
 //       return;
 //     }
 
@@ -128,12 +154,12 @@
 
 //       if (res.ok && data.success) {
 //         setQuizzes(quizzes.filter(q => (q._id !== quizId && q.id !== quizId)));
-//         showToast.success('Quiz deleted successfully');
+//         showToast.success('quiz deleted successfully');
 //       } else {
-//         showToast.error(data.error || 'Failed to delete quiz');
+//         showToast.error(data.error || 'failed to delete quiz');
 //       }
 //     } catch (error) {
-//       showToast.error('Network error');
+//       showToast.error('network error');
 //     } finally {
 //       setDeletingId(null);
 //     }
@@ -142,7 +168,7 @@
 //   const handleLogout = () => {
 //     localStorage.removeItem('token');
 //     localStorage.removeItem('user');
-//     showToast.success('Logged out successfully');
+//     showToast.success('logged out successfully');
 //     router.push('/login');
 //   };
 
@@ -153,53 +179,119 @@
 //   const averageScore = results.length 
 //     ? Math.round(results.reduce((acc, r) => acc + r.percentage, 0) / results.length) 
 //     : 0;
+  
+//   // Calculate pass rate (score >= 70)
+//   const passCount = results.filter(r => r.percentage >= 70).length;
+//   const passRate = results.length ? Math.round((passCount / results.length) * 100) : 0;
 
 //   const stats = [
 //     { 
-//       title: 'Total Quizzes', 
+//       title: 'quizzes', 
 //       value: totalQuizzes, 
 //       icon: FileText, 
-//       change: 'Created by you',
-//       gradient: 'from-blue-500 to-cyan-500',
-//       bg: 'bg-blue-500/10',
-//       text: 'text-blue-400'
+//       change: `${totalQuizzes} created`,
+//       gradient: 'from-indigo-500 to-purple-500',
+//       bg: 'bg-indigo-500/10',
+//       text: 'text-indigo-400',
+//       delay: 0
 //     },
 //     { 
-//       title: 'Total Students', 
+//       title: 'students', 
 //       value: totalStudents, 
 //       icon: Users, 
-//       change: 'Attempted quizzes',
-//       gradient: 'from-green-500 to-emerald-500',
-//       bg: 'bg-green-500/10',
-//       text: 'text-green-400'
+//       change: `${totalStudents} enrolled`,
+//       gradient: 'from-emerald-500 to-green-500',
+//       bg: 'bg-emerald-500/10',
+//       text: 'text-emerald-400',
+//       delay: 100
 //     },
 //     { 
-//       title: 'Submissions', 
+//       title: 'submissions', 
 //       value: totalSubmissions, 
 //       icon: BarChart3, 
-//       change: 'Total attempts',
+//       change: `${totalSubmissions} attempts`,
 //       gradient: 'from-purple-500 to-pink-500',
 //       bg: 'bg-purple-500/10',
-//       text: 'text-purple-400'
+//       text: 'text-purple-400',
+//       delay: 200
 //     },
 //     { 
-//       title: 'Avg Score', 
+//       title: 'avg score', 
 //       value: `${averageScore}%`, 
 //       icon: TrendingUp, 
-//       change: averageScore >= 70 ? 'Good performance' : 'Needs improvement',
-//       gradient: 'from-orange-500 to-red-500',
+//       change: `${passRate}% pass rate`,
+//       gradient: 'from-orange-500 to-amber-500',
 //       bg: 'bg-orange-500/10',
-//       text: 'text-orange-400'
+//       text: 'text-orange-400',
+//       delay: 300
 //     },
 //   ];
 
+//   // Animation variants
+//   const containerVariants = {
+//     hidden: { opacity: 0 },
+//     visible: {
+//       opacity: 1,
+//       transition: {
+//         staggerChildren: 0.1
+//       }
+//     }
+//   };
+
+//   const itemVariants = {
+//     hidden: { opacity: 0, y: 20 },
+//     visible: { opacity: 1, y: 0 }
+//   };
+
 //   if (loading) {
 //     return (
-//       <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
-//         <div className="relative">
-//           <div className="w-16 h-16 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin"></div>
-//           <div className="absolute inset-0 flex items-center justify-center">
-//             <Sparkles className="w-6 h-6 text-purple-500 animate-pulse" />
+//       <div className="min-h-screen bg-[#09090B] font-['Inter',sans-serif]">
+//         <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,80,255,0.15),transparent)]"></div>
+        
+//         <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
+//           {/* Header Skeleton */}
+//           <div className="flex justify-between items-center mb-12">
+//             <div>
+//               <div className="w-32 h-8 bg-white/[0.02] rounded animate-pulse mb-2"></div>
+//               <div className="w-48 h-4 bg-white/[0.02] rounded animate-pulse"></div>
+//             </div>
+//             <div className="w-40 h-10 bg-white/[0.02] rounded-full animate-pulse"></div>
+//           </div>
+
+//           {/* Stats Skeleton */}
+//           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
+//             {[1,2,3,4].map(i => (
+//               <div key={i} className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6 animate-pulse">
+//                 <div className="w-8 h-8 bg-white/[0.02] rounded-lg mb-3"></div>
+//                 <div className="w-16 h-4 bg-white/[0.02] rounded mb-2"></div>
+//                 <div className="w-24 h-8 bg-white/[0.02] rounded"></div>
+//               </div>
+//             ))}
+//           </div>
+
+//           {/* Content Skeleton */}
+//           <div className="grid lg:grid-cols-3 gap-6">
+//             <div className="lg:col-span-2">
+//               <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6">
+//                 <div className="w-40 h-6 bg-white/[0.02] rounded mb-4"></div>
+//                 {[1,2,3].map(i => (
+//                   <div key={i} className="bg-white/[0.02] rounded-xl p-4 mb-3">
+//                     <div className="w-3/4 h-5 bg-white/[0.02] rounded mb-2"></div>
+//                     <div className="w-1/2 h-4 bg-white/[0.02] rounded"></div>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+//             <div>
+//               <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6">
+//                 <div className="w-32 h-6 bg-white/[0.02] rounded mb-4"></div>
+//                 {[1,2,3].map(i => (
+//                   <div key={i} className="bg-white/[0.02] rounded-xl p-3 mb-2">
+//                     <div className="w-full h-4 bg-white/[0.02] rounded"></div>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
 //           </div>
 //         </div>
 //       </div>
@@ -207,296 +299,399 @@
 //   }
 
 //   return (
-//     <div className="min-h-screen bg-[#0A0A0F]">
+//     <div className="min-h-screen bg-[#09090B] font-['Inter',sans-serif] selection:bg-indigo-500/20 selection:text-white">
 //       <Toaster />
       
-//       {/* Animated Background */}
+//       {/* Premium Background */}
 //       <div className="fixed inset-0">
-//         <div className="absolute top-20 left-10 w-96 h-96 bg-purple-600/10 rounded-full filter blur-3xl animate-pulse"></div>
-//         <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-600/10 rounded-full filter blur-3xl animate-pulse animation-delay-2000"></div>
-//         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f1f2e_1px,transparent_1px),linear-gradient(to_bottom,#1f1f2e_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+//         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,80,255,0.15),transparent)]"></div>
+//         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_120%,rgba(255,100,150,0.1),transparent)]"></div>
+//         <div className="absolute inset-0" style={{
+//           backgroundImage: `
+//             linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+//             linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
+//           `,
+//           backgroundSize: '40px 40px',
+//           maskImage: 'radial-gradient(circle at 50% 50%, black, transparent 90%)'
+//         }}></div>
 //       </div>
 
 //       {/* Main Content */}
-//       <div className="relative z-10">
+//       <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
 //         {/* Header */}
-//         <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#111117]/80 border-b border-[#2a2a35]">
-//           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//             <div className="flex justify-between items-center h-16 sm:h-20">
-//               <div className="flex items-center gap-2 sm:gap-3">
-//                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-600/20">
-//                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-//                 </div>
-//                 <span className="font-bold text-lg sm:text-xl bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-//                   Teacher Dashboard
-//                 </span>
-//               </div>
-
-//               <div className="flex items-center gap-3 sm:gap-4">
-//                 <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 sm:py-2 bg-[#1a1a23] rounded-xl border border-[#2a2a35]">
-//                   <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xs sm:text-sm">
-//                     {user?.name?.charAt(0) || 'T'}
-//                   </div>
-//                   <div className="hidden sm:block">
-//                     <p className="text-sm font-medium text-white">{user?.name}</p>
-//                     <p className="text-xs text-gray-400">Teacher</p>
-//                   </div>
-//                 </div>
-                
-//                 <button
-//                   onClick={handleLogout}
-//                   className="p-2 sm:p-2.5 bg-[#1a1a23] border border-[#2a2a35] rounded-xl text-gray-400 hover:text-white hover:border-red-500/50 hover:bg-red-500/10 transition-all group"
-//                   title="Logout"
-//                 >
-//                   <LogOut className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
-//                 </button>
-//               </div>
-//             </div>
+//         <motion.div 
+//           initial={{ opacity: 0, y: -20 }}
+//           animate={{ opacity: 1, y: 0 }}
+//           className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12"
+//         >
+//           <div>
+//             <motion.h1 
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               transition={{ delay: 0.2 }}
+//               className="text-3xl font-light text-white mb-1"
+//             >
+//               {greeting}, <span className="font-medium bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">{user?.name}</span>
+//             </motion.h1>
+//             <motion.p 
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               transition={{ delay: 0.3 }}
+//               className="text-white/30 text-sm"
+//             >
+//               manage your quizzes and track student performance
+//             </motion.p>
 //           </div>
-//         </header>
+          
+//           <motion.div 
+//             initial={{ opacity: 0, scale: 0.9 }}
+//             animate={{ opacity: 1, scale: 1 }}
+//             transition={{ delay: 0.4 }}
+//             className="flex items-center gap-3"
+//           >
+//             <Link href="/profile">
+//               <div className="flex items-center gap-3 px-3 py-2 bg-white/[0.02] border border-white/[0.05] rounded-full hover:bg-white/[0.04] transition-all cursor-pointer">
+//                 <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
+//                   {user?.name?.charAt(0) || 'T'}
+//                 </div>
+//                 <span className="text-sm text-white/60 hidden sm:block">{user?.email}</span>
+//               </div>
+//             </Link>
+            
+//             <motion.button
+//               whileHover={{ scale: 1.05 }}
+//               whileTap={{ scale: 0.95 }}
+//               onClick={handleLogout}
+//               className="p-2 bg-white/[0.02] border border-white/[0.05] rounded-full text-white/40 hover:text-white/60 hover:border-white/10 transition-all"
+//             >
+//               <LogOut className="w-4 h-4" />
+//             </motion.button>
+//           </motion.div>
+//         </motion.div>
 
-//         {/* Main Content */}
-//         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-//           {/* Welcome Section */}
-//           <div className="relative mb-6 sm:mb-8 group">
-//             <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
-//             <div className="relative bg-gradient-to-r from-[#1a1a23] to-[#111117] border border-[#2a2a35] rounded-2xl p-4 sm:p-6 overflow-hidden">
-//               <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-purple-600/10 rounded-full filter blur-3xl"></div>
-//               <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+//         {/* Welcome Card with Create Quiz Button */}
+//         <motion.div
+//           initial={{ opacity: 0, y: 20 }}
+//           animate={{ opacity: 1, y: 0 }}
+//           transition={{ delay: 0.1 }}
+//           className="relative mb-12"
+//         >
+//           <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-3xl blur-3xl"></div>
+          
+//           <div className="relative bg-white/[0.02] border border-white/[0.05] rounded-3xl p-8 overflow-hidden">
+//             <div className="absolute top-0 right-0 w-64 h-64 opacity-20">
+//               <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full filter blur-3xl"></div>
+//             </div>
+            
+//             <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+//               <div className="flex items-center gap-4">
+//                 <div className="w-16 h-16 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center border border-white/[0.05]">
+//                   <Sparkles className="w-8 h-8 text-indigo-400" />
+//                 </div>
 //                 <div>
-//                   <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">
-//                     Welcome back, {user?.name}! 👋
-//                   </h1>
-//                   <p className="text-sm sm:text-base text-gray-400">
-//                     Manage your quizzes and track student performance
-//                   </p>
+//                   <h2 className="text-xl font-light text-white mb-1">ready to create something new?</h2>
+//                   <p className="text-sm text-white/30">design a quiz and challenge your students</p>
 //                 </div>
-//                 <button 
-//                   onClick={() => router.push('/teacher/create-quiz')}
-//                   className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-blue-500 transition-all transform hover:scale-105 shadow-lg shadow-purple-600/25 w-full sm:w-auto"
-//                 >
-//                   <PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-//                   Create New Quiz
-//                 </button>
 //               </div>
+              
+//               <motion.button
+//                 whileHover={{ scale: 1.02 }}
+//                 whileTap={{ scale: 0.98 }}
+//                 onClick={() => router.push('/teacher/create-quiz')}
+//                 className="flex items-center gap-2 px-6 py-3 bg-white/[0.02] border border-white/[0.05] rounded-xl hover:bg-indigo-500/20 hover:border-indigo-500/50 transition-all group"
+//               >
+//                 <PlusCircle className="w-5 h-5 text-indigo-400 group-hover:text-indigo-300" />
+//                 <span className="text-sm text-white/60 group-hover:text-white">create new quiz</span>
+//               </motion.button>
 //             </div>
 //           </div>
+//         </motion.div>
 
-//           {/* Stats Grid */}
-//           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-//             {stats.map((stat, index) => (
-//               <div
-//                 key={`stat-${index}`}
-//                 className="group relative"
-//               >
-//                 <div className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl blur-xl"
-//                      style={{ background: `linear-gradient(to right, ${stat.gradient})` }}></div>
-//                 <div className="relative bg-[#111117] border border-[#2a2a35] rounded-xl p-4 sm:p-5 hover:border-transparent transition-all">
-//                   <div className="flex items-center justify-between mb-2 sm:mb-3">
-//                     <div className={`p-2 sm:p-2.5 ${stat.bg} rounded-lg`}>
-//                       <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${stat.text}`} />
-//                     </div>
-//                     <span className="text-[10px] sm:text-xs text-gray-500">{stat.change}</span>
-//                   </div>
-//                   <p className="text-xs sm:text-sm text-gray-400">{stat.title}</p>
-//                   <p className="text-xl sm:text-2xl font-bold text-white mt-1">{stat.value}</p>
+//         {/* Stats Grid */}
+//         <motion.div 
+//           variants={containerVariants}
+//           initial="hidden"
+//           animate="visible"
+//           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12"
+//         >
+//           {stats.map((stat) => (
+//             <motion.div
+//               key={stat.title}
+//               variants={itemVariants}
+//               whileHover={{ y: -2 }}
+//               className="group relative bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6 hover:border-white/10 transition-all"
+//             >
+//               <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity`}></div>
+              
+//               <div className="relative">
+//                 <div className={`w-10 h-10 ${stat.bg} rounded-xl flex items-center justify-center mb-3`}>
+//                   <stat.icon className={`w-5 h-5 ${stat.text}`} />
 //                 </div>
+//                 <p className="text-sm text-white/40 mb-1">{stat.title}</p>
+//                 <p className="text-2xl font-light text-white mb-2">{stat.value}</p>
+//                 <p className="text-xs text-white/20">{stat.change}</p>
 //               </div>
-//             ))}
-//           </div>
+//             </motion.div>
+//           ))}
+//         </motion.div>
 
-//           {/* Quizzes and Results Grid */}
-//           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-//             {/* My Quizzes */}
-//             <div className="lg:col-span-2">
-//               <div className="bg-[#111117] border border-[#2a2a35] rounded-xl overflow-hidden">
-//                 <div className="p-4 sm:p-5 border-b border-[#2a2a35] flex justify-between items-center">
+//         {/* Main Grid */}
+//         <div className="grid lg:grid-cols-3 gap-6">
+//           {/* My Quizzes */}
+//           <motion.div 
+//             initial={{ opacity: 0, y: 20 }}
+//             animate={{ opacity: 1, y: 0 }}
+//             transition={{ delay: 0.2 }}
+//             className="lg:col-span-2"
+//           >
+//             <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl overflow-hidden">
+//               <div className="p-6 border-b border-white/[0.05]">
+//                 <div className="flex items-center justify-between">
 //                   <div>
-//                     <h2 className="text-base sm:text-lg font-semibold text-white">My Quizzes</h2>
-//                     <p className="text-xs sm:text-sm text-gray-400 mt-1">
+//                     <h2 className="text-lg font-light text-white">my quizzes</h2>
+//                     <p className="text-sm text-white/30 mt-1">
 //                       {quizzes.length} quiz{quizzes.length !== 1 ? 'zes' : ''} created
 //                     </p>
 //                   </div>
-//                   <button
-//                     onClick={() => router.push('/teacher/create-quiz')}
-//                     className="flex items-center gap-1 px-3 py-1.5 bg-purple-600/10 hover:bg-purple-600 border border-purple-600/20 hover:border-purple-500 rounded-lg text-purple-400 hover:text-white transition-all text-xs sm:text-sm"
+//                   <Link 
+//                     href="/teacher/quizzes"
+//                     className="text-xs text-white/30 hover:text-indigo-400 transition-colors flex items-center gap-1"
 //                   >
-//                     <PlusCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-//                     <span className="hidden sm:inline">New Quiz</span>
-//                   </button>
+//                     view all
+//                     <ChevronRight className="w-3 h-3" />
+//                   </Link>
 //                 </div>
-                
-//                 {quizzes.length === 0 ? (
-//                   <div className="p-8 sm:p-10 text-center">
-//                     <FileText className="w-10 h-10 sm:w-12 sm:h-12 text-gray-600 mx-auto mb-3" />
-//                     <p className="text-sm sm:text-base text-gray-400 mb-2">No quizzes yet</p>
-//                     <button
-//                       onClick={() => router.push('/teacher/create-quiz')}
-//                       className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
-//                     >
-//                       Create your first quiz →
-//                     </button>
-//                   </div>
-//                 ) : (
-//                   <div className="divide-y divide-[#2a2a35]">
-//                     {quizzes.map((quiz) => {
-//                       const quizResults = results.filter(r => r.quizId === quiz._id);
-//                       const avgScore = quizResults.length
-//                         ? Math.round(quizResults.reduce((acc, r) => acc + r.percentage, 0) / quizResults.length)
-//                         : 0;
-
-//                       return (
-//                         <div key={`quiz-${quiz._id || quiz.id}`} className="p-4 sm:p-5 hover:bg-[#1a1a23] transition-colors group">
-//                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-//                             <div className="flex-1">
-//                               <div className="flex items-center gap-2 mb-2">
-//                                 <h3 className="text-sm sm:text-base font-medium text-white group-hover:text-purple-400 transition-colors">
-//                                   {quiz.title}
-//                                 </h3>
-//                                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-//                                   quizResults.length > 0
-//                                     ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-//                                     : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-//                                 }`}>
-//                                   {quizResults.length} attempt{quizResults.length !== 1 ? 's' : ''}
-//                                 </span>
-//                               </div>
-//                               <p className="text-xs sm:text-sm text-gray-400 line-clamp-1 mb-2">
-//                                 {quiz.description}
-//                               </p>
-//                               <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-gray-500">
-//                                 <span className="flex items-center gap-1">
-//                                   <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {quiz.duration} mins
-//                                 </span>
-//                                 <span>•</span>
-//                                 <span>{quiz.questions?.length || 0} questions</span>
-//                                 <span>•</span>
-//                                 <span>{quiz.totalMarks} marks</span>
-//                                 {quizResults.length > 0 && (
-//                                   <>
-//                                     <span>•</span>
-//                                     <span className="text-purple-400">Avg: {avgScore}%</span>
-//                                   </>
-//                                 )}
-//                               </div>
-//                             </div>
-//                             <div className="flex items-center gap-2">
-//                               <button
-//                                 onClick={() => handleEditQuiz(quiz)}
-//                                 className="p-2 hover:bg-[#252530] rounded-lg transition-colors group/edit"
-//                                 title="Edit Quiz"
-//                               >
-//                                 <Edit className="w-4 h-4 text-gray-400 group-hover/edit:text-blue-400" />
-//                               </button>
-//                               <button
-//                                 onClick={() => handleDeleteQuiz(quiz._id, quiz.title)}
-//                                 disabled={deletingId === quiz._id}
-//                                 className="p-2 hover:bg-[#252530] rounded-lg transition-colors group/delete"
-//                                 title="Delete Quiz"
-//                               >
-//                                 {deletingId === quiz._id ? (
-//                                   <Loader2 className="w-4 h-4 text-red-400 animate-spin" />
-//                                 ) : (
-//                                   <Trash2 className="w-4 h-4 text-gray-400 group-hover/delete:text-red-400" />
-//                                 )}
-//                               </button>
-//                               <button
-//                                 onClick={() => router.push(`/teacher/quiz-results/${quiz._id}`)}
-//                                 className="flex items-center gap-1 px-3 py-1.5 bg-purple-600/10 hover:bg-purple-600 border border-purple-600/20 hover:border-purple-500 rounded-lg text-purple-400 hover:text-white transition-all text-xs"
-//                               >
-//                                 <span>Details</span>
-//                                 <ChevronRight className="w-3 h-3" />
-//                               </button>
-//                             </div>
-//                           </div>
-//                         </div>
-//                       );
-//                     })}
-//                   </div>
-//                 )}
 //               </div>
-//             </div>
-
-//             {/* Recent Results */}
-//             <div>
-//               <div className="bg-[#111117] border border-[#2a2a35] rounded-xl p-4 sm:p-5">
-//                 <h3 className="text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
-//                   <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
-//                   Recent Results
-//                 </h3>
-                
-//                 {results.length === 0 ? (
-//                   <div className="text-center py-4 sm:py-6">
-//                     <Award className="w-8 h-8 sm:w-10 sm:h-10 text-gray-600 mx-auto mb-2" />
-//                     <p className="text-xs sm:text-sm text-gray-400">No results yet</p>
-//                     <p className="text-xs text-gray-500 mt-1">Students haven't taken any quizzes</p>
+              
+//               {quizzes.length === 0 ? (
+//                 <div className="p-12 text-center">
+//                   <div className="w-16 h-16 bg-white/[0.02] rounded-2xl flex items-center justify-center mx-auto mb-4">
+//                     <FileText className="w-8 h-8 text-white/20" />
 //                   </div>
-//                 ) : (
-//                   <div className="space-y-2 sm:space-y-3">
-//                     {results.slice(0, 5).map((result, index) => (
-//                       <div key={`result-${result._id || index}`} className="flex items-center justify-between p-2 sm:p-3 bg-[#1a1a23] rounded-lg hover:bg-[#252530] transition-colors">
-//                         <div className="flex-1 min-w-0">
-//                           <div className="flex items-center gap-2 mb-1">
-//                             <p className="text-xs sm:text-sm font-medium text-white truncate">
-//                               {result.userName}
-//                             </p>
-//                             <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-medium ${
-//                               result.percentage >= 70 
-//                                 ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-//                                 : result.percentage >= 40
-//                                 ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-//                                 : 'bg-red-500/20 text-red-400 border border-red-500/30'
-//                             }`}>
-//                               {result.percentage >= 70 ? 'Good' : result.percentage >= 40 ? 'Avg' : 'Poor'}
-//                             </span>
-//                           </div>
-//                           <p className="text-[10px] sm:text-xs text-gray-400 truncate">
-//                             {result.quizTitle}
-//                           </p>
-//                           <p className="text-[8px] sm:text-[10px] text-gray-500 mt-0.5">
-//                             {new Date(result.submittedAt).toLocaleDateString()}
-//                           </p>
-//                         </div>
-//                         <div className="ml-2 text-right">
-//                           <div className={`text-xs sm:text-sm font-bold ${
-//                             result.percentage >= 70 
-//                               ? 'text-green-400' 
-//                               : result.percentage >= 40
-//                               ? 'text-yellow-400'
-//                               : 'text-red-400'
-//                           }`}>
-//                             {result.score}/{result.totalMarks}
-//                           </div>
-//                           <div className="text-[8px] sm:text-[10px] text-gray-500">
-//                             {result.percentage}%
-//                           </div>
-//                         </div>
-//                       </div>
-//                     ))}
-                    
-//                     {results.length > 5 && (
-//                       <button 
-//                         onClick={() => router.push('/teacher/all-results')}
-//                         className="w-full mt-2 text-xs text-purple-400 hover:text-purple-300 transition-colors text-center py-2"
+//                   <p className="text-white/40 text-sm mb-2">no quizzes yet</p>
+//                   <p className="text-white/20 text-xs">create your first quiz to get started</p>
+//                 </div>
+//               ) : (
+//                 <div className="divide-y divide-white/[0.05]">
+//                   {quizzes.slice(0, 4).map((quiz, index) => {
+//                     const quizResults = results.filter(r => r.quizId === quiz._id);
+//                     const avgScore = quizResults.length
+//                       ? Math.round(quizResults.reduce((acc, r) => acc + r.percentage, 0) / quizResults.length)
+//                       : 0;
+
+//                     return (
+//                       <motion.div
+//                         key={`quiz-${quiz._id || quiz.id}`}
+//                         initial={{ opacity: 0 }}
+//                         animate={{ opacity: 1 }}
+//                         transition={{ delay: 0.1 * index }}
+//                         className="p-6 hover:bg-white/[0.02] transition-colors group"
 //                       >
-//                         View all {results.length} results →
-//                       </button>
-//                     )}
-//                   </div>
-//                 )}
+//                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+//                           <div className="flex-1">
+//                             <div className="flex items-center gap-2 mb-2">
+//                               <h3 className="text-base font-medium text-white group-hover:text-indigo-400 transition-colors">
+//                                 {quiz.title}
+//                               </h3>
+//                               {quiz.difficulty && (
+//                                 <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
+//                                   quiz.difficulty === 'beginner' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' :
+//                                   quiz.difficulty === 'intermediate' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' :
+//                                   'bg-red-500/10 text-red-400 border-red-500/30'
+//                                 }`}>
+//                                   {quiz.difficulty}
+//                                 </span>
+//                               )}
+//                               <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
+//                                 quizResults.length > 0
+//                                   ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+//                                   : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30'
+//                               }`}>
+//                                 {quizResults.length} attempt{quizResults.length !== 1 ? 's' : ''}
+//                               </span>
+//                             </div>
+//                             <p className="text-sm text-white/30 mb-3 line-clamp-1">{quiz.description}</p>
+//                             <div className="flex items-center gap-4 text-xs text-white/20">
+//                               <span className="flex items-center gap-1">
+//                                 <Clock className="w-3 h-3" /> {quiz.duration} min
+//                               </span>
+//                               <span>·</span>
+//                               <span>{quiz.questions?.length || 0} questions</span>
+//                               <span>·</span>
+//                               <span>{quiz.totalMarks} marks</span>
+//                               {quizResults.length > 0 && (
+//                                 <>
+//                                   <span>·</span>
+//                                   <span className="text-indigo-400/60">avg {avgScore}%</span>
+//                                 </>
+//                               )}
+//                             </div>
+//                           </div>
+                          
+//                           <div className="flex items-center gap-2">
+//                             <motion.button
+//                               whileHover={{ scale: 1.05 }}
+//                               whileTap={{ scale: 0.95 }}
+//                               onClick={() => handleEditQuiz(quiz)}
+//                               className="p-2 bg-white/[0.02] hover:bg-indigo-500/20 border border-white/[0.05] hover:border-indigo-500/50 rounded-lg text-white/40 hover:text-indigo-400 transition-all"
+//                               title="edit quiz"
+//                             >
+//                               <Edit className="w-4 h-4" />
+//                             </motion.button>
+//                             <motion.button
+//                               whileHover={{ scale: 1.05 }}
+//                               whileTap={{ scale: 0.95 }}
+//                               onClick={() => handleDeleteQuiz(quiz._id, quiz.title)}
+//                               disabled={deletingId === quiz._id}
+//                               className="p-2 bg-white/[0.02] hover:bg-red-500/20 border border-white/[0.05] hover:border-red-500/50 rounded-lg text-white/40 hover:text-red-400 transition-all disabled:opacity-50"
+//                               title="delete quiz"
+//                             >
+//                               {deletingId === quiz._id ? (
+//                                 <Loader2 className="w-4 h-4 animate-spin" />
+//                               ) : (
+//                                 <Trash2 className="w-4 h-4" />
+//                               )}
+//                             </motion.button>
+//                             <motion.button
+//                               whileHover={{ scale: 1.05 }}
+//                               whileTap={{ scale: 0.95 }}
+//                               onClick={() => router.push(`/teacher/quiz-results/${quiz._id}`)}
+//                               className="flex items-center gap-1 px-3 py-2 bg-white/[0.02] hover:bg-indigo-500/20 border border-white/[0.05] hover:border-indigo-500/50 rounded-lg text-white/40 hover:text-indigo-400 transition-all text-xs"
+//                             >
+//                               <span>details</span>
+//                               <ChevronRight className="w-3 h-3" />
+//                             </motion.button>
+//                           </div>
+//                         </div>
+//                       </motion.div>
+//                     );
+//                   })}
+//                 </div>
+//               )}
+//             </div>
+//           </motion.div>
+
+//           {/* Right Sidebar */}
+//           <motion.div 
+//             initial={{ opacity: 0, y: 20 }}
+//             animate={{ opacity: 1, y: 0 }}
+//             transition={{ delay: 0.3 }}
+//             className="space-y-6"
+//           >
+//             {/* Recent Results */}
+//             <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6">
+//               <div className="flex items-center justify-between mb-4">
+//                 <h3 className="text-sm font-light text-white">recent results</h3>
+//                 <BarChart3 className="w-4 h-4 text-white/20" />
+//               </div>
+              
+//               {results.length === 0 ? (
+//                 <div className="text-center py-6">
+//                   <Award className="w-8 h-8 text-white/20 mx-auto mb-2" />
+//                   <p className="text-xs text-white/30">no results yet</p>
+//                 </div>
+//               ) : (
+//                 <div className="space-y-3">
+//                   {results.slice(0, 5).map((result, index) => (
+//                     <motion.div
+//                       key={`result-${result._id || index}`}
+//                       initial={{ opacity: 0 }}
+//                       animate={{ opacity: 1 }}
+//                       transition={{ delay: 0.1 * index }}
+//                       className="p-3 bg-white/[0.02] hover:bg-white/[0.04] rounded-xl transition-colors"
+//                     >
+//                       <div className="flex items-center justify-between mb-1">
+//                         <div className="flex items-center gap-2">
+//                           <div className="w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-[10px]">
+//                             {result.userName?.charAt(0) || 'U'}
+//                           </div>
+//                           <p className="text-sm text-white/80 truncate max-w-[100px]">{result.userName}</p>
+//                         </div>
+//                         <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+//                           result.percentage >= 70 
+//                             ? 'bg-emerald-500/10 text-emerald-400' 
+//                             : result.percentage >= 40
+//                             ? 'bg-yellow-500/10 text-yellow-400'
+//                             : 'bg-red-500/10 text-red-400'
+//                         }`}>
+//                           {result.percentage}%
+//                         </span>
+//                       </div>
+//                       <p className="text-xs text-white/30 truncate mb-1">{result.quizTitle}</p>
+//                       <p className="text-[10px] text-white/20">{new Date(result.submittedAt).toLocaleDateString()}</p>
+//                     </motion.div>
+//                   ))}
+                  
+//                   {results.length > 5 && (
+//                     <Link 
+//                       href="/teacher/all-results"
+//                       className="block text-center text-xs text-white/30 hover:text-indigo-400 transition-colors pt-2"
+//                     >
+//                       view all {results.length} results
+//                     </Link>
+//                   )}
+//                 </div>
+//               )}
+//             </div>
+
+//             {/* Quick Stats */}
+//             <div className="grid grid-cols-2 gap-4">
+//               <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5">
+//                 <div className="flex items-center gap-2 mb-3">
+//                   <Target className="w-4 h-4 text-indigo-400/60" />
+//                   <span className="text-xs text-white/40">pass rate</span>
+//                 </div>
+//                 <p className="text-xl font-light text-white mb-1">{passRate}%</p>
+//                 <p className="text-[10px] text-white/20">of students passed</p>
+//               </div>
+//               <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5">
+//                 <div className="flex items-center gap-2 mb-3">
+//                   <Activity className="w-4 h-4 text-purple-400/60" />
+//                   <span className="text-xs text-white/40">engagement</span>
+//                 </div>
+//                 <p className="text-xl font-light text-white mb-1">
+//                   {results.length ? Math.round((results.length / (totalStudents || 1)) * 100) : 0}%
+//                 </p>
+//                 <p className="text-[10px] text-white/20">submission rate</p>
 //               </div>
 //             </div>
-//           </div>
-//         </main>
+
+//             {/* Tips Card */}
+//             <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-2xl p-6">
+//               <div className="flex items-start gap-3">
+//                 <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
+//                   <HelpCircle className="w-4 h-4 text-indigo-400" />
+//                 </div>
+//                 <div>
+//                   <p className="text-sm text-white/80 mb-1">pro tip</p>
+//                   <p className="text-xs text-white/30">add images to your quizzes to increase engagement by 40%</p>
+//                 </div>
+//               </div>
+//             </div>
+
+//             {/* Settings Link */}
+//             <Link href="/teacher/settings">
+//               <motion.div
+//                 whileHover={{ x: 5 }}
+//                 className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.05] rounded-xl hover:bg-white/[0.04] transition-all cursor-pointer"
+//               >
+//                 <div className="flex items-center gap-3">
+//                   <Settings className="w-5 h-5 text-indigo-400/60" />
+//                   <span className="text-sm text-white/80">dashboard settings</span>
+//                 </div>
+//                 <ChevronRight className="w-4 h-4 text-white/20" />
+//               </motion.div>
+//             </Link>
+//           </motion.div>
+//         </div>
 //       </div>
 
 //       <style jsx>{`
-//         @keyframes pulse {
-//           0%, 100% { opacity: 0.5; }
-//           50% { opacity: 1; }
-//         }
-//         .animation-delay-2000 {
-//           animation-delay: 2s;
+//         .line-clamp-1 {
+//           display: -webkit-box;
+//           -webkit-line-clamp: 1;
+//           -webkit-box-orient: vertical;
+//           overflow: hidden;
 //         }
 //       `}</style>
 //     </div>
@@ -507,17 +702,13 @@
 
 
 
-
-
-
-
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';  // ✅ Import Link
-import { Toaster } from 'react-hot-toast';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Toaster, toast as hotToast } from 'react-hot-toast';
 import { 
   PlusCircle, 
   Edit, 
@@ -532,6 +723,15 @@ import {
   ChevronRight,
   FileText,
   Loader2,
+  BookOpen,
+  Star,
+  Target,
+  Activity,
+  Settings,
+  HelpCircle,
+  GraduationCap,
+  Zap,
+  Gift
 } from 'lucide-react';
 import { showToast } from '@/lib/toast';
 
@@ -544,6 +744,8 @@ interface Quiz {
   totalMarks: number;
   questions: any[];
   createdAt: string;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  category?: string;
 }
 
 interface Result {
@@ -564,8 +766,20 @@ export default function TeacherDashboard() {
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [greeting, setGreeting] = useState('');
+  const [previousStats, setPreviousStats] = useState({
+    quizzes: 0,
+    results: 0,
+    students: 0
+  });
 
   useEffect(() => {
+    // Set greeting based on time
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting('good morning');
+    else if (hour < 18) setGreeting('good afternoon');
+    else setGreeting('good evening');
+
     const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
 
@@ -597,16 +811,160 @@ export default function TeacherDashboard() {
       const resultsData = await resultsRes.json();
 
       if (quizzesData.success) {
-        setQuizzes(quizzesData.data);
+        // Store previous count for achievements
+        const prevQuizzes = quizzes.length;
+        
+        // Add mock difficulty for demo
+        const quizzesWithMeta = quizzesData.data.map((q: Quiz) => ({
+          ...q,
+          difficulty: ['beginner', 'intermediate', 'advanced'][Math.floor(Math.random() * 3)] as any,
+          category: ['web development', 'programming', 'database', 'design', 'business'][Math.floor(Math.random() * 5)]
+        }));
+        
+        setQuizzes(quizzesWithMeta);
+        
+        // Check for new quiz creation achievement
+        if (quizzesWithMeta.length > prevQuizzes && prevQuizzes > 0) {
+          const newQuizzes = quizzesWithMeta.length - prevQuizzes;
+          showToast.achievement(
+            newQuizzes === 1 ? 'New Quiz Created! 🎯' : 'Quizzes Added! 📚',
+            newQuizzes === 1 
+              ? 'Your students will love this new challenge'
+              : `You've added ${newQuizzes} new quizzes`
+          );
+        }
+        
+        // First quiz milestone
+        if (prevQuizzes === 0 && quizzesWithMeta.length === 1) {
+          showToast.achievement(
+            'First Quiz! 🏆',
+            'Congratulations on creating your first quiz'
+          );
+        }
+        
+        // Milestone achievements
+        if (prevQuizzes < 5 && quizzesWithMeta.length >= 5) {
+          showToast.achievement(
+            'Quiz Master! ⭐',
+            'You\'ve created 5 quizzes - amazing work!'
+          );
+        }
+        
+        if (prevQuizzes < 10 && quizzesWithMeta.length >= 10) {
+          showToast.achievement(
+            'Double Digits! 🔥',
+            '10 quizzes created - you\'re on fire!'
+          );
+        }
       }
 
       if (resultsData.success) {
+        // Store previous stats
+        const prevResults = results.length;
+        const prevStudents = results.length ? new Set(results.map(r => r.userName)).size : 0;
+        
         setResults(resultsData.data);
+        
+        // Calculate new stats
+        const currentStudents = new Set(resultsData.data.map(r => r.userName)).size;
+        const newResults = resultsData.data.length - prevResults;
+        const newStudents = currentStudents - prevStudents;
+        
+        // Show meaningful notifications based on activity
+        if (newResults > 0) {
+          // Student activity toast
+          showToast.stats(newResults, newStudents);
+          
+          // Check for perfect scores
+          const perfectScores = resultsData.data
+            .slice(prevResults)
+            .filter((r: Result) => r.percentage === 100);
+          
+          if (perfectScores.length > 0) {
+            showToast.achievement(
+              perfectScores.length === 1 ? 'Perfect Score! 🏆' : 'Perfect Scores! 🏆',
+              `${perfectScores.length} student${perfectScores.length > 1 ? 's' : ''} aced ${perfectScores.length === 1 ? 'a quiz' : 'quizzes'}`
+            );
+          }
+          
+          // Check for struggling students (scores below 40)
+          const strugglingStudents = resultsData.data
+            .slice(prevResults)
+            .filter((r: Result) => r.percentage < 40);
+          
+          if (strugglingStudents.length > 0) {
+            showToast.custom((t) => (
+              <div className={`${
+                t.visible ? 'animate-enter' : 'animate-leave'
+              } max-w-md w-full bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-2xl shadow-2xl pointer-events-auto`}>
+                <div className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+                      <HelpCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white">Attention Needed</p>
+                      <p className="text-xs text-white/40">
+                        {strugglingStudents.length} student{strugglingStudents.length > 1 ? 's' : ''} scored below 40%
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ), { duration: 6000 });
+          }
+        }
+        
+        // Weekly summary (only once per week)
+        const lastWeek = new Date();
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        
+        const weeklyResults = resultsData.data.filter((r: Result) => 
+          new Date(r.submittedAt) > lastWeek
+        ).length;
+        
+        const weeklySummaryShown = sessionStorage.getItem('weeklyTeacherSummary');
+        if (weeklyResults > 0 && !weeklySummaryShown) {
+          showToast.custom((t) => (
+            <div className={`${
+              t.visible ? 'animate-enter' : 'animate-leave'
+            } max-w-md w-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 rounded-2xl shadow-2xl pointer-events-auto`}>
+              <div className="p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-indigo-400" />
+                  </div>
+                  <p className="text-sm font-medium text-white">Weekly Summary</p>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-white/[0.02] rounded-lg p-2">
+                    <p className="text-[10px] text-white/30">submissions</p>
+                    <p className="text-sm font-light text-white">{weeklyResults}</p>
+                  </div>
+                  <div className="bg-white/[0.02] rounded-lg p-2">
+                    <p className="text-[10px] text-white/30">active students</p>
+                    <p className="text-sm font-light text-white">{new Set(resultsData.data.map(r => r.userName)).size}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ), { duration: 5000 });
+          
+          sessionStorage.setItem('weeklyTeacherSummary', 'true');
+        }
       }
 
-      showToast.success('Dashboard updated');
+      // Regular dashboard update toast (only if there's actual new data)
+      if (quizzesData.success || resultsData.success) {
+        const toastId = showToast.loading('refreshing dashboard...');
+        setTimeout(() => {
+          hotToast.dismiss(toastId);
+          showToast.success('dashboard updated');
+        }, 800);
+      }
+      
     } catch (error) {
-      showToast.error('Failed to load dashboard');
+      showToast.error('failed to load dashboard');
     } finally {
       setLoading(false);
     }
@@ -614,23 +972,26 @@ export default function TeacherDashboard() {
 
   const handleEditQuiz = (quiz: Quiz) => {
     const quizId = quiz._id || quiz.id;
-    console.log('🔍 Editing quiz:', quiz);
-    console.log('🔍 Using quizId:', quizId);
     
     if (!quizId) {
-      showToast.error('Quiz ID not found');
+      showToast.error('quiz id not found');
       return;
     }
     
-    router.push(`/teacher/edit-quiz/${quizId}`);
+    const toastId = showToast.loading('loading editor...');
+    setTimeout(() => {
+      hotToast.dismiss(toastId);
+      router.push(`/teacher/edit-quiz/${quizId}`);
+    }, 800);
   };
 
   const handleDeleteQuiz = async (quizId: string, quizTitle: string) => {
-    if (!confirm(`Are you sure you want to delete "${quizTitle}"? This action cannot be undone.`)) {
+    if (!confirm(`are you sure you want to delete "${quizTitle}"? this action cannot be undone.`)) {
       return;
     }
 
     setDeletingId(quizId);
+    const toastId = showToast.loading('deleting quiz...');
     
     try {
       const res = await fetch(`/api/quizzes/${quizId}`, {
@@ -641,22 +1002,32 @@ export default function TeacherDashboard() {
 
       if (res.ok && data.success) {
         setQuizzes(quizzes.filter(q => (q._id !== quizId && q.id !== quizId)));
-        showToast.success('Quiz deleted successfully');
+        hotToast.dismiss(toastId);
+        showToast.success('quiz deleted successfully');
       } else {
-        showToast.error(data.error || 'Failed to delete quiz');
+        hotToast.dismiss(toastId);
+        showToast.error(data.error || 'failed to delete quiz');
       }
     } catch (error) {
-      showToast.error('Network error');
+      hotToast.dismiss(toastId);
+      showToast.error('network error');
     } finally {
       setDeletingId(null);
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    showToast.success('Logged out successfully');
-    router.push('/login');
+    const toastId = showToast.loading('logging out...');
+    
+    setTimeout(() => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      sessionStorage.clear();
+      hotToast.dismiss(toastId);
+      showToast.success('logged out successfully');
+      
+      setTimeout(() => router.push('/login'), 1000);
+    }, 800);
   };
 
   // Calculate statistics
@@ -666,53 +1037,124 @@ export default function TeacherDashboard() {
   const averageScore = results.length 
     ? Math.round(results.reduce((acc, r) => acc + r.percentage, 0) / results.length) 
     : 0;
+  
+  // Calculate pass rate (score >= 70)
+  const passCount = results.filter(r => r.percentage >= 70).length;
+  const passRate = results.length ? Math.round((passCount / results.length) * 100) : 0;
+  
+  // Calculate this week's activity
+  const thisWeek = new Date();
+  thisWeek.setDate(thisWeek.getDate() - 7);
+  const weeklyActivity = results.filter(r => new Date(r.submittedAt) > thisWeek).length;
 
   const stats = [
     { 
-      title: 'Total Quizzes', 
+      title: 'quizzes', 
       value: totalQuizzes, 
       icon: FileText, 
-      change: 'Created by you',
-      gradient: 'from-blue-500 to-cyan-500',
-      bg: 'bg-blue-500/10',
-      text: 'text-blue-400'
+      change: `${totalQuizzes} created`,
+      gradient: 'from-indigo-500 to-purple-500',
+      bg: 'bg-indigo-500/10',
+      text: 'text-indigo-400',
+      delay: 0
     },
     { 
-      title: 'Total Students', 
+      title: 'students', 
       value: totalStudents, 
-      icon: Users, 
-      change: 'Attempted quizzes',
-      gradient: 'from-green-500 to-emerald-500',
-      bg: 'bg-green-500/10',
-      text: 'text-green-400'
+      icon: GraduationCap, 
+      change: `${totalStudents} enrolled`,
+      gradient: 'from-emerald-500 to-green-500',
+      bg: 'bg-emerald-500/10',
+      text: 'text-emerald-400',
+      delay: 100
     },
     { 
-      title: 'Submissions', 
+      title: 'submissions', 
       value: totalSubmissions, 
       icon: BarChart3, 
-      change: 'Total attempts',
+      change: `${weeklyActivity} this week`,
       gradient: 'from-purple-500 to-pink-500',
       bg: 'bg-purple-500/10',
-      text: 'text-purple-400'
+      text: 'text-purple-400',
+      delay: 200
     },
     { 
-      title: 'Avg Score', 
+      title: 'avg score', 
       value: `${averageScore}%`, 
       icon: TrendingUp, 
-      change: averageScore >= 70 ? 'Good performance' : 'Needs improvement',
-      gradient: 'from-orange-500 to-red-500',
+      change: `${passRate}% pass rate`,
+      gradient: 'from-orange-500 to-amber-500',
       bg: 'bg-orange-500/10',
-      text: 'text-orange-400'
+      text: 'text-orange-400',
+      delay: 300
     },
   ];
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Sparkles className="w-6 h-6 text-purple-500 animate-pulse" />
+      <div className="min-h-screen bg-[#09090B] font-['Inter',sans-serif]">
+        <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,80,255,0.15),transparent)]"></div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
+          {/* Header Skeleton */}
+          <div className="flex justify-between items-center mb-12">
+            <div>
+              <div className="w-32 h-8 bg-white/[0.02] rounded animate-pulse mb-2"></div>
+              <div className="w-48 h-4 bg-white/[0.02] rounded animate-pulse"></div>
+            </div>
+            <div className="w-40 h-10 bg-white/[0.02] rounded-full animate-pulse"></div>
+          </div>
+
+          {/* Stats Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
+            {[1,2,3,4].map(i => (
+              <div key={i} className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6 animate-pulse">
+                <div className="w-8 h-8 bg-white/[0.02] rounded-lg mb-3"></div>
+                <div className="w-16 h-4 bg-white/[0.02] rounded mb-2"></div>
+                <div className="w-24 h-8 bg-white/[0.02] rounded"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Content Skeleton */}
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6">
+                <div className="w-40 h-6 bg-white/[0.02] rounded mb-4"></div>
+                {[1,2,3].map(i => (
+                  <div key={i} className="bg-white/[0.02] rounded-xl p-4 mb-3">
+                    <div className="w-3/4 h-5 bg-white/[0.02] rounded mb-2"></div>
+                    <div className="w-1/2 h-4 bg-white/[0.02] rounded"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6">
+                <div className="w-32 h-6 bg-white/[0.02] rounded mb-4"></div>
+                {[1,2,3].map(i => (
+                  <div key={i} className="bg-white/[0.02] rounded-xl p-3 mb-2">
+                    <div className="w-full h-4 bg-white/[0.02] rounded"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -720,299 +1162,417 @@ export default function TeacherDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F]">
-      <Toaster />
+    <div className="min-h-screen bg-[#09090B] font-['Inter',sans-serif] selection:bg-indigo-500/20 selection:text-white">
+      <Toaster position="top-right" />
       
-      {/* Animated Background */}
+      {/* Premium Background */}
       <div className="fixed inset-0">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-purple-600/10 rounded-full filter blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-600/10 rounded-full filter blur-3xl animate-pulse animation-delay-2000"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f1f2e_1px,transparent_1px),linear-gradient(to_bottom,#1f1f2e_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,80,255,0.15),transparent)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_120%,rgba(255,100,150,0.1),transparent)]"></div>
+        <div className="absolute inset-0" style={{
+          backgroundImage: `
+            linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px',
+          maskImage: 'radial-gradient(circle at 50% 50%, black, transparent 90%)'
+        }}></div>
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
-        <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#111117]/80 border-b border-[#2a2a35]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16 sm:h-20">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-600/20">
-                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                </div>
-                <span className="font-bold text-lg sm:text-xl bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                  Teacher Dashboard
-                </span>
-              </div>
-
-              {/* User Menu - WITH PROFILE LINK */}
-              <div className="flex items-center gap-3 sm:gap-4">
-                <Link href="/profile">
-                  <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 sm:py-2 bg-[#1a1a23] rounded-xl border border-[#2a2a35] cursor-pointer hover:bg-[#252530] transition-colors">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xs sm:text-sm">
-                      {user?.name?.charAt(0) || 'T'}
-                    </div>
-                    <div className="hidden sm:block">
-                      <p className="text-sm font-medium text-white">{user?.name}</p>
-                      <p className="text-xs text-gray-400">Teacher</p>
-                    </div>
-                  </div>
-                </Link>
-                
-                <button
-                  onClick={handleLogout}
-                  className="p-2 sm:p-2.5 bg-[#1a1a23] border border-[#2a2a35] rounded-xl text-gray-400 hover:text-white hover:border-red-500/50 hover:bg-red-500/10 transition-all group"
-                  title="Logout"
-                >
-                  <LogOut className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
-                </button>
-              </div>
-            </div>
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12"
+        >
+          <div>
+            <motion.h1 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-3xl font-light text-white mb-1"
+            >
+              {greeting}, <span className="font-medium bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">{user?.name}</span>
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-white/30 text-sm"
+            >
+              manage your quizzes and track student performance
+            </motion.p>
           </div>
-        </header>
+          
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 }}
+            className="flex items-center gap-3"
+          >
+            <Link href="/profile">
+              <div className="flex items-center gap-3 px-3 py-2 bg-white/[0.02] border border-white/[0.05] rounded-full hover:bg-white/[0.04] transition-all cursor-pointer">
+                <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
+                  {user?.name?.charAt(0) || 'T'}
+                </div>
+                <span className="text-sm text-white/60 hidden sm:block">{user?.email}</span>
+              </div>
+            </Link>
+            
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleLogout}
+              className="p-2 bg-white/[0.02] border border-white/[0.05] rounded-full text-white/40 hover:text-white/60 hover:border-white/10 transition-all"
+            >
+              <LogOut className="w-4 h-4" />
+            </motion.button>
+          </motion.div>
+        </motion.div>
 
-        {/* Rest of the code - exactly same */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          {/* Welcome Section */}
-          <div className="relative mb-6 sm:mb-8 group">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
-            <div className="relative bg-gradient-to-r from-[#1a1a23] to-[#111117] border border-[#2a2a35] rounded-2xl p-4 sm:p-6 overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-purple-600/10 rounded-full filter blur-3xl"></div>
-              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* Welcome Card with Create Quiz Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="relative mb-12"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-3xl blur-3xl"></div>
+          
+          <div className="relative bg-white/[0.02] border border-white/[0.05] rounded-3xl p-8 overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 opacity-20">
+              <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full filter blur-3xl"></div>
+            </div>
+            
+            <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center border border-white/[0.05]">
+                  <Gift className="w-8 h-8 text-indigo-400" />
+                </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">
-                    Welcome back, {user?.name}! 👋
-                  </h1>
-                  <p className="text-sm sm:text-base text-gray-400">
-                    Manage your quizzes and track student performance
-                  </p>
+                  <h2 className="text-xl font-light text-white mb-1">ready to create something new?</h2>
+                  <p className="text-sm text-white/30">design a quiz and challenge your students</p>
                 </div>
-                <button 
-                  onClick={() => router.push('/teacher/create-quiz')}
-                  className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-blue-500 transition-all transform hover:scale-105 shadow-lg shadow-purple-600/25 w-full sm:w-auto"
-                >
-                  <PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                  Create New Quiz
-                </button>
               </div>
+              
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  const toastId = showToast.loading('opening creator...');
+                  setTimeout(() => {
+                    hotToast.dismiss(toastId);
+                    router.push('/teacher/create-quiz');
+                  }, 800);
+                }}
+                className="flex items-center gap-2 px-6 py-3 bg-white/[0.02] border border-white/[0.05] rounded-xl hover:bg-indigo-500/20 hover:border-indigo-500/50 transition-all group"
+              >
+                <PlusCircle className="w-5 h-5 text-indigo-400 group-hover:text-indigo-300" />
+                <span className="text-sm text-white/60 group-hover:text-white">create new quiz</span>
+              </motion.button>
             </div>
           </div>
+        </motion.div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-            {stats.map((stat, index) => (
-              <div
-                key={`stat-${index}`}
-                className="group relative"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl blur-xl"
-                     style={{ background: `linear-gradient(to right, ${stat.gradient})` }}></div>
-                <div className="relative bg-[#111117] border border-[#2a2a35] rounded-xl p-4 sm:p-5 hover:border-transparent transition-all">
-                  <div className="flex items-center justify-between mb-2 sm:mb-3">
-                    <div className={`p-2 sm:p-2.5 ${stat.bg} rounded-lg`}>
-                      <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${stat.text}`} />
-                    </div>
-                    <span className="text-[10px] sm:text-xs text-gray-500">{stat.change}</span>
-                  </div>
-                  <p className="text-xs sm:text-sm text-gray-400">{stat.title}</p>
-                  <p className="text-xl sm:text-2xl font-bold text-white mt-1">{stat.value}</p>
+        {/* Stats Grid */}
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12"
+        >
+          {stats.map((stat) => (
+            <motion.div
+              key={stat.title}
+              variants={itemVariants}
+              whileHover={{ y: -2 }}
+              className="group relative bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6 hover:border-white/10 transition-all"
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity`}></div>
+              
+              <div className="relative">
+                <div className={`w-10 h-10 ${stat.bg} rounded-xl flex items-center justify-center mb-3`}>
+                  <stat.icon className={`w-5 h-5 ${stat.text}`} />
                 </div>
+                <p className="text-sm text-white/40 mb-1">{stat.title}</p>
+                <p className="text-2xl font-light text-white mb-2">{stat.value}</p>
+                <p className="text-xs text-white/20">{stat.change}</p>
               </div>
-            ))}
-          </div>
+            </motion.div>
+          ))}
+        </motion.div>
 
-          {/* Quizzes and Results Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-            {/* My Quizzes */}
-            <div className="lg:col-span-2">
-              <div className="bg-[#111117] border border-[#2a2a35] rounded-xl overflow-hidden">
-                <div className="p-4 sm:p-5 border-b border-[#2a2a35] flex justify-between items-center">
+        {/* Main Grid */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* My Quizzes */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="lg:col-span-2"
+          >
+            <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl overflow-hidden">
+              <div className="p-6 border-b border-white/[0.05]">
+                <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-base sm:text-lg font-semibold text-white">My Quizzes</h2>
-                    <p className="text-xs sm:text-sm text-gray-400 mt-1">
+                    <h2 className="text-lg font-light text-white">my quizzes</h2>
+                    <p className="text-sm text-white/30 mt-1">
                       {quizzes.length} quiz{quizzes.length !== 1 ? 'zes' : ''} created
                     </p>
                   </div>
-                  <button
-                    onClick={() => router.push('/teacher/create-quiz')}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-purple-600/10 hover:bg-purple-600 border border-purple-600/20 hover:border-purple-500 rounded-lg text-purple-400 hover:text-white transition-all text-xs sm:text-sm"
+                  <Link 
+                    href="/teacher/quizzes"
+                    className="text-xs text-white/30 hover:text-indigo-400 transition-colors flex items-center gap-1"
                   >
-                    <PlusCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">New Quiz</span>
-                  </button>
+                    view all
+                    <ChevronRight className="w-3 h-3" />
+                  </Link>
                 </div>
-                
-                {quizzes.length === 0 ? (
-                  <div className="p-8 sm:p-10 text-center">
-                    <FileText className="w-10 h-10 sm:w-12 sm:h-12 text-gray-600 mx-auto mb-3" />
-                    <p className="text-sm sm:text-base text-gray-400 mb-2">No quizzes yet</p>
-                    <button
-                      onClick={() => router.push('/teacher/create-quiz')}
-                      className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
-                    >
-                      Create your first quiz →
-                    </button>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-[#2a2a35]">
-                    {quizzes.map((quiz) => {
-                      const quizResults = results.filter(r => r.quizId === quiz._id);
-                      const avgScore = quizResults.length
-                        ? Math.round(quizResults.reduce((acc, r) => acc + r.percentage, 0) / quizResults.length)
-                        : 0;
-
-                      return (
-                        <div key={`quiz-${quiz._id || quiz.id}`} className="p-4 sm:p-5 hover:bg-[#1a1a23] transition-colors group">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <h3 className="text-sm sm:text-base font-medium text-white group-hover:text-purple-400 transition-colors">
-                                  {quiz.title}
-                                </h3>
-                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                                  quizResults.length > 0
-                                    ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                    : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                                }`}>
-                                  {quizResults.length} attempt{quizResults.length !== 1 ? 's' : ''}
-                                </span>
-                              </div>
-                              <p className="text-xs sm:text-sm text-gray-400 line-clamp-1 mb-2">
-                                {quiz.description}
-                              </p>
-                              <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-gray-500">
-                                <span className="flex items-center gap-1">
-                                  <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {quiz.duration} mins
-                                </span>
-                                <span>•</span>
-                                <span>{quiz.questions?.length || 0} questions</span>
-                                <span>•</span>
-                                <span>{quiz.totalMarks} marks</span>
-                                {quizResults.length > 0 && (
-                                  <>
-                                    <span>•</span>
-                                    <span className="text-purple-400">Avg: {avgScore}%</span>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleEditQuiz(quiz)}
-                                className="p-2 hover:bg-[#252530] rounded-lg transition-colors group/edit"
-                                title="Edit Quiz"
-                              >
-                                <Edit className="w-4 h-4 text-gray-400 group-hover/edit:text-blue-400" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteQuiz(quiz._id, quiz.title)}
-                                disabled={deletingId === quiz._id}
-                                className="p-2 hover:bg-[#252530] rounded-lg transition-colors group/delete"
-                                title="Delete Quiz"
-                              >
-                                {deletingId === quiz._id ? (
-                                  <Loader2 className="w-4 h-4 text-red-400 animate-spin" />
-                                ) : (
-                                  <Trash2 className="w-4 h-4 text-gray-400 group-hover/delete:text-red-400" />
-                                )}
-                              </button>
-                              <button
-                                onClick={() => router.push(`/teacher/quiz-results/${quiz._id}`)}
-                                className="flex items-center gap-1 px-3 py-1.5 bg-purple-600/10 hover:bg-purple-600 border border-purple-600/20 hover:border-purple-500 rounded-lg text-purple-400 hover:text-white transition-all text-xs"
-                              >
-                                <span>Details</span>
-                                <ChevronRight className="w-3 h-3" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
-            </div>
-
-            {/* Recent Results */}
-            <div>
-              <div className="bg-[#111117] border border-[#2a2a35] rounded-xl p-4 sm:p-5">
-                <h3 className="text-sm sm:text-base font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
-                  Recent Results
-                </h3>
-                
-                {results.length === 0 ? (
-                  <div className="text-center py-4 sm:py-6">
-                    <Award className="w-8 h-8 sm:w-10 sm:h-10 text-gray-600 mx-auto mb-2" />
-                    <p className="text-xs sm:text-sm text-gray-400">No results yet</p>
-                    <p className="text-xs text-gray-500 mt-1">Students haven't taken any quizzes</p>
+              
+              {quizzes.length === 0 ? (
+                <div className="p-12 text-center">
+                  <div className="w-16 h-16 bg-white/[0.02] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <FileText className="w-8 h-8 text-white/20" />
                   </div>
-                ) : (
-                  <div className="space-y-2 sm:space-y-3">
-                    {results.slice(0, 5).map((result, index) => (
-                      <div key={`result-${result._id || index}`} className="flex items-center justify-between p-2 sm:p-3 bg-[#1a1a23] rounded-lg hover:bg-[#252530] transition-colors">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="text-xs sm:text-sm font-medium text-white truncate">
-                              {result.userName}
-                            </p>
-                            <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-medium ${
-                              result.percentage >= 70 
-                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                : result.percentage >= 40
-                                ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                                : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                            }`}>
-                              {result.percentage >= 70 ? 'Good' : result.percentage >= 40 ? 'Avg' : 'Poor'}
-                            </span>
-                          </div>
-                          <p className="text-[10px] sm:text-xs text-gray-400 truncate">
-                            {result.quizTitle}
-                          </p>
-                          <p className="text-[8px] sm:text-[10px] text-gray-500 mt-0.5">
-                            {new Date(result.submittedAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="ml-2 text-right">
-                          <div className={`text-xs sm:text-sm font-bold ${
-                            result.percentage >= 70 
-                              ? 'text-green-400' 
-                              : result.percentage >= 40
-                              ? 'text-yellow-400'
-                              : 'text-red-400'
-                          }`}>
-                            {result.score}/{result.totalMarks}
-                          </div>
-                          <div className="text-[8px] sm:text-[10px] text-gray-500">
-                            {result.percentage}%
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                  <p className="text-white/40 text-sm mb-2">no quizzes yet</p>
+                  <p className="text-white/20 text-xs">create your first quiz to get started</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-white/[0.05]">
+                  {quizzes.slice(0, 4).map((quiz, index) => {
+                    const quizResults = results.filter(r => r.quizId === quiz._id);
+                    const avgScore = quizResults.length
+                      ? Math.round(quizResults.reduce((acc, r) => acc + r.percentage, 0) / quizResults.length)
+                      : 0;
                     
-                    {results.length > 5 && (
-                      <button 
-                        onClick={() => router.push('/teacher/all-results')}
-                        className="w-full mt-2 text-xs text-purple-400 hover:text-purple-300 transition-colors text-center py-2"
+                    const passRate = quizResults.length
+                      ? Math.round((quizResults.filter(r => r.percentage >= 70).length / quizResults.length) * 100)
+                      : 0;
+
+                    return (
+                      <motion.div
+                        key={`quiz-${quiz._id || quiz.id}`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.1 * index }}
+                        className="p-6 hover:bg-white/[0.02] transition-colors group"
                       >
-                        View all {results.length} results →
-                      </button>
-                    )}
-                  </div>
-                )}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="text-base font-medium text-white group-hover:text-indigo-400 transition-colors">
+                                {quiz.title}
+                              </h3>
+                              {quiz.difficulty && (
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                                  quiz.difficulty === 'beginner' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' :
+                                  quiz.difficulty === 'intermediate' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30' :
+                                  'bg-red-500/10 text-red-400 border-red-500/30'
+                                }`}>
+                                  {quiz.difficulty}
+                                </span>
+                              )}
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                                quizResults.length > 0
+                                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                                  : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30'
+                              }`}>
+                                {quizResults.length} attempt{quizResults.length !== 1 ? 's' : ''}
+                              </span>
+                            </div>
+                            <p className="text-sm text-white/30 mb-3 line-clamp-1">{quiz.description}</p>
+                            <div className="flex items-center gap-4 text-xs text-white/20">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" /> {quiz.duration} min
+                              </span>
+                              <span>·</span>
+                              <span>{quiz.questions?.length || 0} questions</span>
+                              <span>·</span>
+                              <span>{quiz.totalMarks} marks</span>
+                              {quizResults.length > 0 && (
+                                <>
+                                  <span>·</span>
+                                  <span className="text-indigo-400/60">avg {avgScore}%</span>
+                                  <span>·</span>
+                                  <span className="text-emerald-400/60">{passRate}% pass</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handleEditQuiz(quiz)}
+                              className="p-2 bg-white/[0.02] hover:bg-indigo-500/20 border border-white/[0.05] hover:border-indigo-500/50 rounded-lg text-white/40 hover:text-indigo-400 transition-all"
+                              title="edit quiz"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handleDeleteQuiz(quiz._id, quiz.title)}
+                              disabled={deletingId === quiz._id}
+                              className="p-2 bg-white/[0.02] hover:bg-red-500/20 border border-white/[0.05] hover:border-red-500/50 rounded-lg text-white/40 hover:text-red-400 transition-all disabled:opacity-50"
+                              title="delete quiz"
+                            >
+                              {deletingId === quiz._id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => {
+                                const toastId = showToast.loading('loading results...');
+                                setTimeout(() => {
+                                  hotToast.dismiss(toastId);
+                                  router.push(`/teacher/quiz-results/${quiz._id}`);
+                                }, 800);
+                              }}
+                              className="flex items-center gap-1 px-3 py-2 bg-white/[0.02] hover:bg-indigo-500/20 border border-white/[0.05] hover:border-indigo-500/50 rounded-lg text-white/40 hover:text-indigo-400 transition-all text-xs"
+                            >
+                              <span>details</span>
+                              <ChevronRight className="w-3 h-3" />
+                            </motion.button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Right Sidebar */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-6"
+          >
+            {/* Recent Results */}
+            <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-light text-white">recent results</h3>
+                <BarChart3 className="w-4 h-4 text-white/20" />
+              </div>
+              
+              {results.length === 0 ? (
+                <div className="text-center py-6">
+                  <Award className="w-8 h-8 text-white/20 mx-auto mb-2" />
+                  <p className="text-xs text-white/30">no results yet</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {results.slice(0, 5).map((result, index) => (
+                    <motion.div
+                      key={`result-${result._id || index}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.1 * index }}
+                      className="p-3 bg-white/[0.02] hover:bg-white/[0.04] rounded-xl transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium text-[10px]">
+                            {result.userName?.charAt(0) || 'U'}
+                          </div>
+                          <p className="text-sm text-white/80 truncate max-w-[100px]">{result.userName}</p>
+                        </div>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                          result.percentage >= 70 
+                            ? 'bg-emerald-500/10 text-emerald-400' 
+                            : result.percentage >= 40
+                            ? 'bg-yellow-500/10 text-yellow-400'
+                            : 'bg-red-500/10 text-red-400'
+                        }`}>
+                          {result.percentage}%
+                        </span>
+                      </div>
+                      <p className="text-xs text-white/30 truncate mb-1">{result.quizTitle}</p>
+                      <p className="text-[10px] text-white/20">{new Date(result.submittedAt).toLocaleDateString()}</p>
+                    </motion.div>
+                  ))}
+                  
+                  {results.length > 5 && (
+                    <Link 
+                      href="/teacher/all-results"
+                      className="block text-center text-xs text-white/30 hover:text-indigo-400 transition-colors pt-2"
+                    >
+                      view all {results.length} results
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target className="w-4 h-4 text-indigo-400/60" />
+                  <span className="text-xs text-white/40">pass rate</span>
+                </div>
+                <p className="text-xl font-light text-white mb-1">{passRate}%</p>
+                <p className="text-[10px] text-white/20">of students passed</p>
+              </div>
+              <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Zap className="w-4 h-4 text-purple-400/60" />
+                  <span className="text-xs text-white/40">engagement</span>
+                </div>
+                <p className="text-xl font-light text-white mb-1">
+                  {results.length ? Math.round((results.length / (totalStudents || 1)) * 100) : 0}%
+                </p>
+                <p className="text-[10px] text-white/20">submission rate</p>
               </div>
             </div>
-          </div>
-        </main>
+
+            {/* Tips Card */}
+            <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-2xl p-6">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
+                  <HelpCircle className="w-4 h-4 text-indigo-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-white/80 mb-1">pro tip</p>
+                  <p className="text-xs text-white/30">add images to your quizzes to increase engagement by 40%</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Settings Link */}
+            <Link href="/teacher/settings">
+              <motion.div
+                whileHover={{ x: 5 }}
+                className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/[0.05] rounded-xl hover:bg-white/[0.04] transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <Settings className="w-5 h-5 text-indigo-400/60" />
+                  <span className="text-sm text-white/80">dashboard settings</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-white/20" />
+              </motion.div>
+            </Link>
+          </motion.div>
+        </div>
       </div>
 
       <style jsx>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 1; }
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
+        .line-clamp-1 {
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
       `}</style>
     </div>

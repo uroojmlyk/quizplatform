@@ -1,5 +1,5 @@
 
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap');
 
  @import "tailwindcss";
 
@@ -7,6 +7,8 @@
   --background: #ffffff;
   --foreground: #171717;
 }
+
+
 
 @theme inline {
   --color-background: var(--background);
@@ -137,4 +139,33 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #3a3a45;
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes leave {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+}
+
+.animate-enter {
+  animation: enter 0.2s ease-out;
+}
+
+.animate-leave {
+  animation: leave 0.15s ease-in forwards;
 }

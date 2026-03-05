@@ -1,8 +1,5 @@
 
 
-
-
-
 // import { NextResponse } from 'next/server';
 // import clientPromise from '@/lib/mongodb';
 // import { ObjectId } from 'mongodb';
@@ -41,6 +38,13 @@
     
 //     console.log('✅ Quiz found:', quiz.title);
     
+//     // ✅ Get attempt count for this quiz
+//     const attempts = await db.collection('results').countDocuments({
+//       quizId: id
+//     });
+    
+//     console.log('📊 Attempts count:', attempts);
+    
 //     return NextResponse.json({
 //       success: true,
 //       data: {
@@ -52,7 +56,8 @@
 //         questions: quiz.questions,
 //         createdBy: quiz.createdBy,
 //         createdByName: quiz.createdByName,
-//         createdAt: quiz.createdAt
+//         createdAt: quiz.createdAt,
+//         attempts: attempts  // ✅ YEH ADD KIYA
 //       }
 //     });
     
@@ -224,10 +229,7 @@
 //       { status: 500 }
 //     );
 //   }
-// }   
-
-
-
+// }
 
 
 
@@ -290,7 +292,7 @@ export async function GET(
         createdBy: quiz.createdBy,
         createdByName: quiz.createdByName,
         createdAt: quiz.createdAt,
-        attempts: attempts  // ✅ YEH ADD KIYA
+        attempts: attempts
       }
     });
     
