@@ -1,3 +1,6 @@
+
+
+
 // 'use client';
 
 // import { useEffect, useState } from 'react';
@@ -30,6 +33,7 @@
 //   description: string;
 //   createdByName: string;
 //   createdBy: string;
+//   duration: number;
 //   totalMarks: number;
 //   questions: Question[];
 //   createdAt: string;
@@ -53,7 +57,8 @@
 
 //   const fetchQuizDetails = async () => {
 //     try {
-//       const res = await fetch(`/api/admin/quizzes/${quizId}`);
+//       // ✅ Public API use kar rahe hain
+//       const res = await fetch(`/api/quizzes/${quizId}`);
 //       const data = await res.json();
       
 //       if (data.success) {
@@ -68,7 +73,7 @@
 
 //   const handleDelete = async () => {
 //     try {
-//       const res = await fetch(`/api/admin/quizzes/${quizId}`, {
+//       const res = await fetch(`/api/quizzes/${quizId}`, {
 //         method: 'DELETE',
 //       });
       
@@ -249,249 +254,179 @@
 
 
 
-
-
-
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { 
-  ArrowLeft, 
-  BookOpen, 
-  Clock, 
-  Edit, 
-  Trash2,
-  Users,
-  BarChart3,
-  Calendar,
-  Award,
-  CheckCircle,
-  XCircle
-} from 'lucide-react';
-
-interface Question {
-  text: string;
-  options: string[];
-  correctAnswer: number;
-  marks: number;
-}
+import { useRouter } from 'next/navigation';
+import { Search, Trash2, BookOpen, Clock, Edit, Eye, AlertCircle } from 'lucide-react';
 
 interface Quiz {
-  _id: string;
-  title: string;
-  description: string;
-  createdByName: string;
-  createdBy: string;
-  duration: number;
-  totalMarks: number;
-  questions: Question[];
-  createdAt: string;
-  attempts: number;
+  _id: string; title: string; description: string;
+  createdByName: string; totalMarks: number;
+  questions: any[]; createdAt: string; attempts: number;
 }
 
-export default function QuizDetailsPage() {
-  const params = useParams();
+export default function AdminQuizzesPage() {
   const router = useRouter();
-  const quizId = params.quizId as string;
-  
-  const [quiz, setQuiz] = useState<Quiz | null>(null);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedQuiz, setSelectedQuiz] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  useEffect(() => {
-    if (quizId) {
-      fetchQuizDetails();
-    }
-  }, [quizId]);
+  useEffect(() => { fetchQuizzes(); }, []);
 
-  const fetchQuizDetails = async () => {
+  const fetchQuizzes = async () => {
     try {
-      // ✅ Public API use kar rahe hain
-      const res = await fetch(`/api/quizzes/${quizId}`);
+      const res = await fetch('/api/admin/quizzes');
       const data = await res.json();
-      
-      if (data.success) {
-        setQuiz(data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching quiz:', error);
-    } finally {
-      setLoading(false);
-    }
+      if (data.success) setQuizzes(data.data);
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
-  const handleDelete = async () => {
+  const handleDeleteQuiz = async (quizId: string) => {
     try {
-      const res = await fetch(`/api/quizzes/${quizId}`, {
-        method: 'DELETE',
-      });
-      
+      const res = await fetch(`/api/admin/quizzes/${quizId}`, { method: 'DELETE' });
       if (res.ok) {
-        router.push('/admin/admin-quizzes');
+        setQuizzes(quizzes.filter(q => q._id !== quizId));
+        setShowDeleteModal(false);
+        setSelectedQuiz(null);
       }
-    } catch (error) {
-      console.error('Error deleting quiz:', error);
-    }
+    } catch (e) { console.error(e); }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-      </div>
-    );
-  }
+  const filteredQuizzes = quizzes.filter(q =>
+    q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    q.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    q.createdByName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  if (!quiz) {
-    return (
-      <div className="text-center py-12">
-        <BookOpen className="w-12 h-12 text-white/20 mx-auto mb-4" />
-        <p className="text-white/40">Quiz not found</p>
+  if (loading) return (
+    <div className="flex items-center justify-center h-72">
+      <div className="flex flex-col items-center gap-3">
+        <div className="relative w-9 h-9">
+          <div className="absolute inset-0 rounded-full border-2 border-emerald-500/15 border-t-emerald-400 animate-spin" />
+        </div>
+        <p className="text-[11px] text-white/20 tracking-widest uppercase">Loading quizzes</p>
       </div>
-    );
-  }
+    </div>
+  );
+
+  const card = { background: 'rgba(255,255,255,0.015)', borderColor: 'rgba(52,211,153,0.08)' };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 max-w-7xl">
+
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.back()}
-            className="p-2 hover:bg-white/5 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-white/60" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-semibold text-white">{quiz.title}</h1>
-            <p className="text-sm text-white/40 mt-1">{quiz.description}</p>
-          </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <p className="text-[11px] text-emerald-500/50 uppercase tracking-widest font-semibold mb-1">Management</p>
+          <h1 className="text-xl font-semibold text-white">Quizzes</h1>
+          <p className="text-sm text-white/25 mt-0.5">Monitor and manage all platform quizzes</p>
         </div>
-        <div className="flex gap-3">
-          <Link
-            href={`/teacher/edit-quiz/${quizId}`}
-            className="px-4 py-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition-colors flex items-center gap-2 border border-blue-500/20"
-          >
-            <Edit className="w-4 h-4" />
-            Edit Quiz
-          </Link>
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="px-4 py-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors flex items-center gap-2 border border-red-500/20"
-          >
-            <Trash2 className="w-4 h-4" />
-            Delete
-          </button>
+        <div className="px-3.5 py-2 rounded-xl border text-xs font-medium text-emerald-400"
+          style={{ background: 'rgba(52,211,153,0.06)', borderColor: 'rgba(52,211,153,0.15)' }}>
+          {quizzes.length} total quizzes
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-[#111117] border border-white/10 rounded-xl p-4">
-          <div className="flex items-center gap-3 mb-2">
-            <Award className="w-5 h-5 text-purple-400" />
-            <span className="text-sm text-white/60">Total Marks</span>
-          </div>
-          <p className="text-2xl font-semibold text-white">{quiz.totalMarks}</p>
-        </div>
-
-        <div className="bg-[#111117] border border-white/10 rounded-xl p-4">
-          <div className="flex items-center gap-3 mb-2">
-            <BookOpen className="w-5 h-5 text-blue-400" />
-            <span className="text-sm text-white/60">Questions</span>
-          </div>
-          <p className="text-2xl font-semibold text-white">{quiz.questions.length}</p>
-        </div>
-
-        <div className="bg-[#111117] border border-white/10 rounded-xl p-4">
-          <div className="flex items-center gap-3 mb-2">
-            <Users className="w-5 h-5 text-green-400" />
-            <span className="text-sm text-white/60">Attempts</span>
-          </div>
-          <p className="text-2xl font-semibold text-white">{quiz.attempts || 0}</p>
-        </div>
-
-        <div className="bg-[#111117] border border-white/10 rounded-xl p-4">
-          <div className="flex items-center gap-3 mb-2">
-            <Calendar className="w-5 h-5 text-orange-400" />
-            <span className="text-sm text-white/60">Created</span>
-          </div>
-          <p className="text-sm text-white">{new Date(quiz.createdAt).toLocaleDateString()}</p>
-          <p className="text-xs text-white/30 mt-1">by {quiz.createdByName}</p>
-        </div>
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 pointer-events-none" />
+        <input type="text" placeholder="Search by title, description, or creator..."
+          value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+          className="w-full pl-11 pr-4 py-3 rounded-2xl text-sm text-white/70 placeholder:text-white/20 outline-none transition-all"
+          style={{ background: 'rgba(52,211,153,0.04)', border: '1px solid rgba(52,211,153,0.1)' }}
+          onFocus={e => (e.target.style.borderColor = 'rgba(52,211,153,0.25)')}
+          onBlur={e => (e.target.style.borderColor = 'rgba(52,211,153,0.1)')} />
       </div>
 
-      {/* Questions List */}
-      <div className="bg-[#111117] border border-white/10 rounded-xl overflow-hidden">
-        <div className="p-5 border-b border-white/10">
-          <h2 className="text-base font-medium text-white">Questions</h2>
-        </div>
-        
-        <div className="divide-y divide-white/5">
-          {quiz.questions.map((q, index) => (
-            <div key={index} className="p-5 hover:bg-white/5 transition-colors">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-purple-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-xs font-medium text-purple-400">{index + 1}</span>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-white mb-3">{q.text}</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
-                    {q.options.map((opt, optIndex) => (
-                      <div
-                        key={optIndex}
-                        className={`flex items-center gap-2 p-2 rounded-lg ${
-                          optIndex === q.correctAnswer
-                            ? 'bg-green-500/10 border border-green-500/20'
-                            : 'bg-white/5 border border-white/10'
-                        }`}
-                      >
-                        {optIndex === q.correctAnswer ? (
-                          <CheckCircle className="w-4 h-4 text-green-400" />
-                        ) : (
-                          <XCircle className="w-4 h-4 text-white/20" />
-                        )}
-                        <span className={`text-xs ${
-                          optIndex === q.correctAnswer ? 'text-green-400' : 'text-white/60'
-                        }`}>
-                          {opt}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="text-xs text-white/30">
-                    Marks: {q.marks}
-                  </div>
-                </div>
+      {/* Grid */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredQuizzes.map((quiz) => (
+          <div key={quiz._id}
+            className="group rounded-2xl border p-5 cursor-pointer transition-all duration-200 hover:scale-[1.01]"
+            style={card}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(52,211,153,0.2)')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(52,211,153,0.08)')}
+            onClick={() => router.push(`/admin/admin-quizzes/${quiz._id}`)}>
+
+            {/* Top row */}
+            <div className="flex items-start justify-between mb-4">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.12)' }}>
+                <BookOpen className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+                <button onClick={e => { e.stopPropagation(); router.push(`/teacher/edit-quiz/${quiz._id}`); }}
+                  className="p-1.5 rounded-lg text-white/20 hover:text-sky-400 hover:bg-sky-500/10 transition-all">
+                  <Edit className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={e => { e.stopPropagation(); setSelectedQuiz(quiz._id); setShowDeleteModal(true); }}
+                  className="p-1.5 rounded-lg text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
-          ))}
-        </div>
+
+            {/* Content */}
+            <h3 className="text-sm font-semibold text-white/85 mb-1.5 line-clamp-1">{quiz.title}</h3>
+            <p className="text-xs text-white/30 mb-4 line-clamp-2 leading-relaxed">{quiz.description}</p>
+
+            {/* Meta */}
+            <div className="space-y-1.5 mb-4">
+              <p className="text-[11px] text-white/25">
+                by <span className="text-white/45">{quiz.createdByName || 'Unknown'}</span>
+              </p>
+              <div className="flex items-center gap-3 text-[11px] text-white/25">
+                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{new Date(quiz.createdAt).toLocaleDateString()}</span>
+                <span>·</span>
+                <span>{quiz.questions?.length || 0} questions</span>
+                <span>·</span>
+                <span>{quiz.totalMarks} marks</span>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-between pt-3.5"
+              style={{ borderTop: '1px solid rgba(52,211,153,0.06)' }}>
+              <span className="text-xs font-medium text-emerald-500/60">
+                {quiz.attempts || 0} attempts
+              </span>
+              <div className="flex items-center gap-1.5 text-[11px] text-white/25 group-hover:text-emerald-400/60 transition-colors">
+                <Eye className="w-3 h-3" /> View details
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
+
+      {/* Empty */}
+      {filteredQuizzes.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 rounded-2xl border" style={card}>
+          <BookOpen className="w-10 h-10 text-white/10 mb-3" />
+          <p className="text-sm text-white/25">No quizzes found</p>
+        </div>
+      )}
 
       {/* Delete Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-          <div className="bg-[#111117] border border-white/10 rounded-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-medium text-white mb-4">Delete Quiz</h3>
-            <p className="text-white/40 text-sm mb-6">
-              Are you sure you want to delete "{quiz.title}"? This action cannot be undone.
-            </p>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="w-full max-w-sm rounded-2xl border p-6" style={{ background: '#0a0d0b', borderColor: 'rgba(239,68,68,0.15)' }}>
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center mb-4"
+              style={{ background: 'rgba(239,68,68,0.1)' }}>
+              <AlertCircle className="w-5 h-5 text-red-400" />
+            </div>
+            <h3 className="text-white font-semibold mb-2">Delete Quiz</h3>
+            <p className="text-sm text-white/35 mb-6">This action cannot be undone. The quiz and all related data will be permanently removed.</p>
             <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="flex-1 px-4 py-2 bg-white/5 text-white rounded-lg hover:bg-white/10 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                className="flex-1 px-4 py-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors border border-red-500/20"
-              >
-                Delete
-              </button>
+              <button onClick={() => { setShowDeleteModal(false); setSelectedQuiz(null); }}
+                className="flex-1 py-2.5 rounded-xl text-sm text-white/50 hover:text-white border transition-all"
+                style={{ borderColor: 'rgba(52,211,153,0.1)' }}>Cancel</button>
+              <button onClick={() => selectedQuiz && handleDeleteQuiz(selectedQuiz)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium text-red-400 border transition-all hover:bg-red-500/10"
+                style={{ borderColor: 'rgba(239,68,68,0.2)' }}>Delete</button>
             </div>
           </div>
         </div>
