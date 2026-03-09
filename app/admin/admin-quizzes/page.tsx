@@ -412,35 +412,299 @@
 
 
 
+// 'use client';
+
+// import { useEffect, useState } from 'react';
+// import { useRouter } from 'next/navigation';
+// import { Search, Trash2, BookOpen, Clock, Edit, Eye, AlertCircle } from 'lucide-react';
+
+// interface Quiz {
+//   _id: string; title: string; description: string;
+//   createdByName: string; totalMarks: number;
+//   questions: any[]; createdAt: string; attempts: number;
+// }
+
+// export default function AdminQuizzesPage() {
+//   const router = useRouter();
+//   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [searchTerm, setSearchTerm] = useState('');
+//   const [selectedQuiz, setSelectedQuiz] = useState<string | null>(null);
+//   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+//   useEffect(() => { fetchQuizzes(); }, []);
+
+//   const fetchQuizzes = async () => {
+//     try {
+//       const res = await fetch('/api/admin/quizzes');
+//       const data = await res.json();
+//       if (data.success) setQuizzes(data.data);
+//     } catch (e) { console.error(e); }
+//     finally { setLoading(false); }
+//   };
+
+//   const handleDeleteQuiz = async (quizId: string) => {
+//     try {
+//       const res = await fetch(`/api/admin/quizzes/${quizId}`, { method: 'DELETE' });
+//       if (res.ok) {
+//         setQuizzes(quizzes.filter(q => q._id !== quizId));
+//         setShowDeleteModal(false);
+//         setSelectedQuiz(null);
+//       }
+//     } catch (e) { console.error(e); }
+//   };
+
+//   const filteredQuizzes = quizzes.filter(q =>
+//     q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//     q.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//     q.createdByName?.toLowerCase().includes(searchTerm.toLowerCase())
+//   );
+
+//   // ── shared style tokens ──
+//   const card = {
+//     background: 'rgba(255,255,255,0.015)',
+//     borderColor: 'rgba(52,211,153,0.08)'
+//   };
+
+//   if (loading) return (
+//     <div className="flex items-center justify-center h-72">
+//       <div className="flex flex-col items-center gap-3">
+//         <div className="relative w-9 h-9">
+//           <div className="absolute inset-0 rounded-full border-2 border-emerald-500/15 border-t-emerald-400 animate-spin" />
+//         </div>
+//         <p className="text-[11px] text-white/20 tracking-widest uppercase">Loading quizzes</p>
+//       </div>
+//     </div>
+//   );
+
+//   return (
+//     <div className="space-y-5 max-w-7xl">
+
+//       {/* ── Header ── */}
+//       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+//         <div>
+//           <p className="text-[11px] text-emerald-500/50 uppercase tracking-widest font-semibold mb-1">
+//             Management
+//           </p>
+//           <h1 className="text-xl font-semibold text-white">Quizzes</h1>
+//           <p className="text-sm text-white/25 mt-0.5">Monitor and manage all platform quizzes</p>
+//         </div>
+//         <div
+//           className="self-start sm:self-auto px-3.5 py-2 rounded-xl border text-xs font-medium text-emerald-400"
+//           style={{ background: 'rgba(52,211,153,0.06)', borderColor: 'rgba(52,211,153,0.15)' }}
+//         >
+//           {quizzes.length} total quizzes
+//         </div>
+//       </div>
+
+//       {/* ── Search ── */}
+//       <div className="relative">
+//         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 pointer-events-none" />
+//         <input
+//           type="text"
+//           placeholder="Search by title, description, or creator..."
+//           value={searchTerm}
+//           onChange={e => setSearchTerm(e.target.value)}
+//           className="w-full pl-11 pr-4 py-3 rounded-2xl text-sm text-white/70 placeholder:text-white/20 outline-none transition-all"
+//           style={{ background: 'rgba(52,211,153,0.04)', border: '1px solid rgba(52,211,153,0.1)' }}
+//           onFocus={e => (e.currentTarget.style.borderColor = 'rgba(52,211,153,0.3)')}
+//           onBlur={e => (e.currentTarget.style.borderColor = 'rgba(52,211,153,0.1)')}
+//         />
+//       </div>
+
+//       {/* ── Quiz Grid ── */}
+//       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+//         {filteredQuizzes.map((quiz) => (
+//           <div
+//             key={quiz._id}
+//             className="group rounded-2xl border p-5 cursor-pointer transition-all duration-200 hover:scale-[1.015]"
+//             style={card}
+//             onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(52,211,153,0.22)')}
+//             onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(52,211,153,0.08)')}
+//             onClick={() => router.push(`/admin/admin-quizzes/${quiz._id}`)}
+//           >
+//             {/* card top row */}
+//             <div className="flex items-start justify-between mb-4">
+//               <div
+//                 className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+//                 style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.12)' }}
+//               >
+//                 <BookOpen className="w-4 h-4 text-emerald-400" />
+//               </div>
+
+//               {/* action buttons — visible on hover */}
+//               <div
+//                 className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+//                 onClick={e => e.stopPropagation()}
+//               >
+//                 <button
+//                   onClick={e => { e.stopPropagation(); router.push(`/teacher/edit-quiz/${quiz._id}`); }}
+//                   className="p-1.5 rounded-lg text-white/20 hover:text-sky-400 hover:bg-sky-500/10 transition-all"
+//                   title="Edit Quiz"
+//                 >
+//                   <Edit className="w-3.5 h-3.5" />
+//                 </button>
+//                 <button
+//                   onClick={e => { e.stopPropagation(); setSelectedQuiz(quiz._id); setShowDeleteModal(true); }}
+//                   className="p-1.5 rounded-lg text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
+//                   title="Delete Quiz"
+//                 >
+//                   <Trash2 className="w-3.5 h-3.5" />
+//                 </button>
+//               </div>
+//             </div>
+
+//             {/* title & description */}
+//             <h3 className="text-sm font-semibold text-white/85 mb-1.5 line-clamp-1">
+//               {quiz.title}
+//             </h3>
+//             <p className="text-xs text-white/30 mb-4 line-clamp-2 leading-relaxed">
+//               {quiz.description}
+//             </p>
+
+//             {/* meta info */}
+//             <div className="space-y-1.5 mb-4">
+//               <p className="text-[11px] text-white/25">
+//                 by <span className="text-white/45">{quiz.createdByName || 'Unknown'}</span>
+//               </p>
+//               <div className="flex flex-wrap items-center gap-2 text-[11px] text-white/25">
+//                 <span className="flex items-center gap-1">
+//                   <Clock className="w-3 h-3" />
+//                   {new Date(quiz.createdAt).toLocaleDateString()}
+//                 </span>
+//                 <span>·</span>
+//                 <span>{quiz.questions?.length || 0} questions</span>
+//                 <span>·</span>
+//                 <span>{quiz.totalMarks} marks</span>
+//               </div>
+//             </div>
+
+//             {/* footer */}
+//             <div
+//               className="flex items-center justify-between pt-3.5"
+//               style={{ borderTop: '1px solid rgba(52,211,153,0.06)' }}
+//             >
+//               <span className="text-xs font-medium text-emerald-500/60">
+//                 {quiz.attempts || 0} attempts
+//               </span>
+//               <div className="flex items-center gap-1.5 text-[11px] text-white/25 group-hover:text-emerald-400/60 transition-colors">
+//                 <Eye className="w-3 h-3" /> View details
+//               </div>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+
+//       {/* ── Empty State ── */}
+//       {filteredQuizzes.length === 0 && (
+//         <div
+//           className="flex flex-col items-center justify-center py-20 rounded-2xl border"
+//           style={card}
+//         >
+//           <BookOpen className="w-10 h-10 text-white/10 mb-3" />
+//           <p className="text-sm text-white/25">No quizzes found</p>
+//           {searchTerm && (
+//             <p className="text-xs text-white/15 mt-1">
+//               Try a different search term
+//             </p>
+//           )}
+//         </div>
+//       )}
+
+//       {/* ── Delete Confirmation Modal ── */}
+//       {showDeleteModal && (
+//         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+//           <div
+//             className="w-full max-w-sm rounded-2xl border p-6"
+//             style={{ background: '#0a0d0b', borderColor: 'rgba(239,68,68,0.15)' }}
+//           >
+//             <div
+//               className="w-10 h-10 rounded-2xl flex items-center justify-center mb-4"
+//               style={{ background: 'rgba(239,68,68,0.1)' }}
+//             >
+//               <AlertCircle className="w-5 h-5 text-red-400" />
+//             </div>
+//             <h3 className="text-white font-semibold mb-2">Delete Quiz</h3>
+//             <p className="text-sm text-white/35 mb-6">
+//               This action cannot be undone. The quiz and all related data will be permanently removed.
+//             </p>
+//             <div className="flex gap-3">
+//               <button
+//                 onClick={() => { setShowDeleteModal(false); setSelectedQuiz(null); }}
+//                 className="flex-1 py-2.5 rounded-xl text-sm text-white/50 hover:text-white border transition-all"
+//                 style={{ borderColor: 'rgba(52,211,153,0.1)' }}
+//               >
+//                 Cancel
+//               </button>
+//               <button
+//                 onClick={() => selectedQuiz && handleDeleteQuiz(selectedQuiz)}
+//                 className="flex-1 py-2.5 rounded-xl text-sm font-medium text-red-400 border transition-all hover:bg-red-500/10"
+//                 style={{ borderColor: 'rgba(239,68,68,0.2)' }}
+//               >
+//                 Delete
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Trash2, BookOpen, Clock, Edit, Eye, AlertCircle } from 'lucide-react';
+import { Search, Trash2, BookOpen, Eye, Clock, Edit } from 'lucide-react';
+
+const T = {
+  accent: '#10b981',
+  accentHover: '#34d399',
+  accentBg: 'rgba(16,185,129,0.08)',
+  accentBorder: 'rgba(16,185,129,0.18)',
+  card: 'rgba(255,255,255,0.025)',
+  border: 'rgba(255,255,255,0.06)',
+  muted: 'rgba(255,255,255,0.38)',
+  dim: 'rgba(255,255,255,0.2)',
+};
 
 interface Quiz {
-  _id: string; title: string; description: string;
-  createdByName: string; totalMarks: number;
-  questions: any[]; createdAt: string; attempts: number;
+  _id: string;
+  title: string;
+  description: string;
+  createdByName: string;
+  totalMarks: number;
+  questions: any[];
+  createdAt: string;
+  attempts: number;
 }
 
 export default function AdminQuizzesPage() {
   const router = useRouter();
-  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedQuiz, setSelectedQuiz] = useState<string | null>(null);
+  const [quizzes,         setQuizzes]         = useState<Quiz[]>([]);
+  const [loading,         setLoading]         = useState(true);
+  const [searchTerm,      setSearchTerm]      = useState('');
+  const [selectedQuiz,    setSelectedQuiz]    = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => { fetchQuizzes(); }, []);
 
   const fetchQuizzes = async () => {
     try {
-      const res = await fetch('/api/admin/quizzes');
+      const res  = await fetch('/api/admin/quizzes');
       const data = await res.json();
       if (data.success) setQuizzes(data.data);
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
+    } catch (err) {
+      console.error('Error fetching quizzes:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDeleteQuiz = async (quizId: string) => {
@@ -451,123 +715,129 @@ export default function AdminQuizzesPage() {
         setShowDeleteModal(false);
         setSelectedQuiz(null);
       }
-    } catch (e) { console.error(e); }
+    } catch (err) {
+      console.error('Error deleting quiz:', err);
+    }
   };
 
-  const filteredQuizzes = quizzes.filter(q =>
+  // ✅ View quiz details
+  const handleViewQuiz = (quizId: string) => router.push(`/admin/admin-quizzes/${quizId}`);
+  // ✅ Edit quiz (goes to teacher edit page)
+  const handleEditQuiz = (quizId: string) => router.push(`/teacher/edit-quiz/${quizId}`);
+
+  const filtered = quizzes.filter(q =>
     q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    q.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    q.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     q.createdByName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // ── shared style tokens ──
-  const card = {
-    background: 'rgba(255,255,255,0.015)',
-    borderColor: 'rgba(52,211,153,0.08)'
-  };
-
   if (loading) return (
-    <div className="flex items-center justify-center h-72">
-      <div className="flex flex-col items-center gap-3">
-        <div className="relative w-9 h-9">
-          <div className="absolute inset-0 rounded-full border-2 border-emerald-500/15 border-t-emerald-400 animate-spin" />
-        </div>
-        <p className="text-[11px] text-white/20 tracking-widest uppercase">Loading quizzes</p>
-      </div>
+    <div className="flex items-center justify-center h-64">
+      <div className="w-8 h-8 rounded-full border-2 animate-spin"
+        style={{ borderColor: `${T.accent}25`, borderTopColor: T.accent }} />
     </div>
   );
 
   return (
-    <div className="space-y-5 max-w-7xl">
+    <div className="max-w-7xl mx-auto space-y-5">
 
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <p className="text-[11px] text-emerald-500/50 uppercase tracking-widest font-semibold mb-1">
-            Management
-          </p>
-          <h1 className="text-xl font-semibold text-white">Quizzes</h1>
-          <p className="text-sm text-white/25 mt-0.5">Monitor and manage all platform quizzes</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Quiz Management</h1>
+          <p className="text-sm mt-1" style={{ color: T.muted }}>Monitor and manage all platform quizzes.</p>
         </div>
-        <div
-          className="self-start sm:self-auto px-3.5 py-2 rounded-xl border text-xs font-medium text-emerald-400"
-          style={{ background: 'rgba(52,211,153,0.06)', borderColor: 'rgba(52,211,153,0.15)' }}
-        >
-          {quizzes.length} total quizzes
-        </div>
+        <span className="self-start sm:self-center text-xs font-medium px-3 py-1.5 rounded-full"
+          style={{ background: T.accentBg, border: `1px solid ${T.accentBorder}`, color: T.accentHover }}>
+          {quizzes.length} quizzes total
+        </span>
       </div>
 
       {/* ── Search ── */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 pointer-events-none" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+          style={{ color: T.muted }} />
         <input
           type="text"
-          placeholder="Search by title, description, or creator..."
+          placeholder="Search by title, description, or creator…"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          className="w-full pl-11 pr-4 py-3 rounded-2xl text-sm text-white/70 placeholder:text-white/20 outline-none transition-all"
-          style={{ background: 'rgba(52,211,153,0.04)', border: '1px solid rgba(52,211,153,0.1)' }}
-          onFocus={e => (e.currentTarget.style.borderColor = 'rgba(52,211,153,0.3)')}
-          onBlur={e => (e.currentTarget.style.borderColor = 'rgba(52,211,153,0.1)')}
+          className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all"
+          style={{
+            background: T.card,
+            border: `1px solid ${T.border}`,
+            caretColor: T.accentHover,
+          }}
+          onFocus={e => e.target.style.borderColor = T.accentBorder}
+          onBlur={e  => e.target.style.borderColor = T.border}
         />
       </div>
 
-      {/* ── Quiz Grid ── */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredQuizzes.map((quiz) => (
+      {/* ── Quiz grid ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        {filtered.map((quiz) => (
           <div
             key={quiz._id}
-            className="group rounded-2xl border p-5 cursor-pointer transition-all duration-200 hover:scale-[1.015]"
-            style={card}
-            onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(52,211,153,0.22)')}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(52,211,153,0.08)')}
-            onClick={() => router.push(`/admin/admin-quizzes/${quiz._id}`)}
+            className="rounded-2xl p-5 transition-all duration-200 cursor-pointer group flex flex-col"
+            style={{ background: T.card, border: `1px solid ${T.border}` }}
+            onClick={() => handleViewQuiz(quiz._id)}
+            onMouseEnter={e => e.currentTarget.style.borderColor = T.accentBorder}
+            onMouseLeave={e => e.currentTarget.style.borderColor = T.border}
           >
-            {/* card top row */}
+            {/* Card header */}
             <div className="flex items-start justify-between mb-4">
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.12)' }}
-              >
-                <BookOpen className="w-4 h-4 text-emerald-400" />
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: T.accentBg }}>
+                <BookOpen style={{ width: 17, height: 17, color: T.accent }} />
               </div>
 
-              {/* action buttons — visible on hover */}
-              <div
-                className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={e => e.stopPropagation()}
-              >
+              {/* Action buttons — ALWAYS VISIBLE on mobile, hover on desktop */}
+              <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                {/* Edit */}
                 <button
-                  onClick={e => { e.stopPropagation(); router.push(`/teacher/edit-quiz/${quiz._id}`); }}
-                  className="p-1.5 rounded-lg text-white/20 hover:text-sky-400 hover:bg-sky-500/10 transition-all"
+                  onClick={() => handleEditQuiz(quiz._id)}
                   title="Edit Quiz"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all sm:opacity-0 sm:group-hover:opacity-100"
+                  style={{
+                    background: 'rgba(59,130,246,0.12)',
+                    border: '1px solid rgba(59,130,246,0.2)',
+                    color: '#60a5fa',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(59,130,246,0.2)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(59,130,246,0.12)'}
                 >
                   <Edit className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Edit</span>
                 </button>
+                {/* Delete */}
                 <button
-                  onClick={e => { e.stopPropagation(); setSelectedQuiz(quiz._id); setShowDeleteModal(true); }}
-                  className="p-1.5 rounded-lg text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                  onClick={() => { setSelectedQuiz(quiz._id); setShowDeleteModal(true); }}
                   title="Delete Quiz"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all sm:opacity-0 sm:group-hover:opacity-100"
+                  style={{
+                    background: 'rgba(239,68,68,0.1)',
+                    border: '1px solid rgba(239,68,68,0.18)',
+                    color: '#f87171',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.2)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Delete</span>
                 </button>
               </div>
             </div>
 
-            {/* title & description */}
-            <h3 className="text-sm font-semibold text-white/85 mb-1.5 line-clamp-1">
-              {quiz.title}
-            </h3>
-            <p className="text-xs text-white/30 mb-4 line-clamp-2 leading-relaxed">
-              {quiz.description}
-            </p>
+            {/* Title + desc */}
+            <h3 className="text-base font-semibold text-white mb-1.5 line-clamp-1">{quiz.title}</h3>
+            <p className="text-sm mb-4 line-clamp-2 flex-1" style={{ color: T.muted }}>{quiz.description}</p>
 
-            {/* meta info */}
+            {/* Meta */}
             <div className="space-y-1.5 mb-4">
-              <p className="text-[11px] text-white/25">
-                by <span className="text-white/45">{quiz.createdByName || 'Unknown'}</span>
+              <p className="text-xs" style={{ color: T.dim }}>
+                By {quiz.createdByName || 'Unknown'}
               </p>
-              <div className="flex flex-wrap items-center gap-2 text-[11px] text-white/25">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs" style={{ color: T.dim }}>
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   {new Date(quiz.createdAt).toLocaleDateString()}
@@ -579,70 +849,69 @@ export default function AdminQuizzesPage() {
               </div>
             </div>
 
-            {/* footer */}
-            <div
-              className="flex items-center justify-between pt-3.5"
-              style={{ borderTop: '1px solid rgba(52,211,153,0.06)' }}
-            >
-              <span className="text-xs font-medium text-emerald-500/60">
+            {/* Footer */}
+            <div className="flex items-center justify-between pt-3.5"
+              style={{ borderTop: `1px solid ${T.border}` }}>
+              <span className="text-sm font-medium" style={{ color: T.muted }}>
                 {quiz.attempts || 0} attempts
               </span>
-              <div className="flex items-center gap-1.5 text-[11px] text-white/25 group-hover:text-emerald-400/60 transition-colors">
-                <Eye className="w-3 h-3" /> View details
+              <div className="flex items-center gap-1.5 text-xs" style={{ color: T.dim }}>
+                <Eye className="w-3.5 h-3.5" />
+                <span>View details</span>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* ── Empty State ── */}
-      {filteredQuizzes.length === 0 && (
-        <div
-          className="flex flex-col items-center justify-center py-20 rounded-2xl border"
-          style={card}
-        >
-          <BookOpen className="w-10 h-10 text-white/10 mb-3" />
-          <p className="text-sm text-white/25">No quizzes found</p>
-          {searchTerm && (
-            <p className="text-xs text-white/15 mt-1">
-              Try a different search term
-            </p>
-          )}
+      {/* ── Empty state ── */}
+      {filtered.length === 0 && !loading && (
+        <div className="flex flex-col items-center justify-center py-16 rounded-2xl"
+          style={{ background: T.card, border: `1px solid ${T.border}` }}>
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
+            style={{ background: T.accentBg }}>
+            <BookOpen style={{ width: 22, height: 22, color: T.accent }} />
+          </div>
+          <p className="text-sm font-medium text-white mb-1">
+            {searchTerm ? 'No quizzes match your search' : 'No quizzes yet'}
+          </p>
+          <p className="text-xs" style={{ color: T.muted }}>
+            {searchTerm ? 'Try a different keyword' : 'Quizzes will appear here once created'}
+          </p>
         </div>
       )}
 
-      {/* ── Delete Confirmation Modal ── */}
+      {/* ── Delete modal ── */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div
-            className="w-full max-w-sm rounded-2xl border p-6"
-            style={{ background: '#0a0d0b', borderColor: 'rgba(239,68,68,0.15)' }}
-          >
-            <div
-              className="w-10 h-10 rounded-2xl flex items-center justify-center mb-4"
-              style={{ background: 'rgba(239,68,68,0.1)' }}
-            >
-              <AlertCircle className="w-5 h-5 text-red-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setShowDeleteModal(false)}>
+          <div className="w-full max-w-sm rounded-2xl p-6"
+            style={{ background: '#0c0e12', border: `1px solid ${T.border}` }}
+            onClick={e => e.stopPropagation()}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+              style={{ background: 'rgba(239,68,68,0.1)' }}>
+              <Trash2 style={{ width: 18, height: 18, color: '#f87171' }} />
             </div>
-            <h3 className="text-white font-semibold mb-2">Delete Quiz</h3>
-            <p className="text-sm text-white/35 mb-6">
-              This action cannot be undone. The quiz and all related data will be permanently removed.
+            <h3 className="text-base font-bold text-white mb-2">Delete Quiz</h3>
+            <p className="text-sm mb-6" style={{ color: T.muted }}>
+              Are you sure you want to delete this quiz? This action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
-                onClick={() => { setShowDeleteModal(false); setSelectedQuiz(null); }}
-                className="flex-1 py-2.5 rounded-xl text-sm text-white/50 hover:text-white border transition-all"
-                style={{ borderColor: 'rgba(52,211,153,0.1)' }}
-              >
-                Cancel
-              </button>
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
+                style={{ background: T.card, border: `1px solid ${T.border}`, color: T.muted }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = T.border}
+              >Cancel</button>
               <button
                 onClick={() => selectedQuiz && handleDeleteQuiz(selectedQuiz)}
-                className="flex-1 py-2.5 rounded-xl text-sm font-medium text-red-400 border transition-all hover:bg-red-500/10"
-                style={{ borderColor: 'rgba(239,68,68,0.2)' }}
-              >
-                Delete
-              </button>
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
+                style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.2)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(239,68,68,0.12)'}
+              >Delete</button>
             </div>
           </div>
         </div>

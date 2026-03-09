@@ -1742,48 +1742,240 @@
 
 
 
+// 'use client';
+
+// import { useEffect, useState } from 'react';
+// import { useRouter, usePathname } from 'next/navigation';
+// import Link from 'next/link';
+// import {
+//   LayoutDashboard,
+//   Users,
+//   BookOpen,
+//   BarChart3,
+//   LogOut,
+//   Settings,
+//   Menu,
+//   ChevronRight,
+//   Bell,
+//   Shield
+// } from 'lucide-react';
+// import { showToast } from '@/lib/toast';
+// import { Toaster } from 'react-hot-toast';
+
+// const NAV = [
+//   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+//   { name: 'Users', href: '/admin/admin-users', icon: Users },
+//   { name: 'Quizzes', href: '/admin/admin-quizzes', icon: BookOpen },
+//   { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
+//   { name: 'Settings', href: '/admin/settings', icon: Settings },
+// ];
+
+// export default function AdminLayout({ children }: { children: React.ReactNode }) {
+//   const router = useRouter();
+//   const pathname = usePathname();
+//   const [open, setOpen] = useState(false);
+//   const [isAdmin, setIsAdmin] = useState(false);
+//   const [user, setUser] = useState<any>(null);
+
+//   useEffect(() => {
+//     const stored = localStorage.getItem('user');
+//     const token = localStorage.getItem('token');
+//     if (!token || !stored) { router.push('/login'); return; }
+//     const u = JSON.parse(stored);
+//     if (u.role?.toLowerCase().trim() !== 'admin') { router.push('/dashboard'); return; }
+//     setUser(u);
+//     setIsAdmin(true);
+//   }, [router]);
+
+//   const handleLogout = () => {
+//     showToast.loading('Logging out...');
+//     setTimeout(() => {
+//       localStorage.removeItem('token');
+//       localStorage.removeItem('user');
+//       showToast.success('Logged out');
+//       router.push('/login');
+//     }, 700);
+//   };
+
+//   const breadcrumb = pathname.split('/').filter(Boolean).pop()?.replace(/-/g, ' ') || 'dashboard';
+
+//   if (!isAdmin) return (
+//     <div className="min-h-screen flex items-center justify-center" style={{ background: '#060608' }}>
+//       <div className="flex flex-col items-center gap-4">
+//         <div className="relative w-10 h-10">
+//           <div className="absolute inset-0 rounded-full border-2 border-emerald-500/20 border-t-emerald-400 animate-spin" />
+//         </div>
+//         <p className="text-xs text-white/20 tracking-widest uppercase">Authenticating</p>
+//       </div>
+//     </div>
+//   );
+
+//   return (
+//     <div className="min-h-screen" style={{ background: '#060608', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
+//       <Toaster position="top-right" toastOptions={{
+//         style: { background: '#0f1512', border: '1px solid rgba(52,211,153,0.15)', color: '#fff' }
+//       }} />
+
+//       {/* Mobile overlay */}
+//       {open && (
+//         <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden" onClick={() => setOpen(false)} />
+//       )}
+
+//       {/* ── SIDEBAR ── */}
+//       <aside
+//         className={`fixed top-0 left-0 z-50 h-full w-60 flex flex-col transition-transform duration-300 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
+//         style={{ background: '#08090d', borderRight: '1px solid rgba(52,211,153,0.07)' }}
+//       >
+//         {/* Logo */}
+//         <div className="h-14 flex items-center gap-3 px-5" style={{ borderBottom: '1px solid rgba(52,211,153,0.07)' }}>
+//           <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+//             style={{ background: 'linear-gradient(135deg, #059669, #34d399)', boxShadow: '0 0 16px rgba(52,211,153,0.25)' }}>
+//             <Shield className="w-3.5 h-3.5 text-white" />
+//           </div>
+//           <div>
+//             <p className="text-[13px] font-semibold text-white tracking-tight leading-none">Admin</p>
+//             <p className="text-[10px] text-emerald-500/50 mt-0.5 leading-none">Control Panel</p>
+//           </div>
+//         </div>
+
+//         {/* Nav */}
+//         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+//           {NAV.map((item) => {
+//             const active = item.href === '/admin'
+//               ? pathname === '/admin'
+//               : pathname.startsWith(item.href);
+//             return (
+//               <Link key={item.name} href={item.href} onClick={() => setOpen(false)}
+//                 className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group ${active ? 'text-emerald-300' : 'text-white/35 hover:text-white/70'}`}
+//                 style={active ? {
+//                   background: 'rgba(52,211,153,0.08)',
+//                   border: '1px solid rgba(52,211,153,0.15)',
+//                 } : { border: '1px solid transparent' }}
+//               >
+//                 <item.icon className={`w-4 h-4 shrink-0 transition-colors ${active ? 'text-emerald-400' : 'text-white/25 group-hover:text-white/50'}`} />
+//                 <span>{item.name}</span>
+//                 {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+//               </Link>
+//             );
+//           })}
+//         </nav>
+
+//         {/* Footer */}
+//         <div className="p-3 shrink-0" style={{ borderTop: '1px solid rgba(52,211,153,0.07)' }}>
+//           <button onClick={handleLogout}
+//             className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-white/30 hover:text-red-400 transition-all group"
+//             style={{ border: '1px solid transparent' }}>
+//             <LogOut className="w-4 h-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
+//             <span>Logout</span>
+//           </button>
+
+//           {/* User */}
+//           <div className="mt-2 px-3.5 py-3 rounded-xl" style={{ background: 'rgba(52,211,153,0.04)', border: '1px solid rgba(52,211,153,0.08)' }}>
+//             <div className="flex items-center gap-2.5">
+//               <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold text-white shrink-0"
+//                 style={{ background: 'linear-gradient(135deg, #059669, #34d399)' }}>
+//                 {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+//               </div>
+//               <div className="min-w-0">
+//                 <p className="text-xs font-medium text-white/80 truncate">{user?.name || 'Admin'}</p>
+//                 <p className="text-[10px] text-white/25 truncate">{user?.email || 'admin@example.com'}</p>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       </aside>
+
+//       {/* ── MAIN ── */}
+//       <div className="lg:pl-60">
+//         {/* Header */}
+//         <header className="sticky top-0 z-30 h-14 flex items-center justify-between px-5"
+//           style={{ background: 'rgba(6,6,8,0.9)', borderBottom: '1px solid rgba(52,211,153,0.06)', backdropFilter: 'blur(12px)' }}>
+//           <div className="flex items-center gap-3">
+//             <button onClick={() => setOpen(true)}
+//               className="lg:hidden p-1.5 rounded-lg text-white/30 hover:text-white border transition-all"
+//               style={{ borderColor: 'rgba(52,211,153,0.1)', background: 'rgba(52,211,153,0.04)' }}>
+//               <Menu className="w-4 h-4" />
+//             </button>
+//             <div className="hidden lg:flex items-center gap-1.5 text-xs">
+//               <span className="text-white/20">admin</span>
+//               <ChevronRight className="w-3 h-3 text-white/15" />
+//               <span className="text-white/50 capitalize font-medium">{breadcrumb}</span>
+//             </div>
+//           </div>
+
+//           <div className="flex items-center gap-2">
+//             <button className="relative p-2 rounded-lg text-white/25 hover:text-emerald-400 border transition-all"
+//               style={{ borderColor: 'rgba(52,211,153,0.08)', background: 'rgba(52,211,153,0.03)' }}>
+//               <Bell className="w-4 h-4" />
+//               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400" />
+//             </button>
+//             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border"
+//               style={{ background: 'rgba(52,211,153,0.04)', borderColor: 'rgba(52,211,153,0.1)' }}>
+//               <div className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-bold text-white"
+//                 style={{ background: 'linear-gradient(135deg, #059669, #34d399)' }}>
+//                 {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+//               </div>
+//               <span className="hidden sm:block text-xs text-white/40 font-medium">{user?.name || 'Admin'}</span>
+//             </div>
+//           </div>
+//         </header>
+
+//         <main className="p-5 lg:p-7">
+//           {children}
+//         </main>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
-  LayoutDashboard,
-  Users,
-  BookOpen,
-  BarChart3,
-  LogOut,
-  Settings,
-  Menu,
-  ChevronRight,
-  Bell,
-  Shield
+  LayoutDashboard, Users, BookOpen, BarChart3,
+  LogOut, Settings, Menu, X, Sparkles, ChevronRight, Bell,
 } from 'lucide-react';
 import { showToast } from '@/lib/toast';
 import { Toaster } from 'react-hot-toast';
 
+const T = {
+  bg: '#060809',
+  sidebar: '#070a0c',
+  accent: '#10b981',
+  accentHover: '#34d399',
+  accentBg: 'rgba(16,185,129,0.1)',
+  accentBorder: 'rgba(16,185,129,0.2)',
+  border: 'rgba(255,255,255,0.055)',
+  muted: 'rgba(255,255,255,0.35)',
+};
+
 const NAV = [
-  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { name: 'Users', href: '/admin/admin-users', icon: Users },
-  { name: 'Quizzes', href: '/admin/admin-quizzes', icon: BookOpen },
-  { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
+  { name: 'Dashboard', href: '/admin',              icon: LayoutDashboard },
+  { name: 'Users',     href: '/admin/admin-users',   icon: Users           },
+  { name: 'Quizzes',   href: '/admin/admin-quizzes', icon: BookOpen        },
+  { name: 'Reports',   href: '/admin/reports',       icon: BarChart3       },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
+  const router   = useRouter();
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  const [open,    setOpen]    = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user,    setUser]    = useState<any>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    if (!token || !stored) { router.push('/login'); return; }
-    const u = JSON.parse(stored);
-    if (u.role?.toLowerCase().trim() !== 'admin') { router.push('/dashboard'); return; }
-    setUser(u);
+    const storedUser = localStorage.getItem('user');
+    const token      = localStorage.getItem('token');
+    if (!token || !storedUser) { router.push('/login'); return; }
+    const userData = JSON.parse(storedUser);
+    if (userData.role?.toLowerCase().trim() !== 'admin') { router.push('/dashboard'); return; }
+    setUser(userData);
     setIsAdmin(true);
   }, [router]);
 
@@ -1792,137 +1984,168 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setTimeout(() => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      showToast.success('Logged out');
+      showToast.success('Logged out successfully');
       router.push('/login');
-    }, 700);
+    }, 800);
   };
 
-  const breadcrumb = pathname.split('/').filter(Boolean).pop()?.replace(/-/g, ' ') || 'dashboard';
+  const crumb = pathname.split('/').filter(Boolean).pop()?.replace(/-/g, ' ') || 'dashboard';
 
   if (!isAdmin) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#060608' }}>
-      <div className="flex flex-col items-center gap-4">
-        <div className="relative w-10 h-10">
-          <div className="absolute inset-0 rounded-full border-2 border-emerald-500/20 border-t-emerald-400 animate-spin" />
+    <div className="min-h-screen flex items-center justify-center" style={{ background: T.bg }}>
+      <div className="relative">
+        <div className="w-10 h-10 rounded-full border-2 animate-spin"
+          style={{ borderColor: `${T.accent}25`, borderTopColor: T.accent }} />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Sparkles className="w-4 h-4 animate-pulse" style={{ color: `${T.accent}70` }} />
         </div>
-        <p className="text-xs text-white/20 tracking-widest uppercase">Authenticating</p>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen" style={{ background: '#060608', fontFamily: "'DM Sans', system-ui, sans-serif" }}>
-      <Toaster position="top-right" toastOptions={{
-        style: { background: '#0f1512', border: '1px solid rgba(52,211,153,0.15)', color: '#fff' }
-      }} />
+    <div className="min-h-screen" style={{ background: T.bg, fontFamily: "'DM Sans','Inter',sans-serif" }}>
+      <Toaster position="top-right" />
 
-      {/* Mobile overlay */}
+      {/* Mobile backdrop */}
       {open && (
-        <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden" onClick={() => setOpen(false)} />
+        <div className="fixed inset-0 z-40 backdrop-blur-sm lg:hidden"
+          style={{ background: 'rgba(0,0,0,0.75)' }}
+          onClick={() => setOpen(false)} />
       )}
 
-      {/* ── SIDEBAR ── */}
+      {/* ─── Sidebar ─── */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-60 flex flex-col transition-transform duration-300 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
-        style={{ background: '#08090d', borderRight: '1px solid rgba(52,211,153,0.07)' }}
+        className={`fixed top-0 left-0 z-50 h-full w-64 flex flex-col
+          transform transition-transform duration-300 ease-in-out
+          lg:translate-x-0
+          ${open ? 'translate-x-0' : '-translate-x-full'}`}
+        style={{ background: T.sidebar, borderRight: `1px solid ${T.border}` }}
       >
-        {/* Logo */}
-        <div className="h-14 flex items-center gap-3 px-5" style={{ borderBottom: '1px solid rgba(52,211,153,0.07)' }}>
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #059669, #34d399)', boxShadow: '0 0 16px rgba(52,211,153,0.25)' }}>
-            <Shield className="w-3.5 h-3.5 text-white" />
+        {/* Logo row */}
+        <div className="h-14 flex items-center justify-between px-4 shrink-0"
+          style={{ borderBottom: `1px solid ${T.border}` }}>
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+              style={{ background: `linear-gradient(135deg,${T.accent},${T.accentHover})`, boxShadow: `0 0 14px rgba(16,185,129,0.3)` }}>
+              <Sparkles style={{ width: 14, height: 14, color: '#fff' }} />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-white">QuizPortal</p>
+              <p className="text-[9px]" style={{ color: 'rgba(255,255,255,0.2)' }}>admin panel</p>
+            </div>
           </div>
-          <div>
-            <p className="text-[13px] font-semibold text-white tracking-tight leading-none">Admin</p>
-            <p className="text-[10px] text-emerald-500/50 mt-0.5 leading-none">Control Panel</p>
-          </div>
+          <button className="lg:hidden p-1.5 rounded-lg" style={{ color: T.muted }}
+            onClick={() => setOpen(false)}>
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Nav */}
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
           {NAV.map((item) => {
-            const active = item.href === '/admin'
-              ? pathname === '/admin'
-              : pathname.startsWith(item.href);
+            const active = pathname === item.href;
             return (
               <Link key={item.name} href={item.href} onClick={() => setOpen(false)}
-                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group ${active ? 'text-emerald-300' : 'text-white/35 hover:text-white/70'}`}
-                style={active ? {
-                  background: 'rgba(52,211,153,0.08)',
-                  border: '1px solid rgba(52,211,153,0.15)',
-                } : { border: '1px solid transparent' }}
+                className="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150"
+                style={active
+                  ? { background: T.accentBg, border: `1px solid ${T.accentBorder}`, color: T.accentHover }
+                  : { border: '1px solid transparent', color: T.muted }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.color = T.muted; }}
               >
-                <item.icon className={`w-4 h-4 shrink-0 transition-colors ${active ? 'text-emerald-400' : 'text-white/25 group-hover:text-white/50'}`} />
-                <span>{item.name}</span>
-                {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                <div className="flex items-center gap-3">
+                  <item.icon className="w-4 h-4 shrink-0" />
+                  {item.name}
+                </div>
+                {active && <div className="w-1.5 h-1.5 rounded-full" style={{ background: T.accentHover }} />}
               </Link>
             );
           })}
         </nav>
 
         {/* Footer */}
-        <div className="p-3 shrink-0" style={{ borderTop: '1px solid rgba(52,211,153,0.07)' }}>
+        <div className="p-3 space-y-0.5 shrink-0" style={{ borderTop: `1px solid ${T.border}` }}>
+          {/* Settings */}
+          <Link href="/admin/settings" onClick={() => setOpen(false)}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150"
+            style={pathname === '/admin/settings'
+              ? { background: T.accentBg, border: `1px solid ${T.accentBorder}`, color: T.accentHover }
+              : { border: '1px solid transparent', color: T.muted }}
+            onMouseEnter={e => { if (pathname !== '/admin/settings') e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; }}
+            onMouseLeave={e => { if (pathname !== '/admin/settings') e.currentTarget.style.color = T.muted; }}
+          >
+            <Settings className="w-4 h-4 shrink-0" />
+            Settings
+          </Link>
+          {/* Logout */}
           <button onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-white/30 hover:text-red-400 transition-all group"
-            style={{ border: '1px solid transparent' }}>
-            <LogOut className="w-4 h-4 shrink-0 group-hover:translate-x-0.5 transition-transform" />
-            <span>Logout</span>
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150"
+            style={{ border: '1px solid transparent', color: T.muted }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = T.muted; e.currentTarget.style.background = 'transparent'; }}
+          >
+            <LogOut className="w-4 h-4 shrink-0" />
+            Logout
           </button>
-
-          {/* User */}
-          <div className="mt-2 px-3.5 py-3 rounded-xl" style={{ background: 'rgba(52,211,153,0.04)', border: '1px solid rgba(52,211,153,0.08)' }}>
+          {/* User card */}
+          <div className="mt-2 px-3 py-3 rounded-xl"
+            style={{ background: 'rgba(255,255,255,0.025)', border: `1px solid ${T.border}` }}>
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold text-white shrink-0"
-                style={{ background: 'linear-gradient(135deg, #059669, #34d399)' }}>
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold text-white shrink-0"
+                style={{ background: `linear-gradient(135deg,${T.accent},${T.accentHover})` }}>
                 {user?.name?.charAt(0)?.toUpperCase() || 'A'}
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-medium text-white/80 truncate">{user?.name || 'Admin'}</p>
-                <p className="text-[10px] text-white/25 truncate">{user?.email || 'admin@example.com'}</p>
+                <p className="text-xs font-semibold text-white truncate">{user?.name || 'Admin'}</p>
+                <p className="text-[10px] truncate" style={{ color: 'rgba(255,255,255,0.2)' }}>{user?.email || ''}</p>
               </div>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* ── MAIN ── */}
-      <div className="lg:pl-60">
-        {/* Header */}
-        <header className="sticky top-0 z-30 h-14 flex items-center justify-between px-5"
-          style={{ background: 'rgba(6,6,8,0.9)', borderBottom: '1px solid rgba(52,211,153,0.06)', backdropFilter: 'blur(12px)' }}>
+      {/* ─── Main ─── */}
+      <div className="lg:pl-64">
+        {/* Topbar */}
+        <header className="sticky top-0 z-30 h-14 flex items-center justify-between px-4 sm:px-5 backdrop-blur-xl"
+          style={{ background: `${T.bg}dd`, borderBottom: `1px solid ${T.border}` }}>
           <div className="flex items-center gap-3">
             <button onClick={() => setOpen(true)}
-              className="lg:hidden p-1.5 rounded-lg text-white/30 hover:text-white border transition-all"
-              style={{ borderColor: 'rgba(52,211,153,0.1)', background: 'rgba(52,211,153,0.04)' }}>
+              className="lg:hidden p-2 rounded-xl transition-all"
+              style={{ color: T.muted, border: `1px solid ${T.border}` }}
+              onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
+              onMouseLeave={e => e.currentTarget.style.color = T.muted}>
               <Menu className="w-4 h-4" />
             </button>
-            <div className="hidden lg:flex items-center gap-1.5 text-xs">
-              <span className="text-white/20">admin</span>
-              <ChevronRight className="w-3 h-3 text-white/15" />
-              <span className="text-white/50 capitalize font-medium">{breadcrumb}</span>
+            <div className="hidden lg:flex items-center gap-2 text-xs">
+              <span style={{ color: 'rgba(255,255,255,0.2)' }}>admin</span>
+              <ChevronRight className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.12)' }} />
+              <span className="font-semibold capitalize" style={{ color: 'rgba(255,255,255,0.55)' }}>{crumb}</span>
             </div>
           </div>
-
           <div className="flex items-center gap-2">
-            <button className="relative p-2 rounded-lg text-white/25 hover:text-emerald-400 border transition-all"
-              style={{ borderColor: 'rgba(52,211,153,0.08)', background: 'rgba(52,211,153,0.03)' }}>
+            <button className="relative p-2 rounded-xl transition-all"
+              style={{ color: T.muted, border: `1px solid ${T.border}` }}
+              onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
+              onMouseLeave={e => e.currentTarget.style.color = T.muted}>
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full" style={{ background: T.accent }} />
             </button>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border"
-              style={{ background: 'rgba(52,211,153,0.04)', borderColor: 'rgba(52,211,153,0.1)' }}>
-              <div className="w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-bold text-white"
-                style={{ background: 'linear-gradient(135deg, #059669, #34d399)' }}>
+            <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl"
+              style={{ background: 'rgba(255,255,255,0.025)', border: `1px solid ${T.border}` }}>
+              <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold text-white"
+                style={{ background: `linear-gradient(135deg,${T.accent},${T.accentHover})` }}>
                 {user?.name?.charAt(0)?.toUpperCase() || 'A'}
               </div>
-              <span className="hidden sm:block text-xs text-white/40 font-medium">{user?.name || 'Admin'}</span>
+              <span className="hidden sm:block text-xs font-medium" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                {user?.name || 'Admin'}
+              </span>
             </div>
           </div>
         </header>
 
-        <main className="p-5 lg:p-7">
-          {children}
-        </main>
+        <main className="p-4 sm:p-5 lg:p-6">{children}</main>
       </div>
     </div>
   );

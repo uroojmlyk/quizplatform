@@ -537,6 +537,296 @@
 
 
 
+// 'use client';
+
+// import { useEffect, useState } from 'react';
+// import { useRouter } from 'next/navigation';
+// import Link from 'next/link';
+// import {
+//   Users, BookOpen, CheckCircle, Clock, TrendingUp, UserPlus,
+//   Award, ChevronRight, Calendar, Activity, Target, Zap, BarChart3,
+//   ArrowUpRight, ArrowDownRight, MoreHorizontal
+// } from 'lucide-react';
+
+// interface Stats {
+//   totalUsers: number; totalQuizzes: number; activeUsers: number;
+//   completionRate: number; newUsersToday: number; quizzesToday: number;
+//   totalAttempts: number; avgScore: number;
+// }
+// interface RecentActivity {
+//   id: string; type: 'user' | 'quiz' | 'result'; message: string;
+//   time: string; userId?: string; quizId?: string;
+// }
+
+// export default function AdminDashboard() {
+//   const router = useRouter();
+//   const [stats, setStats] = useState<Stats>({
+//     totalUsers: 12456, totalQuizzes: 342, activeUsers: 5678, completionRate: 78,
+//     newUsersToday: 124, quizzesToday: 23, totalAttempts: 45678, avgScore: 72
+//   });
+//   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([
+//     { id: '1', type: 'user', message: 'New user registered', time: '2 minutes ago' },
+//     { id: '2', type: 'quiz', message: 'JavaScript Quiz created', time: '15 minutes ago' },
+//     { id: '3', type: 'result', message: 'Quiz completed by 45 students', time: '1 hour ago' },
+//     { id: '4', type: 'user', message: 'Teacher account approved', time: '2 hours ago' },
+//     { id: '5', type: 'quiz', message: 'React Quiz attempted 50 times', time: '3 hours ago' },
+//   ]);
+//   const [loading, setLoading] = useState(false);
+
+//   const getActivityIcon = (type: string) => {
+//     const map: any = {
+//       user: <UserPlus className="w-4 h-4 text-emerald-400" />,
+//       quiz: <BookOpen className="w-4 h-4 text-emerald-400" />,
+//       result: <CheckCircle className="w-4 h-4 text-emerald-400" />,
+//     };
+//     return map[type] || <Clock className="w-4 h-4 text-gray-500" />;
+//   };
+
+//   if (loading) return (
+//     <div className="flex items-center justify-center h-96">
+//       <div className="flex flex-col items-center gap-3">
+//         <div className="relative w-12 h-12">
+//           <div className="absolute inset-0 rounded-full border-2 border-emerald-500/20 border-t-emerald-400 animate-spin" />
+//         </div>
+//         <p className="text-sm text-gray-500">Loading dashboard...</p>
+//       </div>
+//     </div>
+//   );
+
+//   return (
+//     <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+//       {/* Header */}
+//       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+//         <div>
+//           <div className="flex items-center gap-2 mb-1">
+//             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+//             <p className="text-xs font-medium text-emerald-400/80 uppercase tracking-wider">Admin Dashboard</p>
+//           </div>
+//           <h1 className="text-2xl font-semibold text-white">Welcome back, Admin</h1>
+//           <p className="text-sm text-gray-500 mt-1">Here's what's happening with your platform today.</p>
+//         </div>
+//         <div className="flex items-center gap-3">
+//           <button 
+//             onClick={() => router.push('/admin/reports')}
+//             className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200"
+//           >
+//             <BarChart3 className="w-4 h-4 inline-block mr-2" />
+//             Reports
+//           </button>
+//           <button 
+//             onClick={() => router.push('/admin/admin-users')}
+//             className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/25 transition-all duration-200"
+//           >
+//             <Users className="w-4 h-4 inline-block mr-2" />
+//             Manage Users
+//           </button>
+//         </div>
+//       </div>
+
+//       {/* Stat Cards */}
+//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+//         <div className="bg-[#0A0A0A] rounded-xl border border-gray-800 p-6 hover:border-gray-700 transition-all duration-200">
+//           <div className="flex items-center justify-between mb-4">
+//             <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+//               <Users className="w-5 h-5 text-emerald-400" />
+//             </div>
+//             <span className="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-full">
+//               +{stats.newUsersToday} today
+//             </span>
+//           </div>
+//           <p className="text-2xl font-semibold text-white">{stats.totalUsers.toLocaleString()}</p>
+//           <p className="text-sm text-gray-500 mt-1">Total Users</p>
+//           <div className="flex items-center gap-1 mt-3 text-xs text-emerald-400">
+//             <ArrowUpRight className="w-3.5 h-3.5" />
+//             <span>12% increase</span>
+//           </div>
+//         </div>
+
+//         <div className="bg-[#0A0A0A] rounded-xl border border-gray-800 p-6 hover:border-gray-700 transition-all duration-200">
+//           <div className="flex items-center justify-between mb-4">
+//             <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+//               <BookOpen className="w-5 h-5 text-emerald-400" />
+//             </div>
+//             <span className="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-full">
+//               +{stats.quizzesToday} today
+//             </span>
+//           </div>
+//           <p className="text-2xl font-semibold text-white">{stats.totalQuizzes}</p>
+//           <p className="text-sm text-gray-500 mt-1">Total Quizzes</p>
+//           <div className="flex items-center gap-1 mt-3 text-xs text-emerald-400">
+//             <ArrowUpRight className="w-3.5 h-3.5" />
+//             <span>8% increase</span>
+//           </div>
+//         </div>
+
+//         <div className="bg-[#0A0A0A] rounded-xl border border-gray-800 p-6 hover:border-gray-700 transition-all duration-200">
+//           <div className="flex items-center justify-between mb-4">
+//             <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+//               <Activity className="w-5 h-5 text-emerald-400" />
+//             </div>
+//             <span className="text-xs font-medium text-gray-400 bg-white/5 px-2 py-1 rounded-full">
+//               Last 7 days
+//             </span>
+//           </div>
+//           <p className="text-2xl font-semibold text-white">{stats.activeUsers.toLocaleString()}</p>
+//           <p className="text-sm text-gray-500 mt-1">Active Users</p>
+//           <div className="flex items-center gap-1 mt-3 text-xs text-emerald-400">
+//             <ArrowUpRight className="w-3.5 h-3.5" />
+//             <span>5% increase</span>
+//           </div>
+//         </div>
+
+//         <div className="bg-[#0A0A0A] rounded-xl border border-gray-800 p-6 hover:border-gray-700 transition-all duration-200">
+//           <div className="flex items-center justify-between mb-4">
+//             <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+//               <Target className="w-5 h-5 text-emerald-400" />
+//             </div>
+//             <span className="text-xs font-medium text-gray-400 bg-white/5 px-2 py-1 rounded-full">
+//               All time avg
+//             </span>
+//           </div>
+//           <p className="text-2xl font-semibold text-white">{stats.completionRate}%</p>
+//           <p className="text-sm text-gray-500 mt-1">Completion Rate</p>
+//           <div className="flex items-center gap-1 mt-3 text-xs text-emerald-400">
+//             <ArrowUpRight className="w-3.5 h-3.5" />
+//             <span>3% increase</span>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Secondary Stats */}
+//       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+//         <div className="bg-[#0A0A0A] rounded-xl border border-gray-800 p-6">
+//           <div className="flex items-start justify-between">
+//             <div>
+//               <p className="text-sm text-gray-500 mb-2">Total Attempts</p>
+//               <p className="text-3xl font-semibold text-white">{stats.totalAttempts.toLocaleString()}</p>
+//               <p className="text-xs text-gray-600 mt-2">Across all quizzes</p>
+//             </div>
+//             <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+//               <Award className="w-6 h-6 text-emerald-400" />
+//             </div>
+//           </div>
+//         </div>
+
+//         <div className="bg-[#0A0A0A] rounded-xl border border-gray-800 p-6">
+//           <div className="flex items-start justify-between">
+//             <div>
+//               <p className="text-sm text-gray-500 mb-2">Average Score</p>
+//               <p className="text-3xl font-semibold text-white">{stats.avgScore}%</p>
+//               <p className="text-xs text-gray-600 mt-2">↑ 4% from last month</p>
+//             </div>
+//             <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+//               <TrendingUp className="w-6 h-6 text-emerald-400" />
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Bottom Section */}
+//       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+//         {/* Activity Feed */}
+//         <div className="lg:col-span-2 bg-[#0A0A0A] rounded-xl border border-gray-800 overflow-hidden">
+//           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+//             <div className="flex items-center gap-3">
+//               <Activity className="w-5 h-5 text-emerald-400" />
+//               <h2 className="text-sm font-medium text-white">Recent Activity</h2>
+//             </div>
+//             <Link 
+//               href="/admin/reports"
+//               className="text-xs text-gray-500 hover:text-emerald-400 transition-colors"
+//             >
+//               View all →
+//             </Link>
+//           </div>
+//           <div className="divide-y divide-gray-800">
+//             {recentActivity.map((activity) => (
+//               <div 
+//                 key={activity.id}
+//                 className="flex items-center gap-3 px-6 py-3 hover:bg-white/5 transition-colors cursor-pointer"
+//                 onClick={() => {
+//                   if (activity.type === 'user' && activity.userId) router.push(`/admin/admin-users/${activity.userId}`);
+//                   else if (activity.type === 'quiz' && activity.quizId) router.push(`/admin/admin-quizzes/${activity.quizId}`);
+//                 }}
+//               >
+//                 <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+//                   {getActivityIcon(activity.type)}
+//                 </div>
+//                 <div className="flex-1 min-w-0">
+//                   <p className="text-sm text-gray-300 truncate">{activity.message}</p>
+//                   <div className="flex items-center gap-2 mt-1">
+//                     <Calendar className="w-3 h-3 text-gray-600" />
+//                     <p className="text-xs text-gray-600">{activity.time}</p>
+//                   </div>
+//                 </div>
+//                 <ChevronRight className="w-4 h-4 text-gray-600" />
+//               </div>
+//             ))}
+//           </div>
+//         </div>
+
+//         {/* Quick Actions */}
+//         <div className="space-y-3">
+//           <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider px-1">Quick Actions</h3>
+          
+//           <Link href="/admin/admin-users" 
+//             className="block bg-[#0A0A0A] rounded-xl border border-gray-800 p-5 hover:border-gray-700 transition-all duration-200"
+//           >
+//             <div className="flex items-center gap-3">
+//               <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+//                 <Users className="w-5 h-5 text-emerald-400" />
+//               </div>
+//               <div>
+//                 <p className="text-sm font-medium text-white">User Management</p>
+//                 <p className="text-xs text-gray-500 mt-0.5">View & manage all users</p>
+//               </div>
+//             </div>
+//           </Link>
+
+//           <Link href="/admin/admin-quizzes" 
+//             className="block bg-[#0A0A0A] rounded-xl border border-gray-800 p-5 hover:border-gray-700 transition-all duration-200"
+//           >
+//             <div className="flex items-center gap-3">
+//               <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+//                 <BookOpen className="w-5 h-5 text-emerald-400" />
+//               </div>
+//               <div>
+//                 <p className="text-sm font-medium text-white">Quiz Management</p>
+//                 <p className="text-xs text-gray-500 mt-0.5">Monitor all quizzes</p>
+//               </div>
+//             </div>
+//           </Link>
+
+//           <Link href="/admin/reports" 
+//             className="block bg-[#0A0A0A] rounded-xl border border-gray-800 p-5 hover:border-gray-700 transition-all duration-200"
+//           >
+//             <div className="flex items-center gap-3">
+//               <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+//                 <BarChart3 className="w-5 h-5 text-emerald-400" />
+//               </div>
+//               <div>
+//                 <p className="text-sm font-medium text-white">Analytics</p>
+//                 <p className="text-xs text-gray-500 mt-0.5">Reports & insights</p>
+//               </div>
+//             </div>
+//           </Link>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -545,8 +835,19 @@ import Link from 'next/link';
 import {
   Users, BookOpen, CheckCircle, Clock, TrendingUp, UserPlus,
   Award, ChevronRight, Calendar, Activity, Target, Zap, BarChart3,
-  ArrowUpRight, ArrowDownRight, MoreHorizontal
+  ArrowUpRight, ArrowDownRight, MoreHorizontal,
 } from 'lucide-react';
+
+const T = {
+  accent: '#10b981',
+  accentHover: '#34d399',
+  accentBg: 'rgba(16,185,129,0.08)',
+  accentBorder: 'rgba(16,185,129,0.18)',
+  card: 'rgba(255,255,255,0.025)',
+  border: 'rgba(255,255,255,0.06)',
+  muted: 'rgba(255,255,255,0.4)',
+  dim: 'rgba(255,255,255,0.22)',
+};
 
 interface Stats {
   totalUsers: number; totalQuizzes: number; activeUsers: number;
@@ -554,266 +855,215 @@ interface Stats {
   totalAttempts: number; avgScore: number;
 }
 interface RecentActivity {
-  id: string; type: 'user' | 'quiz' | 'result'; message: string;
-  time: string; userId?: string; quizId?: string;
+  id: string; type: 'user' | 'quiz' | 'result';
+  message: string; time: string; userId?: string; quizId?: string;
+}
+
+// ── Stat card ──────────────────────────────────────────────────────
+function StatCard({ icon: Icon, value, label, badge, trend }: {
+  icon: any; value: string | number; label: string;
+  badge: string; trend?: string;
+}) {
+  return (
+    <div className="rounded-2xl p-5 transition-all duration-200"
+      style={{ background: T.card, border: `1px solid ${T.border}` }}
+      onMouseEnter={e => (e.currentTarget.style.borderColor = T.accentBorder)}
+      onMouseLeave={e => (e.currentTarget.style.borderColor = T.border)}>
+      <div className="flex items-start justify-between mb-4">
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+          style={{ background: T.accentBg }}>
+          <Icon className="w-4.5 h-4.5" style={{ width: 18, height: 18, color: T.accent }} />
+        </div>
+        <span className="text-[11px] font-medium px-2 py-1 rounded-full"
+          style={{ background: T.accentBg, color: T.accentHover }}>
+          {badge}
+        </span>
+      </div>
+      <p className="text-2xl font-bold text-white">{value}</p>
+      <p className="text-sm mt-0.5" style={{ color: T.muted }}>{label}</p>
+      {trend && (
+        <div className="flex items-center gap-1 mt-3 text-xs" style={{ color: T.accent }}>
+          <ArrowUpRight className="w-3.5 h-3.5" />
+          <span>{trend}</span>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [stats, setStats] = useState<Stats>({
-    totalUsers: 12456, totalQuizzes: 342, activeUsers: 5678, completionRate: 78,
-    newUsersToday: 124, quizzesToday: 23, totalAttempts: 45678, avgScore: 72
+  const [stats] = useState<Stats>({
+    totalUsers: 12456, totalQuizzes: 342, activeUsers: 5678,
+    completionRate: 78, newUsersToday: 124, quizzesToday: 23,
+    totalAttempts: 45678, avgScore: 72,
   });
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([
-    { id: '1', type: 'user', message: 'New user registered', time: '2 minutes ago' },
-    { id: '2', type: 'quiz', message: 'JavaScript Quiz created', time: '15 minutes ago' },
-    { id: '3', type: 'result', message: 'Quiz completed by 45 students', time: '1 hour ago' },
-    { id: '4', type: 'user', message: 'Teacher account approved', time: '2 hours ago' },
-    { id: '5', type: 'quiz', message: 'React Quiz attempted 50 times', time: '3 hours ago' },
+  const [recentActivity] = useState<RecentActivity[]>([
+    { id: '1', type: 'user',   message: 'New user registered',          time: '2 min ago'  },
+    { id: '2', type: 'quiz',   message: 'JavaScript Quiz created',       time: '15 min ago' },
+    { id: '3', type: 'result', message: 'Quiz completed by 45 students', time: '1 hr ago'   },
+    { id: '4', type: 'user',   message: 'Teacher account approved',      time: '2 hrs ago'  },
+    { id: '5', type: 'quiz',   message: 'React Quiz attempted 50 times', time: '3 hrs ago'  },
   ]);
-  const [loading, setLoading] = useState(false);
 
-  const getActivityIcon = (type: string) => {
+  const activityIcon = (type: string) => {
     const map: any = {
-      user: <UserPlus className="w-4 h-4 text-emerald-400" />,
-      quiz: <BookOpen className="w-4 h-4 text-emerald-400" />,
-      result: <CheckCircle className="w-4 h-4 text-emerald-400" />,
+      user:   <UserPlus  style={{ width: 14, height: 14, color: T.accent }} />,
+      quiz:   <BookOpen  style={{ width: 14, height: 14, color: T.accent }} />,
+      result: <CheckCircle style={{ width: 14, height: 14, color: T.accent }} />,
     };
-    return map[type] || <Clock className="w-4 h-4 text-gray-500" />;
+    return map[type] || <Clock style={{ width: 14, height: 14, color: T.muted }} />;
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-96">
-      <div className="flex flex-col items-center gap-3">
-        <div className="relative w-12 h-12">
-          <div className="absolute inset-0 rounded-full border-2 border-emerald-500/20 border-t-emerald-400 animate-spin" />
-        </div>
-        <p className="text-sm text-gray-500">Loading dashboard...</p>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="space-y-6 max-w-7xl mx-auto">
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* ── Page header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <p className="text-xs font-medium text-emerald-400/80 uppercase tracking-wider">Admin Dashboard</p>
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: T.accent }} />
+            <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: `${T.accent}cc` }}>
+              Admin Dashboard
+            </p>
           </div>
-          <h1 className="text-2xl font-semibold text-white">Welcome back, Admin</h1>
-          <p className="text-sm text-gray-500 mt-1">Here's what's happening with your platform today.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Welcome back, Admin</h1>
+          <p className="text-sm mt-1" style={{ color: T.muted }}>Here's what's happening with your platform today.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => router.push('/admin/reports')}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200"
-          >
-            <BarChart3 className="w-4 h-4 inline-block mr-2" />
-            Reports
+        {/* Action buttons */}
+        <div className="flex items-center gap-2.5 flex-shrink-0">
+          <button onClick={() => router.push('/admin/reports')}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all"
+            style={{ background: T.card, border: `1px solid ${T.border}`, color: T.muted }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = T.muted; e.currentTarget.style.borderColor = T.border; }}>
+            <BarChart3 className="w-4 h-4" />
+            <span className="hidden sm:inline">Reports</span>
           </button>
-          <button 
-            onClick={() => router.push('/admin/admin-users')}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/25 transition-all duration-200"
-          >
-            <Users className="w-4 h-4 inline-block mr-2" />
-            Manage Users
+          <button onClick={() => router.push('/admin/admin-users')}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold text-white transition-all"
+            style={{ background: `linear-gradient(135deg,${T.accent},${T.accentHover})`, boxShadow: `0 4px 20px rgba(16,185,129,0.25)` }}
+            onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+            onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+            <Users className="w-4 h-4" />
+            <span className="hidden sm:inline">Manage Users</span>
           </button>
         </div>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#0A0A0A] rounded-xl border border-gray-800 p-6 hover:border-gray-700 transition-all duration-200">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-              <Users className="w-5 h-5 text-emerald-400" />
-            </div>
-            <span className="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-full">
-              +{stats.newUsersToday} today
-            </span>
-          </div>
-          <p className="text-2xl font-semibold text-white">{stats.totalUsers.toLocaleString()}</p>
-          <p className="text-sm text-gray-500 mt-1">Total Users</p>
-          <div className="flex items-center gap-1 mt-3 text-xs text-emerald-400">
-            <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>12% increase</span>
-          </div>
-        </div>
-
-        <div className="bg-[#0A0A0A] rounded-xl border border-gray-800 p-6 hover:border-gray-700 transition-all duration-200">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-emerald-400" />
-            </div>
-            <span className="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-full">
-              +{stats.quizzesToday} today
-            </span>
-          </div>
-          <p className="text-2xl font-semibold text-white">{stats.totalQuizzes}</p>
-          <p className="text-sm text-gray-500 mt-1">Total Quizzes</p>
-          <div className="flex items-center gap-1 mt-3 text-xs text-emerald-400">
-            <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>8% increase</span>
-          </div>
-        </div>
-
-        <div className="bg-[#0A0A0A] rounded-xl border border-gray-800 p-6 hover:border-gray-700 transition-all duration-200">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-              <Activity className="w-5 h-5 text-emerald-400" />
-            </div>
-            <span className="text-xs font-medium text-gray-400 bg-white/5 px-2 py-1 rounded-full">
-              Last 7 days
-            </span>
-          </div>
-          <p className="text-2xl font-semibold text-white">{stats.activeUsers.toLocaleString()}</p>
-          <p className="text-sm text-gray-500 mt-1">Active Users</p>
-          <div className="flex items-center gap-1 mt-3 text-xs text-emerald-400">
-            <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>5% increase</span>
-          </div>
-        </div>
-
-        <div className="bg-[#0A0A0A] rounded-xl border border-gray-800 p-6 hover:border-gray-700 transition-all duration-200">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-              <Target className="w-5 h-5 text-emerald-400" />
-            </div>
-            <span className="text-xs font-medium text-gray-400 bg-white/5 px-2 py-1 rounded-full">
-              All time avg
-            </span>
-          </div>
-          <p className="text-2xl font-semibold text-white">{stats.completionRate}%</p>
-          <p className="text-sm text-gray-500 mt-1">Completion Rate</p>
-          <div className="flex items-center gap-1 mt-3 text-xs text-emerald-400">
-            <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>3% increase</span>
-          </div>
-        </div>
+      {/* ── Primary stat cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard icon={Users}    value={stats.totalUsers.toLocaleString()} label="Total Users"    badge={`+${stats.newUsersToday} today`} trend="12% increase" />
+        <StatCard icon={BookOpen} value={stats.totalQuizzes}                label="Total Quizzes"  badge={`+${stats.quizzesToday} today`}  trend="8% increase"  />
+        <StatCard icon={Activity} value={stats.activeUsers.toLocaleString()} label="Active Users"  badge="Last 7 days"                      trend="5% increase"  />
+        <StatCard icon={Target}   value={`${stats.completionRate}%`}         label="Completion"    badge="All-time avg"                     trend="3% increase"  />
       </div>
 
-      {/* Secondary Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-[#0A0A0A] rounded-xl border border-gray-800 p-6">
+      {/* ── Secondary stat cards ── */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="rounded-2xl p-5" style={{ background: T.card, border: `1px solid ${T.border}` }}>
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-500 mb-2">Total Attempts</p>
-              <p className="text-3xl font-semibold text-white">{stats.totalAttempts.toLocaleString()}</p>
-              <p className="text-xs text-gray-600 mt-2">Across all quizzes</p>
+              <p className="text-sm mb-1.5" style={{ color: T.muted }}>Total Attempts</p>
+              <p className="text-2xl sm:text-3xl font-bold text-white">{stats.totalAttempts.toLocaleString()}</p>
+              <p className="text-xs mt-1.5" style={{ color: T.dim }}>Across all quizzes</p>
             </div>
-            <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
-              <Award className="w-6 h-6 text-emerald-400" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: T.accentBg }}>
+              <Award style={{ width: 20, height: 20, color: T.accent }} />
             </div>
           </div>
         </div>
-
-        <div className="bg-[#0A0A0A] rounded-xl border border-gray-800 p-6">
+        <div className="rounded-2xl p-5" style={{ background: T.card, border: `1px solid ${T.border}` }}>
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-500 mb-2">Average Score</p>
-              <p className="text-3xl font-semibold text-white">{stats.avgScore}%</p>
-              <p className="text-xs text-gray-600 mt-2">↑ 4% from last month</p>
+              <p className="text-sm mb-1.5" style={{ color: T.muted }}>Average Score</p>
+              <p className="text-2xl sm:text-3xl font-bold text-white">{stats.avgScore}%</p>
+              <p className="text-xs mt-1.5" style={{ color: T.accent }}>↑ 4% from last month</p>
             </div>
-            <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-emerald-400" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: T.accentBg }}>
+              <TrendingUp style={{ width: 20, height: 20, color: T.accent }} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Section */}
+      {/* ── Bottom: Activity + Quick Actions ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-        {/* Activity Feed */}
-        <div className="lg:col-span-2 bg-[#0A0A0A] rounded-xl border border-gray-800 overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
-            <div className="flex items-center gap-3">
-              <Activity className="w-5 h-5 text-emerald-400" />
-              <h2 className="text-sm font-medium text-white">Recent Activity</h2>
+        {/* Activity feed */}
+        <div className="lg:col-span-2 rounded-2xl overflow-hidden"
+          style={{ background: T.card, border: `1px solid ${T.border}` }}>
+          <div className="flex items-center justify-between px-5 py-4"
+            style={{ borderBottom: `1px solid ${T.border}` }}>
+            <div className="flex items-center gap-2.5">
+              <Activity className="w-4 h-4" style={{ color: T.accent }} />
+              <h2 className="text-sm font-semibold text-white">Recent Activity</h2>
             </div>
-            <Link 
-              href="/admin/reports"
-              className="text-xs text-gray-500 hover:text-emerald-400 transition-colors"
-            >
+            <Link href="/admin/reports" className="text-xs font-medium transition-colors"
+              style={{ color: T.muted }}
+              onMouseEnter={e => e.currentTarget.style.color = T.accentHover}
+              onMouseLeave={e => e.currentTarget.style.color = T.muted}>
               View all →
             </Link>
           </div>
-          <div className="divide-y divide-gray-800">
-            {recentActivity.map((activity) => (
-              <div 
-                key={activity.id}
-                className="flex items-center gap-3 px-6 py-3 hover:bg-white/5 transition-colors cursor-pointer"
+
+          <div className="divide-y" style={{ borderColor: T.border }}>
+            {recentActivity.map((a) => (
+              <div key={a.id}
+                className="flex items-center gap-3.5 px-5 py-3.5 cursor-pointer transition-colors"
+                style={{ background: 'transparent' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.025)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 onClick={() => {
-                  if (activity.type === 'user' && activity.userId) router.push(`/admin/admin-users/${activity.userId}`);
-                  else if (activity.type === 'quiz' && activity.quizId) router.push(`/admin/admin-quizzes/${activity.quizId}`);
-                }}
-              >
-                <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-                  {getActivityIcon(activity.type)}
+                  if (a.type === 'user' && a.userId) router.push(`/admin/admin-users/${a.userId}`);
+                  else if (a.type === 'quiz' && a.quizId) router.push(`/admin/admin-quizzes/${a.quizId}`);
+                }}>
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: T.accentBg }}>
+                  {activityIcon(a.type)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-300 truncate">{activity.message}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Calendar className="w-3 h-3 text-gray-600" />
-                    <p className="text-xs text-gray-600">{activity.time}</p>
+                  <p className="text-sm text-white truncate">{a.message}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <Calendar className="w-3 h-3" style={{ color: T.dim }} />
+                    <p className="text-[11px]" style={{ color: T.dim }}>{a.time}</p>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-gray-600" />
+                <ChevronRight className="w-4 h-4 shrink-0" style={{ color: T.dim }} />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick actions */}
         <div className="space-y-3">
-          <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider px-1">Quick Actions</h3>
-          
-          <Link href="/admin/admin-users" 
-            className="block bg-[#0A0A0A] rounded-xl border border-gray-800 p-5 hover:border-gray-700 transition-all duration-200"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-emerald-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-white">User Management</p>
-                <p className="text-xs text-gray-500 mt-0.5">View & manage all users</p>
-              </div>
-            </div>
-          </Link>
+          <p className="text-[11px] font-semibold uppercase tracking-wider px-1" style={{ color: T.dim }}>
+            Quick Actions
+          </p>
 
-          <Link href="/admin/admin-quizzes" 
-            className="block bg-[#0A0A0A] rounded-xl border border-gray-800 p-5 hover:border-gray-700 transition-all duration-200"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-emerald-400" />
+          {[
+            { href: '/admin/admin-users',   icon: Users,    title: 'User Management',  sub: 'View & manage all users'  },
+            { href: '/admin/admin-quizzes', icon: BookOpen, title: 'Quiz Management',  sub: 'Monitor all quizzes'       },
+            { href: '/admin/reports',       icon: BarChart3,title: 'Analytics',        sub: 'Reports & insights'        },
+          ].map((item) => (
+            <Link key={item.href} href={item.href}
+              className="flex items-center gap-3.5 p-4 rounded-2xl transition-all block"
+              style={{ background: T.card, border: `1px solid ${T.border}` }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = T.accentBorder; e.currentTarget.style.background = 'rgba(16,185,129,0.04)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.background = T.card; }}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: T.accentBg }}>
+                <item.icon style={{ width: 18, height: 18, color: T.accent }} />
               </div>
               <div>
-                <p className="text-sm font-medium text-white">Quiz Management</p>
-                <p className="text-xs text-gray-500 mt-0.5">Monitor all quizzes</p>
+                <p className="text-sm font-semibold text-white">{item.title}</p>
+                <p className="text-xs mt-0.5" style={{ color: T.muted }}>{item.sub}</p>
               </div>
-            </div>
-          </Link>
-
-          <Link href="/admin/reports" 
-            className="block bg-[#0A0A0A] rounded-xl border border-gray-800 p-5 hover:border-gray-700 transition-all duration-200"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-emerald-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-white">Analytics</p>
-                <p className="text-xs text-gray-500 mt-0.5">Reports & insights</p>
-              </div>
-            </div>
-          </Link>
+            </Link>
+          ))}
         </div>
       </div>
+
     </div>
   );
 }
