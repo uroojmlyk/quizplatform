@@ -5,24 +5,11 @@
 
 // import { useEffect, useState } from 'react';
 // import { useRouter } from 'next/navigation';
-// import { motion } from 'framer-motion';
 // import { Toaster, toast as hotToast } from 'react-hot-toast';
-// import { 
-//   User, 
-//   Mail, 
-//   Lock, 
-//   Camera, 
-//   Save,
-//   ArrowLeft,
-//   LogOut,
-//   Calendar,
-//   Shield,
-//   Key,
-//   Edit2,
-//   Award,
-//   BookOpen,
-//   TrendingUp,
-//   Sparkles
+// import {
+//   User, Mail, Lock, Camera, Save, ArrowLeft, LogOut,
+//   Calendar, Key, Edit2, Award, BookOpen, TrendingUp,
+//   GraduationCap, Eye, EyeOff, CheckCircle, X
 // } from 'lucide-react';
 // import { showToast } from '@/lib/toast';
 
@@ -33,9 +20,6 @@
 //   role: string;
 //   avatar?: string;
 //   createdAt?: string;
-//   quizzesTaken?: number;
-//   averageScore?: number;
-//   achievements?: string[];
 // }
 
 // export default function ProfilePage() {
@@ -44,34 +28,30 @@
 //   const [loading, setLoading] = useState(true);
 //   const [saving, setSaving] = useState(false);
 //   const [isEditing, setIsEditing] = useState(false);
-//   const [showPassword, setShowPassword] = useState(false);
-  
-//   // Form states
+//   const [showPasswordSection, setShowPasswordSection] = useState(false);
+//   const [showCurrentPw, setShowCurrentPw] = useState(false);
+//   const [showNewPw, setShowNewPw] = useState(false);
+//   const [showConfirmPw, setShowConfirmPw] = useState(false);
+
+//   // Profile form
 //   const [name, setName] = useState('');
 //   const [email, setEmail] = useState('');
+//   const [avatar, setAvatar] = useState('');
+//   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+//   const [avatarPreview, setAvatarPreview] = useState('');
+
+//   // Password form
 //   const [currentPassword, setCurrentPassword] = useState('');
 //   const [newPassword, setNewPassword] = useState('');
 //   const [confirmPassword, setConfirmPassword] = useState('');
-//   const [avatar, setAvatar] = useState<string>('');
-//   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-//   const [avatarPreview, setAvatarPreview] = useState<string>('');
 
-//   // Mock data for stats
-//   const [stats] = useState({
-//     quizzesTaken: 12,
-//     averageScore: 78,
-//     achievements: 3
-//   });
+//   // Stats (mock — same as original)
+//   const [stats] = useState({ quizzesTaken: 12, averageScore: 78, achievements: 3 });
 
 //   useEffect(() => {
 //     const storedUser = localStorage.getItem('user');
 //     const token = localStorage.getItem('token');
-
-//     if (!token || !storedUser) {
-//       router.push('/login');
-//       return;
-//     }
-
+//     if (!token || !storedUser) { router.push('/login'); return; }
 //     const userData = JSON.parse(storedUser);
 //     fetchUserProfile(userData.id || userData._id);
 //   }, [router]);
@@ -80,14 +60,13 @@
 //     try {
 //       const res = await fetch(`/api/profile?userId=${userId}`);
 //       const data = await res.json();
-
 //       if (data.success) {
 //         setUser(data.data);
 //         setName(data.data.name);
 //         setEmail(data.data.email);
 //         setAvatar(data.data.avatar || '');
 //       }
-//     } catch (error) {
+//     } catch {
 //       showToast.error('Failed to load profile');
 //     } finally {
 //       setLoading(false);
@@ -105,59 +84,40 @@
 //   };
 
 //   const handleUpdateProfile = async () => {
-//     if (!name.trim() || !email.trim()) {
-//       showToast.error('Name and email are required');
-//       return;
-//     }
-
+//     if (!name.trim() || !email.trim()) { showToast.error('Name and email are required'); return; }
 //     setSaving(true);
 //     const toastId = showToast.loading('Updating profile...');
-
 //     try {
 //       let avatarUrl = avatar;
 //       if (avatarFile) {
 //         const formData = new FormData();
 //         formData.append('avatar', avatarFile);
 //         formData.append('userId', user?.id || '');
-        
-//         const uploadRes = await fetch('/api/profile/avatar', {
-//           method: 'POST',
-//           body: formData
-//         });
-        
+//         const uploadRes = await fetch('/api/profile/avatar', { method: 'POST', body: formData });
 //         const uploadData = await uploadRes.json();
 //         if (uploadData.success) avatarUrl = uploadData.url;
 //       }
-
 //       const res = await fetch('/api/profile', {
 //         method: 'PUT',
 //         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({
-//           userId: user?.id,
-//           name,
-//           email,
-//           avatar: avatarUrl
-//         })
+//         body: JSON.stringify({ userId: user?.id, name, email, avatar: avatarUrl })
 //       });
-
 //       const data = await res.json();
-
 //       if (data.success) {
 //         const updatedUser = { ...user, name, email, avatar: avatarUrl };
 //         localStorage.setItem('user', JSON.stringify(updatedUser));
-//         setUser(updatedUser);
+//         setUser(updatedUser as UserData);
 //         setAvatar(avatarUrl);
 //         setAvatarPreview('');
 //         setAvatarFile(null);
 //         setIsEditing(false);
-        
 //         hotToast.dismiss(toastId);
 //         showToast.success('Profile updated successfully');
 //       } else {
 //         hotToast.dismiss(toastId);
 //         showToast.error(data.error || 'Update failed');
 //       }
-//     } catch (error) {
+//     } catch {
 //       hotToast.dismiss(toastId);
 //       showToast.error('Network error');
 //     } finally {
@@ -166,49 +126,28 @@
 //   };
 
 //   const handleChangePassword = async () => {
-//     if (!currentPassword || !newPassword || !confirmPassword) {
-//       showToast.error('All fields are required');
-//       return;
-//     }
-
-//     if (newPassword !== confirmPassword) {
-//       showToast.error('Passwords do not match');
-//       return;
-//     }
-
-//     if (newPassword.length < 6) {
-//       showToast.error('Password must be at least 6 characters');
-//       return;
-//     }
-
+//     if (!currentPassword || !newPassword || !confirmPassword) { showToast.error('All fields are required'); return; }
+//     if (newPassword !== confirmPassword) { showToast.error('Passwords do not match'); return; }
+//     if (newPassword.length < 6) { showToast.error('Password must be at least 6 characters'); return; }
 //     setSaving(true);
 //     const toastId = showToast.loading('Changing password...');
-
 //     try {
 //       const res = await fetch('/api/change-password', {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({
-//           userId: user?.id,
-//           currentPassword,
-//           newPassword
-//         })
+//         body: JSON.stringify({ userId: user?.id, currentPassword, newPassword })
 //       });
-
 //       const data = await res.json();
-
 //       if (data.success) {
 //         hotToast.dismiss(toastId);
 //         showToast.success('Password changed successfully');
-//         setShowPassword(false);
-//         setCurrentPassword('');
-//         setNewPassword('');
-//         setConfirmPassword('');
+//         setShowPasswordSection(false);
+//         setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
 //       } else {
 //         hotToast.dismiss(toastId);
 //         showToast.error(data.error || 'Failed to change password');
 //       }
-//     } catch (error) {
+//     } catch {
 //       hotToast.dismiss(toastId);
 //       showToast.error('Network error');
 //     } finally {
@@ -218,7 +157,6 @@
 
 //   const handleLogout = () => {
 //     const toastId = showToast.loading('Logging out...');
-    
 //     setTimeout(() => {
 //       localStorage.removeItem('token');
 //       localStorage.removeItem('user');
@@ -228,215 +166,317 @@
 //     }, 800);
 //   };
 
+//   const cancelEdit = () => {
+//     setIsEditing(false);
+//     setName(user?.name || '');
+//     setEmail(user?.email || '');
+//     setAvatarPreview('');
+//     setAvatarFile(null);
+//   };
+
+//   // Role-based accent colors
+//   const isTeacher = user?.role === 'teacher';
+//   const accent = isTeacher ? 'emerald' : 'violet';
+//   const accentClass = isTeacher
+//     ? { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', focus: 'focus:border-emerald-500/50', btn: 'bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/25 text-emerald-400' }
+//     : { text: 'text-violet-400', bg: 'bg-violet-500/10', border: 'border-violet-500/20', focus: 'focus:border-violet-500/50', btn: 'bg-violet-500/15 hover:bg-violet-500/25 border-violet-500/25 text-violet-400' };
+
 //   if (loading) {
 //     return (
-//       <div className="min-h-screen bg-[#09090B] flex items-center justify-center">
-//         <div className="w-8 h-8 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
+//       <div className="min-h-screen bg-[#070709] flex items-center justify-center">
+//         <div className="flex flex-col items-center gap-4">
+//           <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${isTeacher ? 'from-emerald-500 to-teal-600' : 'from-violet-500 to-indigo-600'} flex items-center justify-center`}>
+//             <GraduationCap className="w-6 h-6 text-white animate-pulse" />
+//           </div>
+//           <div className="flex gap-1.5">
+//             {[0,1,2].map(i => (
+//               <div key={i} className={`w-1.5 h-1.5 rounded-full ${isTeacher ? 'bg-emerald-500/60' : 'bg-violet-500/60'} animate-bounce`}
+//                 style={{ animationDelay: `${i * 0.15}s` }} />
+//             ))}
+//           </div>
+//         </div>
 //       </div>
 //     );
 //   }
 
+//   const inputClass = `w-full px-3.5 py-2.5 bg-white/[0.03] border border-white/[0.07] hover:border-white/[0.12] ${accentClass.focus} rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none transition-colors disabled:opacity-40 disabled:cursor-not-allowed`;
+
 //   return (
-//     <div className="min-h-screen bg-[#09090B]">
+//     <div className="min-h-screen bg-[#070709] text-white overflow-x-hidden" style={{ fontFamily: "'DM Sans', 'Sora', sans-serif" }}>
 //       <Toaster position="top-right" />
-      
-//       <div className="max-w-4xl mx-auto px-4 py-8">
-//         {/* Header */}
-//         <div className="flex items-center justify-between mb-6">
-//           <div className="flex items-center gap-3">
+
+//       {/* Ambient bg */}
+//       <div className="fixed inset-0 pointer-events-none overflow-hidden">
+//         <div className={`absolute top-0 left-1/4 w-[500px] h-[400px] ${isTeacher ? 'bg-emerald-600/5' : 'bg-violet-600/6'} rounded-full blur-[120px]`} />
+//         <div className={`absolute bottom-0 right-1/4 w-[400px] h-[300px] ${isTeacher ? 'bg-teal-600/4' : 'bg-indigo-600/4'} rounded-full blur-[100px]`} />
+//       </div>
+
+//       {/* Navbar */}
+//       <nav className="sticky top-0 z-50 border-b border-white/[0.04] bg-[#070709]/85 backdrop-blur-xl">
+//         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+//           <div className="flex items-center gap-2.5">
 //             <button
 //               onClick={() => router.back()}
-//               className="p-2 bg-white/[0.02] border border-white/[0.05] rounded-xl text-white/40 hover:text-white/60 transition-colors"
+//               className="p-2 rounded-xl text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all"
 //             >
-//               <ArrowLeft className="w-5 h-5" />
+//               <ArrowLeft className="w-4 h-4" />
 //             </button>
-//             <h1 className="text-xl font-light text-white">profile</h1>
+//             <div className="flex items-center gap-2">
+//               <div className={`w-6 h-6 rounded-lg bg-gradient-to-br ${isTeacher ? 'from-emerald-500 to-teal-600' : 'from-violet-500 to-indigo-600'} flex items-center justify-center`}>
+//                 <GraduationCap className="w-3 h-3 text-white" />
+//               </div>
+//               <span className="text-sm font-semibold text-white/80">My Profile</span>
+//             </div>
 //           </div>
-          
 //           <button
 //             onClick={handleLogout}
-//             className="flex items-center gap-2 px-3 py-2 text-sm text-white/40 hover:text-red-400 hover:bg-red-500/10 border border-white/[0.05] rounded-xl transition-colors"
+//             className="flex items-center gap-1.5 px-3 py-2 text-xs text-white/35 hover:text-red-400/80 hover:bg-red-500/8 border border-white/[0.06] hover:border-red-500/20 rounded-xl transition-all"
 //           >
-//             <LogOut className="w-4 h-4" />
-//             sign out
+//             <LogOut className="w-3.5 h-3.5" />
+//             <span className="hidden sm:inline">Sign Out</span>
 //           </button>
 //         </div>
+//       </nav>
 
-//         {/* Profile Card */}
+//       <div className="relative z-10 max-w-2xl mx-auto px-4 py-5 pb-10 space-y-4">
+
+//         {/* ── Profile Card ── */}
 //         <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl overflow-hidden">
-//           {/* Header with Avatar */}
-//           <div className="p-6 border-b border-white/[0.05]">
+//           {/* Avatar + name header */}
+//           <div className="p-4 sm:p-5 border-b border-white/[0.05]">
 //             <div className="flex items-start gap-4">
 //               {/* Avatar */}
-//               <div className="relative">
-//                 <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center overflow-hidden border border-white/[0.05]">
+//               <div className="relative shrink-0">
+//                 <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center overflow-hidden">
 //                   {avatarPreview || avatar ? (
-//                     <img 
-//                       src={avatarPreview || avatar} 
-//                       alt={name} 
-//                       className="w-full h-full object-cover"
-//                     />
+//                     <img src={avatarPreview || avatar} alt={name} className="w-full h-full object-cover" />
 //                   ) : (
-//                     <User className="w-8 h-8 text-white/40" />
+//                     <span className={`text-2xl font-bold ${accentClass.text}`}>
+//                       {name?.charAt(0)?.toUpperCase() || 'U'}
+//                     </span>
 //                   )}
 //                 </div>
-                
-//                 <label className="absolute -bottom-1 -right-1 p-1 bg-indigo-500/20 border border-white/[0.05] rounded-lg cursor-pointer hover:bg-indigo-500/30 transition-colors">
-//                   <Camera className="w-3 h-3 text-indigo-400" />
-//                   <input
-//                     type="file"
-//                     accept="image/*"
-//                     className="hidden"
-//                     onChange={handleAvatarChange}
-//                   />
+//                 <label className={`absolute -bottom-1 -right-1 p-1.5 ${accentClass.bg} border ${accentClass.border} rounded-lg cursor-pointer hover:opacity-80 transition-opacity`}>
+//                   <Camera className={`w-3 h-3 ${accentClass.text}`} />
+//                   <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
 //                 </label>
 //               </div>
 
-//               {/* User Info */}
-//               <div className="flex-1">
-//                 <div className="flex items-center justify-between">
-//                   <div>
-//                     <h2 className="text-lg font-medium text-white">{name}</h2>
-//                     <p className="text-sm text-white/40 mt-0.5">{email}</p>
-//                     <div className="flex items-center gap-2 mt-2">
-//                       <span className="text-xs px-2 py-1 bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20 capitalize">
+//               {/* Info */}
+//               <div className="flex-1 min-w-0">
+//                 <div className="flex items-start justify-between gap-2">
+//                   <div className="min-w-0">
+//                     <h2 className="text-base sm:text-lg font-semibold text-white truncate">{name}</h2>
+//                     <p className="text-xs sm:text-sm text-white/40 mt-0.5 truncate">{email}</p>
+//                     <div className="flex flex-wrap items-center gap-2 mt-2">
+//                       <span className={`text-[10px] px-2 py-0.5 ${accentClass.bg} ${accentClass.text} rounded-full border ${accentClass.border} capitalize font-medium`}>
 //                         {user?.role}
 //                       </span>
 //                       {user?.createdAt && (
-//                         <span className="text-xs text-white/20 flex items-center gap-1">
+//                         <span className="text-[10px] text-white/25 flex items-center gap-1">
 //                           <Calendar className="w-3 h-3" />
-//                           joined {new Date(user.createdAt).toLocaleDateString()}
+//                           Joined {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
 //                         </span>
 //                       )}
 //                     </div>
 //                   </div>
-                  
 //                   <button
-//                     onClick={() => setIsEditing(!isEditing)}
-//                     className="flex items-center gap-2 px-3 py-1.5 text-sm text-white/40 hover:text-indigo-400 border border-white/[0.05] rounded-lg hover:border-indigo-500/30 transition-colors"
+//                     onClick={() => isEditing ? cancelEdit() : setIsEditing(true)}
+//                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all shrink-0 border ${
+//                       isEditing
+//                         ? 'bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white/70'
+//                         : `${accentClass.bg} ${accentClass.border} ${accentClass.text} hover:opacity-80`
+//                     }`}
 //                   >
-//                     <Edit2 className="w-3 h-3" />
-//                     {isEditing ? 'cancel' : 'edit'}
+//                     {isEditing ? <X className="w-3 h-3" /> : <Edit2 className="w-3 h-3" />}
+//                     {isEditing ? 'Cancel' : 'Edit'}
 //                   </button>
 //                 </div>
 //               </div>
 //             </div>
+
+//             {/* Avatar change notice */}
+//             {avatarPreview && (
+//               <div className={`mt-3 flex items-center gap-2 px-3 py-2 ${accentClass.bg} border ${accentClass.border} rounded-xl`}>
+//                 <CheckCircle className={`w-3.5 h-3.5 ${accentClass.text} shrink-0`} />
+//                 <span className={`text-xs ${accentClass.text}`}>New photo ready — save to apply</span>
+//               </div>
+//             )}
 //           </div>
 
-//           {/* Stats Row */}
-//           <div className="grid grid-cols-3 gap-4 p-6 border-b border-white/[0.05]">
-//             <div>
-//               <div className="flex items-center gap-2 mb-1">
-//                 <BookOpen className="w-4 h-4 text-indigo-400/60" />
-//                 <span className="text-xs text-white/30">quizzes</span>
+//           {/* Stats row */}
+//           <div className="grid grid-cols-3 divide-x divide-white/[0.05] border-b border-white/[0.05]">
+//             {[
+//               { label: 'Quizzes', value: stats.quizzesTaken, icon: BookOpen, color: accentClass.text },
+//               { label: 'Avg Score', value: `${stats.averageScore}%`, icon: TrendingUp, color: 'text-emerald-400' },
+//               { label: 'Badges', value: stats.achievements, icon: Award, color: 'text-amber-400' },
+//             ].map(stat => (
+//               <div key={stat.label} className="flex flex-col items-center py-4 px-2">
+//                 <stat.icon className={`w-4 h-4 ${stat.color} opacity-70 mb-1.5`} />
+//                 <p className="text-base sm:text-lg font-bold text-white">{stat.value}</p>
+//                 <p className="text-[10px] text-white/30 mt-0.5">{stat.label}</p>
 //               </div>
-//               <p className="text-lg font-light text-white">{stats.quizzesTaken}</p>
-//             </div>
-//             <div>
-//               <div className="flex items-center gap-2 mb-1">
-//                 <TrendingUp className="w-4 h-4 text-emerald-400/60" />
-//                 <span className="text-xs text-white/30">avg score</span>
-//               </div>
-//               <p className="text-lg font-light text-white">{stats.averageScore}%</p>
-//             </div>
-//             <div>
-//               <div className="flex items-center gap-2 mb-1">
-//                 <Award className="w-4 h-4 text-yellow-400/60" />
-//                 <span className="text-xs text-white/30">achievements</span>
-//               </div>
-//               <p className="text-lg font-light text-white">{stats.achievements}</p>
-//             </div>
+//             ))}
 //           </div>
 
-//           {/* Profile Form */}
-//           <div className="p-6 space-y-4">
+//           {/* Edit form */}
+//           <div className="p-4 sm:p-5 space-y-3">
 //             <div>
-//               <label className="block text-xs text-white/40 mb-1">full name</label>
-//               <input
-//                 type="text"
-//                 value={name}
-//                 onChange={(e) => setName(e.target.value)}
-//                 disabled={!isEditing}
-//                 className="w-full px-3 py-2 bg-white/[0.02] border border-white/[0.05] rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-//               />
+//               <label className="text-xs text-white/40 mb-1.5 block">Full Name</label>
+//               <div className="relative">
+//                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
+//                 <input
+//                   type="text"
+//                   value={name}
+//                   onChange={e => setName(e.target.value)}
+//                   disabled={!isEditing}
+//                   placeholder="Your full name"
+//                   className={`${inputClass} pl-9`}
+//                 />
+//               </div>
 //             </div>
-
 //             <div>
-//               <label className="block text-xs text-white/40 mb-1">email</label>
-//               <input
-//                 type="email"
-//                 value={email}
-//                 onChange={(e) => setEmail(e.target.value)}
-//                 disabled={!isEditing}
-//                 className="w-full px-3 py-2 bg-white/[0.02] border border-white/[0.05] rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-//               />
+//               <label className="text-xs text-white/40 mb-1.5 block">Email Address</label>
+//               <div className="relative">
+//                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
+//                 <input
+//                   type="email"
+//                   value={email}
+//                   onChange={e => setEmail(e.target.value)}
+//                   disabled={!isEditing}
+//                   placeholder="your@email.com"
+//                   className={`${inputClass} pl-9`}
+//                 />
+//               </div>
 //             </div>
 
 //             {isEditing && (
-//               <button
-//                 onClick={handleUpdateProfile}
-//                 disabled={saving}
-//                 className="flex items-center gap-2 px-4 py-2 bg-indigo-500/20 text-indigo-400 text-sm rounded-lg hover:bg-indigo-500/30 transition-colors disabled:opacity-50 border border-indigo-500/30"
-//               >
-//                 <Save className="w-4 h-4" />
-//                 {saving ? 'saving...' : 'save changes'}
-//               </button>
+//               <div className="flex items-center gap-2 pt-1">
+//                 <button
+//                   onClick={handleUpdateProfile}
+//                   disabled={saving}
+//                   className={`flex items-center gap-1.5 px-4 py-2.5 ${accentClass.btn} border rounded-xl text-sm font-semibold transition-all disabled:opacity-40`}
+//                 >
+//                   <Save className="w-3.5 h-3.5 shrink-0" />
+//                   {saving ? 'Saving…' : 'Save Changes'}
+//                 </button>
+//                 <button
+//                   onClick={cancelEdit}
+//                   className="px-4 py-2.5 bg-white/[0.03] border border-white/[0.07] rounded-xl text-sm text-white/50 hover:text-white/70 transition-all"
+//                 >
+//                   Cancel
+//                 </button>
+//               </div>
+//             )}
+
+//             {!isEditing && (
+//               <p className="text-xs text-white/25">Click Edit to update your name, email, or profile photo.</p>
 //             )}
 //           </div>
 //         </div>
 
-//         {/* Password Card */}
-//         <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl overflow-hidden mt-4">
-//           <div className="p-6">
-//             <div className="flex items-center justify-between mb-4">
-//               <h3 className="text-sm font-medium text-white">password</h3>
+//         {/* ── Password Card ── */}
+//         <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl overflow-hidden">
+//           <div className="p-4 sm:p-5">
+//             <div className="flex items-center justify-between mb-1">
+//               <div className="flex items-center gap-2">
+//                 <Key className="w-3.5 h-3.5 text-white/35" />
+//                 <h3 className="text-sm font-semibold text-white">Password</h3>
+//               </div>
 //               <button
-//                 onClick={() => setShowPassword(!showPassword)}
-//                 className="flex items-center gap-2 px-3 py-1.5 text-sm text-white/40 hover:text-indigo-400 border border-white/[0.05] rounded-lg hover:border-indigo-500/30 transition-colors"
+//                 onClick={() => {
+//                   setShowPasswordSection(!showPasswordSection);
+//                   setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+//                 }}
+//                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${
+//                   showPasswordSection
+//                     ? 'bg-white/[0.04] border-white/[0.08] text-white/50'
+//                     : `${accentClass.bg} ${accentClass.border} ${accentClass.text}`
+//                 }`}
 //               >
-//                 <Key className="w-3 h-3" />
-//                 {showPassword ? 'cancel' : 'change'}
+//                 {showPasswordSection ? <X className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
+//                 {showPasswordSection ? 'Cancel' : 'Change'}
 //               </button>
 //             </div>
 
-//             {showPassword && (
-//               <div className="space-y-4">
+//             {!showPasswordSection && (
+//               <p className="text-xs text-white/25 mt-2">Click Change to update your password.</p>
+//             )}
+
+//             {showPasswordSection && (
+//               <div className="mt-4 space-y-3">
+//                 {/* Current password */}
 //                 <div>
-//                   <label className="block text-xs text-white/40 mb-1">current password</label>
-//                   <input
-//                     type="password"
-//                     value={currentPassword}
-//                     onChange={(e) => setCurrentPassword(e.target.value)}
-//                     className="w-full px-3 py-2 bg-white/[0.02] border border-white/[0.05] rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 text-sm"
-//                   />
+//                   <label className="text-xs text-white/40 mb-1.5 block">Current Password</label>
+//                   <div className="relative">
+//                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
+//                     <input
+//                       type={showCurrentPw ? 'text' : 'password'}
+//                       value={currentPassword}
+//                       onChange={e => setCurrentPassword(e.target.value)}
+//                       placeholder="Enter current password"
+//                       className={`${inputClass} pl-9 pr-10`}
+//                     />
+//                     <button onClick={() => setShowCurrentPw(!showCurrentPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/50">
+//                       {showCurrentPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+//                     </button>
+//                   </div>
 //                 </div>
 
+//                 {/* New password */}
 //                 <div>
-//                   <label className="block text-xs text-white/40 mb-1">new password</label>
-//                   <input
-//                     type="password"
-//                     value={newPassword}
-//                     onChange={(e) => setNewPassword(e.target.value)}
-//                     className="w-full px-3 py-2 bg-white/[0.02] border border-white/[0.05] rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 text-sm"
-//                   />
+//                   <label className="text-xs text-white/40 mb-1.5 block">New Password</label>
+//                   <div className="relative">
+//                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
+//                     <input
+//                       type={showNewPw ? 'text' : 'password'}
+//                       value={newPassword}
+//                       onChange={e => setNewPassword(e.target.value)}
+//                       placeholder="Min. 6 characters"
+//                       className={`${inputClass} pl-9 pr-10`}
+//                     />
+//                     <button onClick={() => setShowNewPw(!showNewPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/50">
+//                       {showNewPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+//                     </button>
+//                   </div>
+//                   {newPassword.length > 0 && newPassword.length < 6 && (
+//                     <p className="text-xs text-red-400/70 mt-1">Too short — must be at least 6 characters</p>
+//                   )}
 //                 </div>
 
+//                 {/* Confirm password */}
 //                 <div>
-//                   <label className="block text-xs text-white/40 mb-1">confirm password</label>
-//                   <input
-//                     type="password"
-//                     value={confirmPassword}
-//                     onChange={(e) => setConfirmPassword(e.target.value)}
-//                     className="w-full px-3 py-2 bg-white/[0.02] border border-white/[0.05] rounded-lg text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 text-sm"
-//                   />
+//                   <label className="text-xs text-white/40 mb-1.5 block">Confirm New Password</label>
+//                   <div className="relative">
+//                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
+//                     <input
+//                       type={showConfirmPw ? 'text' : 'password'}
+//                       value={confirmPassword}
+//                       onChange={e => setConfirmPassword(e.target.value)}
+//                       placeholder="Repeat new password"
+//                       className={`${inputClass} pl-9 pr-10`}
+//                     />
+//                     <button onClick={() => setShowConfirmPw(!showConfirmPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/50">
+//                       {showConfirmPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+//                     </button>
+//                   </div>
+//                   {confirmPassword.length > 0 && newPassword !== confirmPassword && (
+//                     <p className="text-xs text-red-400/70 mt-1">Passwords do not match</p>
+//                   )}
+//                   {confirmPassword.length > 0 && newPassword === confirmPassword && newPassword.length >= 6 && (
+//                     <p className="text-xs text-emerald-400/70 mt-1 flex items-center gap-1">
+//                       <CheckCircle className="w-3 h-3" /> Passwords match
+//                     </p>
+//                   )}
 //                 </div>
 
 //                 <button
 //                   onClick={handleChangePassword}
 //                   disabled={saving}
-//                   className="px-4 py-2 bg-indigo-500/20 text-indigo-400 text-sm rounded-lg hover:bg-indigo-500/30 transition-colors disabled:opacity-50 border border-indigo-500/30"
+//                   className={`flex items-center gap-1.5 px-4 py-2.5 ${accentClass.btn} border rounded-xl text-sm font-semibold transition-all disabled:opacity-40`}
 //                 >
-//                   {saving ? 'updating...' : 'update password'}
+//                   <Key className="w-3.5 h-3.5 shrink-0" />
+//                   {saving ? 'Updating…' : 'Update Password'}
 //                 </button>
 //               </div>
 //             )}
@@ -444,382 +484,13 @@
 //         </div>
 
 //         {/* Footer */}
-//         <div className="mt-4 text-center">
-//           <p className="text-xs text-white/20">
-//             member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-//           </p>
-//         </div>
+//         <p className="text-center text-xs text-white/20">
+//           Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'N/A'}
+//         </p>
 //       </div>
 //     </div>
 //   );
 // }
-
-
-
-
-// 'use client';
-
-// import { useEffect, useState } from 'react';
-// import { useRouter } from 'next/navigation';
-// import { Toaster } from 'react-hot-toast';
-// import { 
-//   User, 
-//   Mail, 
-//   Lock, 
-//   Camera, 
-//   Save,
-//   ArrowLeft,
-//   Sparkles,
-//   LogOut
-// } from 'lucide-react';
-// import { showToast } from '@/lib/toast';
-// import AvatarUpload from '@/components/ui/avatar-upload';
-
-// interface UserData {
-//   id: string;
-//   name: string;
-//   email: string;
-//   role: string;
-//   avatar?: string;
-//   createdAt?: string;
-// }
-
-// export default function ProfilePage() {
-//   const router = useRouter();
-//   const [user, setUser] = useState<UserData | null>(null);
-//   const [loading, setLoading] = useState(true);
-//   const [saving, setSaving] = useState(false);
-//   const [isEditing, setIsEditing] = useState(false);
-//   const [showPasswordForm, setShowPasswordForm] = useState(false);
-  
-//   // Form states
-//   const [name, setName] = useState('');
-//   const [email, setEmail] = useState('');
-//   const [currentPassword, setCurrentPassword] = useState('');
-//   const [newPassword, setNewPassword] = useState('');
-//   const [confirmPassword, setConfirmPassword] = useState('');
-//   const [avatar, setAvatar] = useState<string>('');
-
-//   useEffect(() => {
-//     const storedUser = localStorage.getItem('user');
-//     const token = localStorage.getItem('token');
-
-//     if (!token || !storedUser) {
-//       router.push('/login');
-//       return;
-//     }
-
-//     const userData = JSON.parse(storedUser);
-//     fetchUserProfile(userData.id || userData._id);
-//   }, [router]);
-
-//   const fetchUserProfile = async (userId: string) => {
-//     try {
-//       const res = await fetch(`/api/profile?userId=${userId}`);
-//       const data = await res.json();
-
-//       if (data.success) {
-//         setUser(data.data);
-//         setName(data.data.name);
-//         setEmail(data.data.email);
-//         setAvatar(data.data.avatar || '');
-//       }
-//     } catch (error) {
-//       showToast.error('Failed to load profile');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const handleUpdateProfile = async () => {
-//     if (!name.trim() || !email.trim()) {
-//       showToast.error('Name and email are required');
-//       return;
-//     }
-
-//     setSaving(true);
-//     try {
-//       const res = await fetch('/api/profile', {
-//         method: 'PUT',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({
-//           userId: user?.id,
-//           name,
-//           email,
-//           avatar
-//         })
-//       });
-
-//       const data = await res.json();
-
-//       if (data.success) {
-//         const updatedUser = { ...user, name, email, avatar };
-//         localStorage.setItem('user', JSON.stringify(updatedUser));
-//         setUser(updatedUser);
-//         setIsEditing(false);
-//         showToast.success('Profile updated successfully');
-//       } else {
-//         showToast.error(data.error || 'Update failed');
-//       }
-//     } catch (error) {
-//       showToast.error('Network error');
-//     } finally {
-//       setSaving(false);
-//     }
-//   };
-
-//   const handleChangePassword = async () => {
-//     if (!currentPassword || !newPassword || !confirmPassword) {
-//       showToast.error('All fields are required');
-//       return;
-//     }
-
-//     if (newPassword !== confirmPassword) {
-//       showToast.error('New passwords do not match');
-//       return;
-//     }
-
-//     if (newPassword.length < 6) {
-//       showToast.error('Password must be at least 6 characters');
-//       return;
-//     }
-
-//     setSaving(true);
-//     try {
-//       const res = await fetch('/api/change-password', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({
-//           userId: user?.id,
-//           currentPassword,
-//           newPassword
-//         })
-//       });
-
-//       const data = await res.json();
-
-//       if (data.success) {
-//         showToast.success('Password changed successfully');
-//         setShowPasswordForm(false);
-//         setCurrentPassword('');
-//         setNewPassword('');
-//         setConfirmPassword('');
-//       } else {
-//         showToast.error(data.error || 'Failed to change password');
-//       }
-//     } catch (error) {
-//       showToast.error('Network error');
-//     } finally {
-//       setSaving(false);
-//     }
-//   };
-
-//   const handleLogout = () => {
-//     localStorage.removeItem('token');
-//     localStorage.removeItem('user');
-//     showToast.success('Logged out successfully');
-//     router.push('/login');
-//   };
-
-//   if (loading) {
-//     return (
-//       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-//         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-//       <Toaster />
-      
-//       <div className="max-w-3xl mx-auto">
-//         {/* Header */}
-//         <div className="flex items-center justify-between mb-6">
-//           <div className="flex items-center gap-4">
-//             <button
-//               onClick={() => router.back()}
-//               className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-//             >
-//               <ArrowLeft className="w-5 h-5 text-gray-600" />
-//             </button>
-//             <h1 className="text-2xl font-semibold text-gray-900">Profile Settings</h1>
-//           </div>
-//           <button
-//             onClick={handleLogout}
-//             className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-//           >
-//             <LogOut className="w-4 h-4" />
-//             <span>Logout</span>
-//           </button>
-//         </div>
-
-//         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-//           {/* Profile Header */}
-//           <div className="bg-gradient-to-r from-gray-900 to-gray-700 px-6 py-8 text-white">
-//             <div className="flex items-center gap-6">
-//               {/* Avatar */}
-//               <div className="relative group">
-//                 <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center overflow-hidden border-4 border-white/20">
-//                   {avatar ? (
-//                     <img src={avatar} alt={name} className="w-full h-full object-cover" />
-//                   ) : (
-//                     <User className="w-12 h-12 text-white/60" />
-//                   )}
-//                 </div>
-//                 <button
-//                   onClick={() => document.getElementById('avatar-upload')?.click()}
-//                   className="absolute bottom-0 right-0 p-1.5 bg-white text-gray-900 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-//                 >
-//                   <Camera className="w-4 h-4" />
-//                 </button>
-//                 <AvatarUpload 
-//                   userId={user?.id} 
-//                   onUpload={(url) => {
-//                     setAvatar(url);
-//                     handleUpdateProfile();
-//                   }} 
-//                 />
-//               </div>
-              
-//               <div>
-//                 <h2 className="text-2xl font-semibold">{name}</h2>
-//                 <p className="text-white/80 text-sm mt-1">{email}</p>
-//                 <p className="text-white/60 text-xs mt-2 capitalize">{user?.role}</p>
-//               </div>
-//             </div>
-//           </div>
-
-//           {/* Profile Content */}
-//           <div className="p-6">
-//             {/* Edit Profile Section */}
-//             <div className="mb-8">
-//               <div className="flex items-center justify-between mb-4">
-//                 <h3 className="text-lg font-medium text-gray-900">Profile Information</h3>
-//                 <button
-//                   onClick={() => setIsEditing(!isEditing)}
-//                   className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-//                 >
-//                   {isEditing ? 'Cancel' : 'Edit'}
-//                 </button>
-//               </div>
-
-//               <div className="space-y-4">
-//                 <div>
-//                   <label className="block text-sm font-medium text-gray-700 mb-1">
-//                     Full Name
-//                   </label>
-//                   <input
-//                     type="text"
-//                     value={name}
-//                     onChange={(e) => setName(e.target.value)}
-//                     disabled={!isEditing}
-//                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500 disabled:bg-gray-50 disabled:text-gray-500"
-//                   />
-//                 </div>
-
-//                 <div>
-//                   <label className="block text-sm font-medium text-gray-700 mb-1">
-//                     Email Address
-//                   </label>
-//                   <input
-//                     type="email"
-//                     value={email}
-//                     onChange={(e) => setEmail(e.target.value)}
-//                     disabled={!isEditing}
-//                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500 disabled:bg-gray-50 disabled:text-gray-500"
-//                   />
-//                 </div>
-
-//                 {isEditing && (
-//                   <button
-//                     onClick={handleUpdateProfile}
-//                     disabled={saving}
-//                     className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-black transition-colors disabled:opacity-50"
-//                   >
-//                     <Save className="w-4 h-4" />
-//                     {saving ? 'Saving...' : 'Save Changes'}
-//                   </button>
-//                 )}
-//               </div>
-//             </div>
-
-//             {/* Change Password Section */}
-//             <div className="border-t border-gray-200 pt-8">
-//               <div className="flex items-center justify-between mb-4">
-//                 <h3 className="text-lg font-medium text-gray-900">Password</h3>
-//                 <button
-//                   onClick={() => setShowPasswordForm(!showPasswordForm)}
-//                   className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-//                 >
-//                   {showPasswordForm ? 'Cancel' : 'Change Password'}
-//                 </button>
-//               </div>
-
-//               {showPasswordForm && (
-//                 <div className="space-y-4">
-//                   <div>
-//                     <label className="block text-sm font-medium text-gray-700 mb-1">
-//                       Current Password
-//                     </label>
-//                     <input
-//                       type="password"
-//                       value={currentPassword}
-//                       onChange={(e) => setCurrentPassword(e.target.value)}
-//                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500"
-//                     />
-//                   </div>
-
-//                   <div>
-//                     <label className="block text-sm font-medium text-gray-700 mb-1">
-//                       New Password
-//                     </label>
-//                     <input
-//                       type="password"
-//                       value={newPassword}
-//                       onChange={(e) => setNewPassword(e.target.value)}
-//                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500"
-//                     />
-//                   </div>
-
-//                   <div>
-//                     <label className="block text-sm font-medium text-gray-700 mb-1">
-//                       Confirm New Password
-//                     </label>
-//                     <input
-//                       type="password"
-//                       value={confirmPassword}
-//                       onChange={(e) => setConfirmPassword(e.target.value)}
-//                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-500"
-//                     />
-//                   </div>
-
-//                   <button
-//                     onClick={handleChangePassword}
-//                     disabled={saving}
-//                     className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-black transition-colors disabled:opacity-50"
-//                   >
-//                     {saving ? 'Updating...' : 'Update Password'}
-//                   </button>
-//                 </div>
-//               )}
-//             </div>
-
-//             {/* Account Info */}
-//             <div className="border-t border-gray-200 pt-8 mt-8">
-//               <h3 className="text-sm font-medium text-gray-500 mb-2">Account Information</h3>
-//               <p className="text-sm text-gray-600">
-//                 Member since: {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-//               </p>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-
 
 
 
@@ -830,30 +501,29 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster, toast as hotToast } from 'react-hot-toast';
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  Camera, 
-  Save,
-  ArrowLeft,
-  Sparkles,
-  LogOut,
-  Calendar,
-  Shield,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Edit2,
-  Key,
-  AlertCircle,
-  Award,
-  TrendingUp,
-  BookOpen
+import {
+  User, Mail, Lock, Camera, Save, ArrowLeft, LogOut,
+  Calendar, Key, Edit2, Award, BookOpen, TrendingUp,
+  GraduationCap, Eye, EyeOff, CheckCircle, X, Sparkles
 } from 'lucide-react';
 import { showToast } from '@/lib/toast';
+
+// ✅ Design tokens matching dashboard
+const T = {
+  bg: '#070709',
+  bgCard: '#0f0f12',
+  accent: '#10b981',
+  accentLight: '#34d399',
+  accentDark: '#059669',
+  accentGlow: 'rgba(16,185,129,0.16)',
+  accentBorder: 'rgba(16,185,129,0.2)',
+  accentBg: 'rgba(16,185,129,0.08)',
+  border: 'rgba(255,255,255,0.06)',
+  textMuted: 'rgba(255,255,255,0.4)',
+  textDim: 'rgba(255,255,255,0.25)',
+};
 
 interface UserData {
   id: string;
@@ -862,10 +532,6 @@ interface UserData {
   role: string;
   avatar?: string;
   createdAt?: string;
-  lastLogin?: string;
-  quizzesTaken?: number;
-  averageScore?: number;
-  achievements?: string[];
 }
 
 export default function ProfilePage() {
@@ -874,76 +540,46 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'activity'>('profile');
-  
-  // Form states
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
+
+  // Profile form
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [bio, setBio] = useState('');
+  const [avatar, setAvatar] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState('');
+
+  // Password form
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [avatar, setAvatar] = useState<string>('');
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string>('');
 
-  // Password validation states
-  const [passwordValidations, setPasswordValidations] = useState({
-    length: false,
-    number: false,
-    special: false,
-    match: false
-  });
+  // Stats (mock)
+  const [stats] = useState({ quizzesTaken: 12, averageScore: 78, achievements: 3 });
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-
-    if (!token || !storedUser) {
-      router.push('/login');
-      return;
-    }
-
+    if (!token || !storedUser) { router.push('/login'); return; }
     const userData = JSON.parse(storedUser);
     fetchUserProfile(userData.id || userData._id);
   }, [router]);
-
-  useEffect(() => {
-    // Validate password in real-time
-    if (newPassword) {
-      setPasswordValidations({
-        length: newPassword.length >= 8,
-        number: /\d/.test(newPassword),
-        special: /[!@#$%^&*]/.test(newPassword),
-        match: newPassword === confirmPassword && newPassword.length > 0
-      });
-    }
-  }, [newPassword, confirmPassword]);
 
   const fetchUserProfile = async (userId: string) => {
     try {
       const res = await fetch(`/api/profile?userId=${userId}`);
       const data = await res.json();
-
       if (data.success) {
-        // Add mock data for demo
-        const enhancedUser = {
-          ...data.data,
-          lastLogin: new Date().toISOString(),
-          quizzesTaken: Math.floor(Math.random() * 25),
-          averageScore: Math.floor(Math.random() * 30) + 70,
-          achievements: ['First Quiz', 'Perfect Score', '5-Day Streak']
-        };
-        
-        setUser(enhancedUser);
-        setName(enhancedUser.name);
-        setEmail(enhancedUser.email);
-        setBio(enhancedUser.bio || '');
-        setAvatar(enhancedUser.avatar || '');
+        setUser(data.data);
+        setName(data.data.name);
+        setEmail(data.data.email);
+        setAvatar(data.data.avatar || '');
       }
-    } catch (error) {
-      showToast.error('failed to load profile');
+    } catch {
+      showToast.error('Failed to load profile');
     } finally {
       setLoading(false);
     }
@@ -954,677 +590,508 @@ export default function ProfilePage() {
     if (file) {
       setAvatarFile(file);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string);
-      };
+      reader.onloadend = () => setAvatarPreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
   const handleUpdateProfile = async () => {
-    if (!name.trim() || !email.trim()) {
-      showToast.error('name and email are required');
-      return;
-    }
-
+    if (!name.trim() || !email.trim()) { showToast.error('Name and email are required'); return; }
     setSaving(true);
-    const toastId = showToast.loading('updating profile...');
-
+    const toastId = showToast.loading('Updating profile...');
     try {
-      // Upload avatar if changed
       let avatarUrl = avatar;
       if (avatarFile) {
         const formData = new FormData();
         formData.append('avatar', avatarFile);
         formData.append('userId', user?.id || '');
-        
-        const uploadRes = await fetch('/api/profile/avatar', {
-          method: 'POST',
-          body: formData
-        });
-        
+        const uploadRes = await fetch('/api/profile/avatar', { method: 'POST', body: formData });
         const uploadData = await uploadRes.json();
-        if (uploadData.success) {
-          avatarUrl = uploadData.url;
-        }
+        if (uploadData.success) avatarUrl = uploadData.url;
       }
-
       const res = await fetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user?.id,
-          name,
-          email,
-          bio,
-          avatar: avatarUrl
-        })
+        body: JSON.stringify({ userId: user?.id, name, email, avatar: avatarUrl })
       });
-
       const data = await res.json();
-
       if (data.success) {
-        const updatedUser = { ...user, name, email, bio, avatar: avatarUrl };
+        const updatedUser = { ...user, name, email, avatar: avatarUrl };
         localStorage.setItem('user', JSON.stringify(updatedUser));
-        setUser(updatedUser);
+        setUser(updatedUser as UserData);
         setAvatar(avatarUrl);
         setAvatarPreview('');
         setAvatarFile(null);
         setIsEditing(false);
-        
         hotToast.dismiss(toastId);
-        showToast.achievement(
-          'Profile Updated! ✨',
-          'Your changes have been saved'
-        );
+        showToast.success('Profile updated successfully');
       } else {
         hotToast.dismiss(toastId);
-        showToast.error(data.error || 'update failed');
+        showToast.error(data.error || 'Update failed');
       }
-    } catch (error) {
+    } catch {
       hotToast.dismiss(toastId);
-      showToast.error('network error');
+      showToast.error('Network error');
     } finally {
       setSaving(false);
     }
   };
 
   const handleChangePassword = async () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      showToast.error('all fields are required');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      showToast.error('passwords do not match');
-      return;
-    }
-
-    if (newPassword.length < 8) {
-      showToast.error('password must be at least 8 characters');
-      return;
-    }
-
+    if (!currentPassword || !newPassword || !confirmPassword) { showToast.error('All fields are required'); return; }
+    if (newPassword !== confirmPassword) { showToast.error('Passwords do not match'); return; }
+    if (newPassword.length < 6) { showToast.error('Password must be at least 6 characters'); return; }
     setSaving(true);
-    const toastId = showToast.loading('updating password...');
-
+    const toastId = showToast.loading('Changing password...');
     try {
       const res = await fetch('/api/change-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user?.id,
-          currentPassword,
-          newPassword
-        })
+        body: JSON.stringify({ userId: user?.id, currentPassword, newPassword })
       });
-
       const data = await res.json();
-
       if (data.success) {
         hotToast.dismiss(toastId);
-        showToast.achievement(
-          'Password Updated! 🔐',
-          'Your password has been changed successfully'
-        );
-        setShowPasswordForm(false);
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
+        showToast.success('Password changed successfully');
+        setShowPasswordSection(false);
+        setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
       } else {
         hotToast.dismiss(toastId);
-        showToast.error(data.error || 'failed to change password');
+        showToast.error(data.error || 'Failed to change password');
       }
-    } catch (error) {
+    } catch {
       hotToast.dismiss(toastId);
-      showToast.error('network error');
+      showToast.error('Network error');
     } finally {
       setSaving(false);
     }
   };
 
   const handleLogout = () => {
-    const toastId = showToast.loading('logging out...');
-    
+    const toastId = showToast.loading('Logging out...');
     setTimeout(() => {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       hotToast.dismiss(toastId);
-      showToast.success('logged out successfully');
-      
-      setTimeout(() => router.push('/login'), 1000);
+      showToast.success('Logged out successfully');
+      router.push('/login');
     }, 800);
   };
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
+  const cancelEdit = () => {
+    setIsEditing(false);
+    setName(user?.name || '');
+    setEmail(user?.email || '');
+    setAvatarPreview('');
+    setAvatarFile(null);
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#09090B] font-['Inter',sans-serif]">
-        <div className="fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,80,255,0.15),transparent)]"></div>
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
-          {/* Back Button Skeleton */}
-          <div className="w-24 h-8 bg-white/[0.02] rounded animate-pulse mb-8"></div>
-
-          {/* Profile Card Skeleton */}
-          <div className="bg-white/[0.02] border border-white/[0.05] rounded-3xl overflow-hidden">
-            <div className="h-48 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 animate-pulse"></div>
-            
-            <div className="p-8">
-              <div className="flex items-center gap-6 mb-8">
-                <div className="w-24 h-24 rounded-full bg-white/[0.02] animate-pulse"></div>
-                <div className="flex-1">
-                  <div className="w-48 h-6 bg-white/[0.02] rounded animate-pulse mb-2"></div>
-                  <div className="w-64 h-4 bg-white/[0.02] rounded animate-pulse"></div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                {[1,2,3].map(i => (
-                  <div key={i} className="bg-white/[0.02] rounded-2xl p-4">
-                    <div className="w-16 h-4 bg-white/[0.02] rounded mb-2"></div>
-                    <div className="w-24 h-6 bg-white/[0.02] rounded"></div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="space-y-4">
-                {[1,2,3].map(i => (
-                  <div key={i} className="bg-white/[0.02] rounded-xl p-4">
-                    <div className="w-32 h-4 bg-white/[0.02] rounded mb-2"></div>
-                    <div className="w-full h-10 bg-white/[0.02] rounded"></div>
-                  </div>
-                ))}
-              </div>
-            </div>
+      <div className="min-h-screen bg-[#070709] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+            <GraduationCap className="w-6 h-6 text-white animate-pulse" />
+          </div>
+          <div className="flex gap-1.5">
+            {[0,1,2].map(i => (
+              <div key={i} className="w-1.5 h-1.5 rounded-full bg-emerald-500/60 animate-bounce"
+                style={{ animationDelay: `${i * 0.15}s` }} />
+            ))}
           </div>
         </div>
       </div>
     );
   }
 
+  const inputClass = `w-full px-3.5 py-2.5 bg-white/[0.03] border border-white/[0.07] hover:border-white/[0.12] focus:border-emerald-500/50 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none transition-colors disabled:opacity-40 disabled:cursor-not-allowed`;
+
   return (
-    <div className="min-h-screen bg-[#09090B] font-['Inter',sans-serif] selection:bg-indigo-500/20 selection:text-white">
+    <div className="min-h-screen bg-[#070709] text-white overflow-x-hidden" style={{ fontFamily: "'DM Sans', 'Inter', sans-serif" }}>
       <Toaster position="top-right" />
-      
-      {/* Premium Background */}
-      <div className="fixed inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,80,255,0.15),transparent)]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_120%,rgba(255,100,150,0.1),transparent)]"></div>
-        <div className="absolute inset-0" style={{
-          backgroundImage: `
-            linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
-          `,
-          backgroundSize: '40px 40px',
-          maskImage: 'radial-gradient(circle at 50% 50%, black, transparent 90%)'
-        }}></div>
+
+      {/* Ambient bg */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-[500px] h-[400px] bg-emerald-600/7 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-teal-600/5 rounded-full blur-[100px]" />
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex items-center justify-between mb-8"
-        >
-          <div className="flex items-center gap-4">
+      {/* Navbar */}
+      <nav className="sticky top-0 z-50 border-b border-white/[0.04] bg-[#070709]/85 backdrop-blur-xl">
+        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
             <motion.button
-              whileHover={{ scale: 1.05, x: -2 }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.back()}
-              className="p-2 bg-white/[0.02] border border-white/[0.05] rounded-xl text-white/40 hover:text-white/60 hover:border-white/10 transition-all"
+              className="p-2 rounded-xl transition-all"
+              style={{ color: T.textMuted }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
+              onMouseLeave={e => (e.currentTarget.style.color = T.textMuted)}
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4" />
             </motion.button>
-            <div>
-              <h1 className="text-2xl font-light text-white">profile settings</h1>
-              <p className="text-sm text-white/30">manage your account information</p>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                <GraduationCap className="w-3 h-3 text-white" />
+              </div>
+              <span className="text-sm font-semibold text-white/80">My Profile</span>
             </div>
           </div>
-
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 bg-white/[0.02] border border-white/[0.05] rounded-xl text-white/40 hover:text-red-400 hover:border-red-500/30 hover:bg-red-500/10 transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs rounded-xl transition-all border"
+            style={{ color: T.textMuted, borderColor: T.border }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.2)'; e.currentTarget.style.background = 'rgba(239,68,68,0.05)'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = T.textMuted; e.currentTarget.style.borderColor = T.border; e.currentTarget.style.background = 'transparent'; }}
           >
-            <LogOut className="w-4 h-4" />
-            <span className="text-sm">logout</span>
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Sign Out</span>
           </motion.button>
-        </motion.div>
+        </div>
+      </nav>
 
-        {/* Main Profile Card */}
+      <div className="relative z-10 max-w-2xl mx-auto px-4 py-5 pb-10 space-y-4">
+
+        {/* Profile Card */}
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="bg-white/[0.02] border border-white/[0.05] rounded-3xl overflow-hidden backdrop-blur-sm"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl overflow-hidden border"
+          style={{ background: T.bgCard, borderColor: T.border }}
         >
-          {/* Profile Header with Gradient */}
-          <div className="relative h-48 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 overflow-hidden">
-            <div className="absolute inset-0" style={{
-              backgroundImage: 'radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)',
-            }}></div>
-            
-            {/* Avatar - Positioned absolutely to overlap */}
-            <div className="absolute -bottom-16 left-8">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="relative group"
-              >
-                <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 p-[2px]">
-                  <div className="w-full h-full rounded-2xl bg-[#09090B] overflow-hidden">
-                    {avatarPreview || avatar ? (
-                      <img 
-                        src={avatarPreview || avatar} 
-                        alt={name} 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <User className="w-12 h-12 text-white/40" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <motion.label
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  htmlFor="avatar-upload"
-                  className="absolute -bottom-1 -right-1 p-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl cursor-pointer hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
-                >
-                  <Camera className="w-4 h-4 text-white" />
-                  <input
-                    id="avatar-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleAvatarChange}
-                  />
-                </motion.label>
-              </motion.div>
-            </div>
-          </div>
-
-          {/* Profile Content */}
-          <div className="pt-20 p-8">
-            {/* User Info Row */}
-            <motion.div 
-              variants={itemVariants}
-              className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8"
-            >
-              <div>
-                <h2 className="text-2xl font-light text-white">{name}</h2>
-                <p className="text-sm text-white/40 mt-1">{email}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-xs px-2 py-1 bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/30 capitalize">
-                    {user?.role}
-                  </span>
-                  {user?.createdAt && (
-                    <span className="text-xs text-white/20 flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      joined {new Date(user.createdAt).toLocaleDateString()}
+          {/* Avatar + name header */}
+          <div className="p-4 sm:p-5 border-b" style={{ borderColor: T.border }}>
+            <div className="flex items-start gap-4">
+              {/* Avatar */}
+              <div className="relative shrink-0">
+                <div className="w-16 h-16 rounded-2xl border flex items-center justify-center overflow-hidden"
+                  style={{ background: 'rgba(255,255,255,0.04)', borderColor: T.border }}>
+                  {avatarPreview || avatar ? (
+                    <img src={avatarPreview || avatar} alt={name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-2xl font-bold" style={{ color: T.accentLight }}>
+                      {name?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
                   )}
                 </div>
+                <motion.label
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="absolute -bottom-1 -right-1 p-1.5 rounded-lg cursor-pointer border"
+                  style={{ background: T.accentBg, borderColor: T.accentBorder }}
+                >
+                  <Camera className="w-3 h-3" style={{ color: T.accentLight }} />
+                  <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} disabled={!isEditing} />
+                </motion.label>
               </div>
 
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h2 className="text-base sm:text-lg font-semibold text-white truncate">{name}</h2>
+                    <p className="text-xs sm:text-sm mt-0.5 truncate" style={{ color: T.textMuted }}>{email}</p>
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full border capitalize font-medium"
+                        style={{ background: T.accentBg, borderColor: T.accentBorder, color: T.accentLight }}>
+                        {user?.role}
+                      </span>
+                      {user?.createdAt && (
+                        <span className="text-[10px] flex items-center gap-1" style={{ color: T.textDim }}>
+                          <Calendar className="w-3 h-3" />
+                          Joined {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => isEditing ? cancelEdit() : setIsEditing(true)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all shrink-0 border ${
+                      isEditing
+                        ? 'bg-white/[0.04] border-white/[0.08] text-white/50'
+                        : 'border'
+                    }`}
+                    style={!isEditing ? { background: T.accentBg, borderColor: T.accentBorder, color: T.accentLight } : {}}
+                  >
+                    {isEditing ? <X className="w-3 h-3" /> : <Edit2 className="w-3 h-3" />}
+                    {isEditing ? 'Cancel' : 'Edit'}
+                  </motion.button>
+                </div>
+              </div>
+            </div>
+
+            {/* Avatar change notice */}
+            <AnimatePresence>
+              {avatarPreview && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="mt-3 flex items-center gap-2 px-3 py-2 rounded-xl border"
+                  style={{ background: T.accentBg, borderColor: T.accentBorder }}
+                >
+                  <CheckCircle className="w-3.5 h-3.5 shrink-0" style={{ color: T.accentLight }} />
+                  <span className="text-xs" style={{ color: T.accentLight }}>New photo ready — save to apply</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Stats row */}
+          <div className="grid grid-cols-3 divide-x" style={{ borderColor: T.border }}>
+            {[
+              { label: 'Quizzes', value: stats.quizzesTaken, icon: BookOpen, color: T.accentLight },
+              { label: 'Avg Score', value: `${stats.averageScore}%`, icon: TrendingUp, color: '#10b981' },
+              { label: 'Badges', value: stats.achievements, icon: Award, color: '#f59e0b' },
+            ].map(stat => (
+              <div key={stat.label} className="flex flex-col items-center py-4 px-2">
+                <stat.icon className="w-4 h-4 opacity-70 mb-1.5" style={{ color: stat.color }} />
+                <p className="text-base sm:text-lg font-bold text-white">{stat.value}</p>
+                <p className="text-[10px] mt-0.5" style={{ color: T.textMuted }}>{stat.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Edit form */}
+          <div className="p-4 sm:p-5 space-y-3">
+            <div>
+              <label className="text-xs mb-1.5 block" style={{ color: T.textMuted }}>Full Name</label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: T.textDim }} />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  disabled={!isEditing}
+                  placeholder="Your full name"
+                  className={`${inputClass} pl-9`}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs mb-1.5 block" style={{ color: T.textMuted }}>Email Address</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: T.textDim }} />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  disabled={!isEditing}
+                  placeholder="your@email.com"
+                  className={`${inputClass} pl-9`}
+                />
+              </div>
+            </div>
+
+            <AnimatePresence>
+              {isEditing && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="flex items-center gap-2 pt-1"
+                >
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleUpdateProfile}
+                    disabled={saving}
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 border"
+                    style={{ background: `linear-gradient(135deg, ${T.accentDark}, ${T.accent})`, color: '#fff' }}
+                  >
+                    <Save className="w-3.5 h-3.5 shrink-0" />
+                    {saving ? 'Saving…' : 'Save Changes'}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={cancelEdit}
+                    className="px-4 py-2.5 rounded-xl text-sm transition-all border"
+                    style={{ background: 'rgba(255,255,255,0.03)', borderColor: T.border, color: T.textMuted }}
+                  >
+                    Cancel
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {!isEditing && (
+              <p className="text-xs" style={{ color: T.textDim }}>Click Edit to update your name, email, or profile photo.</p>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Password Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="rounded-2xl overflow-hidden border"
+          style={{ background: T.bgCard, borderColor: T.border }}
+        >
+          <div className="p-4 sm:p-5">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <Key className="w-3.5 h-3.5" style={{ color: T.textMuted }} />
+                <h3 className="text-sm font-semibold text-white">Password</h3>
+              </div>
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setIsEditing(!isEditing)}
-                className="flex items-center gap-2 px-4 py-2 bg-white/[0.02] border border-white/[0.05] rounded-xl text-white/40 hover:text-indigo-400 hover:border-indigo-500/30 hover:bg-indigo-500/10 transition-all"
+                onClick={() => {
+                  setShowPasswordSection(!showPasswordSection);
+                  setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all border ${
+                  showPasswordSection
+                    ? 'bg-white/[0.04] border-white/[0.08] text-white/50'
+                    : 'border'
+                }`}
+                style={!showPasswordSection ? { background: T.accentBg, borderColor: T.accentBorder, color: T.accentLight } : {}}
               >
-                <Edit2 className="w-4 h-4" />
-                <span className="text-sm">{isEditing ? 'cancel' : 'edit profile'}</span>
+                {showPasswordSection ? <X className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
+                {showPasswordSection ? 'Cancel' : 'Change'}
               </motion.button>
-            </motion.div>
+            </div>
 
-            {/* Stats Cards */}
-            <motion.div 
-              variants={itemVariants}
-              className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
-            >
-              <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <BookOpen className="w-4 h-4 text-indigo-400/60" />
-                  <span className="text-xs text-white/40">quizzes taken</span>
-                </div>
-                <p className="text-xl font-light text-white">{user?.quizzesTaken || 0}</p>
-              </div>
-              
-              <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-emerald-400/60" />
-                  <span className="text-xs text-white/40">average score</span>
-                </div>
-                <p className="text-xl font-light text-white">{user?.averageScore || 0}%</p>
-              </div>
-              
-              <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Award className="w-4 h-4 text-yellow-400/60" />
-                  <span className="text-xs text-white/40">achievements</span>
-                </div>
-                <p className="text-xl font-light text-white">{user?.achievements?.length || 0}</p>
-              </div>
-            </motion.div>
+            {!showPasswordSection && (
+              <p className="text-xs mt-2" style={{ color: T.textDim }}>Click Change to update your password.</p>
+            )}
 
-            {/* Tabs */}
-            <motion.div 
-              variants={itemVariants}
-              className="flex gap-2 mb-6 border-b border-white/[0.05] pb-4"
-            >
-              {[
-                { id: 'profile', label: 'profile', icon: User },
-                { id: 'security', label: 'security', icon: Shield },
-                { id: 'activity', label: 'activity', icon: Clock }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
-                    activeTab === tab.id
-                      ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-                      : 'text-white/30 hover:text-white/50'
-                  }`}
+            <AnimatePresence>
+              {showPasswordSection && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-4 space-y-3 overflow-hidden"
                 >
-                  <tab.icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              ))}
-            </motion.div>
-
-            {/* Tab Content */}
-            <motion.div 
-              variants={itemVariants}
-              className="space-y-6"
-            >
-              {/* Profile Tab */}
-              {activeTab === 'profile' && (
-                <div className="space-y-4">
+                  {/* Current password */}
                   <div>
-                    <label className="block text-xs text-white/40 mb-2">full name</label>
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      disabled={!isEditing}
-                      className={`w-full px-4 py-3 bg-white/[0.02] border rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:ring-2 transition-all text-sm ${
-                        isEditing
-                          ? 'border-indigo-500/50 focus:ring-indigo-500/10'
-                          : 'border-white/[0.05] opacity-75'
-                      }`}
-                    />
+                    <label className="text-xs mb-1.5 block" style={{ color: T.textMuted }}>Current Password</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: T.textDim }} />
+                      <input
+                        type={showCurrentPw ? 'text' : 'password'}
+                        value={currentPassword}
+                        onChange={e => setCurrentPassword(e.target.value)}
+                        placeholder="Enter current password"
+                        className={`${inputClass} pl-9 pr-10`}
+                      />
+                      <button onClick={() => setShowCurrentPw(!showCurrentPw)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: T.textDim }}>
+                        {showCurrentPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
                   </div>
 
+                  {/* New password */}
                   <div>
-                    <label className="block text-xs text-white/40 mb-2">email address</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      disabled={!isEditing}
-                      className={`w-full px-4 py-3 bg-white/[0.02] border rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:ring-2 transition-all text-sm ${
-                        isEditing
-                          ? 'border-indigo-500/50 focus:ring-indigo-500/10'
-                          : 'border-white/[0.05] opacity-75'
-                      }`}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs text-white/40 mb-2">bio</label>
-                    <textarea
-                      value={bio}
-                      onChange={(e) => setBio(e.target.value)}
-                      disabled={!isEditing}
-                      rows={3}
-                      className={`w-full px-4 py-3 bg-white/[0.02] border rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:ring-2 transition-all text-sm resize-none ${
-                        isEditing
-                          ? 'border-indigo-500/50 focus:ring-indigo-500/10'
-                          : 'border-white/[0.05] opacity-75'
-                      }`}
-                      placeholder="tell us about yourself..."
-                    />
-                  </div>
-
-                  {isEditing && (
-                    <motion.button
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleUpdateProfile}
-                      disabled={saving}
-                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl text-white text-sm font-light hover:shadow-lg hover:shadow-indigo-500/30 transition-all disabled:opacity-50"
-                    >
-                      <Save className="w-4 h-4" />
-                      {saving ? 'saving...' : 'save changes'}
-                    </motion.button>
-                  )}
-                </div>
-              )}
-
-              {/* Security Tab */}
-              {activeTab === 'security' && (
-                <div className="space-y-4">
-                  {!showPasswordForm ? (
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowPasswordForm(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-white/[0.02] border border-white/[0.05] rounded-xl text-white/40 hover:text-indigo-400 hover:border-indigo-500/30 hover:bg-indigo-500/10 transition-all"
-                    >
-                      <Key className="w-4 h-4" />
-                      <span className="text-sm">change password</span>
-                    </motion.button>
-                  ) : (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-xs text-white/40 mb-2">current password</label>
-                        <input
-                          type="password"
-                          value={currentPassword}
-                          onChange={(e) => setCurrentPassword(e.target.value)}
-                          className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.05] rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/10 transition-all text-sm"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs text-white/40 mb-2">new password</label>
-                        <input
-                          type="password"
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.05] rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/10 transition-all text-sm"
-                        />
-                        
-                        {/* Password requirements */}
-                        <div className="mt-2 space-y-1">
-                          <div className="flex items-center gap-2">
-                            {passwordValidations.length ? (
-                              <CheckCircle className="w-3 h-3 text-emerald-400" />
-                            ) : (
-                              <XCircle className="w-3 h-3 text-white/20" />
-                            )}
-                            <span className={`text-[10px] ${passwordValidations.length ? 'text-emerald-400/60' : 'text-white/20'}`}>
-                              at least 8 characters
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {passwordValidations.number ? (
-                              <CheckCircle className="w-3 h-3 text-emerald-400" />
-                            ) : (
-                              <XCircle className="w-3 h-3 text-white/20" />
-                            )}
-                            <span className={`text-[10px] ${passwordValidations.number ? 'text-emerald-400/60' : 'text-white/20'}`}>
-                              at least one number
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {passwordValidations.special ? (
-                              <CheckCircle className="w-3 h-3 text-emerald-400" />
-                            ) : (
-                              <XCircle className="w-3 h-3 text-white/20" />
-                            )}
-                            <span className={`text-[10px] ${passwordValidations.special ? 'text-emerald-400/60' : 'text-white/20'}`}>
-                              at least one special character
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs text-white/40 mb-2">confirm password</label>
-                        <input
-                          type="password"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.05] rounded-xl text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/10 transition-all text-sm"
-                        />
-                        {confirmPassword && (
-                          <div className="flex items-center gap-2 mt-2">
-                            {passwordValidations.match ? (
-                              <>
-                                <CheckCircle className="w-3 h-3 text-emerald-400" />
-                                <span className="text-[10px] text-emerald-400/60">passwords match</span>
-                              </>
-                            ) : (
-                              <>
-                                <XCircle className="w-3 h-3 text-red-400" />
-                                <span className="text-[10px] text-red-400/60">passwords do not match</span>
-                              </>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex gap-2">
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={handleChangePassword}
-                          disabled={saving || !Object.values(passwordValidations).every(Boolean)}
-                          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl text-white text-sm font-light hover:shadow-lg hover:shadow-indigo-500/30 transition-all disabled:opacity-50"
+                    <label className="text-xs mb-1.5 block" style={{ color: T.textMuted }}>New Password</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: T.textDim }} />
+                      <input
+                        type={showNewPw ? 'text' : 'password'}
+                        value={newPassword}
+                        onChange={e => setNewPassword(e.target.value)}
+                        placeholder="Min. 6 characters"
+                        className={`${inputClass} pl-9 pr-10`}
+                      />
+                      <button onClick={() => setShowNewPw(!showNewPw)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: T.textDim }}>
+                        {showNewPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                    <AnimatePresence>
+                      {newPassword.length > 0 && newPassword.length < 6 && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          className="text-xs mt-1"
+                          style={{ color: '#ef4444' }}
                         >
-                          <Shield className="w-4 h-4" />
-                          {saving ? 'updating...' : 'update password'}
-                        </motion.button>
-                        
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => setShowPasswordForm(false)}
-                          className="px-4 py-2 bg-white/[0.02] border border-white/[0.05] rounded-xl text-white/40 hover:text-white/60 transition-all text-sm"
+                          Too short — must be at least 6 characters
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Confirm password */}
+                  <div>
+                    <label className="text-xs mb-1.5 block" style={{ color: T.textMuted }}>Confirm New Password</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: T.textDim }} />
+                      <input
+                        type={showConfirmPw ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)}
+                        placeholder="Repeat new password"
+                        className={`${inputClass} pl-9 pr-10`}
+                      />
+                      <button onClick={() => setShowConfirmPw(!showConfirmPw)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: T.textDim }}>
+                        {showConfirmPw ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                    <AnimatePresence>
+                      {confirmPassword.length > 0 && newPassword !== confirmPassword && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          className="text-xs mt-1"
+                          style={{ color: '#ef4444' }}
                         >
-                          cancel
-                        </motion.button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Activity Tab */}
-              {activeTab === 'activity' && (
-                <div className="space-y-4">
-                  <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
-                        <Clock className="w-4 h-4 text-indigo-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-white">last login</p>
-                        <p className="text-xs text-white/30">
-                          {user?.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'N/A'}
-                        </p>
-                      </div>
-                    </div>
+                          Passwords do not match
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                    <AnimatePresence>
+                      {confirmPassword.length > 0 && newPassword === confirmPassword && newPassword.length >= 6 && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          className="text-xs mt-1 flex items-center gap-1"
+                          style={{ color: T.accentLight }}
+                        >
+                          <CheckCircle className="w-3 h-3" /> Passwords match
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
                   </div>
 
-                  <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
-                        <Award className="w-4 h-4 text-emerald-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-white mb-2">achievements</p>
-                        <div className="flex flex-wrap gap-2">
-                          {user?.achievements?.map((ach, i) => (
-                            <span
-                              key={i}
-                              className="text-xs px-2 py-1 bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/30"
-                            >
-                              {ach}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleChangePassword}
+                    disabled={saving}
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 border"
+                    style={{ background: `linear-gradient(135deg, ${T.accentDark}, ${T.accent})`, color: '#fff' }}
+                  >
+                    <Key className="w-3.5 h-3.5 shrink-0" />
+                    {saving ? 'Updating…' : 'Update Password'}
+                  </motion.button>
+                </motion.div>
               )}
-            </motion.div>
+            </AnimatePresence>
           </div>
         </motion.div>
-      </div>
 
-      <style jsx>{`
-        @keyframes enter {
-          from {
-            opacity: 0;
-            transform: scale(0.9) translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
-        
-        @keyframes leave {
-          from {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-          to {
-            opacity: 0;
-            transform: scale(0.9) translateY(10px);
-          }
-        }
-        
-        .animate-enter {
-          animation: enter 0.2s ease-out;
-        }
-        
-        .animate-leave {
-          animation: leave 0.15s ease-in forwards;
-        }
-      `}</style>
+        {/* Footer */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-center text-xs"
+          style={{ color: T.textDim }}
+        >
+          Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'N/A'}
+        </motion.p>
+      </div>
     </div>
   );
 }
-
-
-
-
