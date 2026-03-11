@@ -1,25 +1,14 @@
 
+
 // 'use client';
 
 // import { useEffect, useState } from 'react';
 // import { useRouter, useParams } from 'next/navigation';
 // import { Toaster } from 'react-hot-toast';
 // import { 
-//   Save, 
-//   Trash2, 
-//   ArrowLeft, 
-//   PlusCircle,
-//   Sparkles,
-//   HelpCircle,
-//   Clock,
-//   FileText,
-//   CheckCircle,
-//   AlertCircle,
-//   XCircle,
-//   ChevronDown,
-//   ChevronUp,
-//   Copy,
-//   RefreshCw
+//   Save, Trash2, ArrowLeft, PlusCircle,
+//   HelpCircle, Clock, FileText, CheckCircle,
+//   ChevronDown, ChevronUp, Copy, AlertCircle
 // } from 'lucide-react';
 // import { showToast } from '@/lib/toast';
 
@@ -33,7 +22,6 @@
 
 // interface Quiz {
 //   _id: string;
-//   id?: string;
 //   title: string;
 //   description: string;
 //   duration: number;
@@ -44,9 +32,25 @@
 //   createdAt: string;
 // }
 
+// const G = '#10b981';
+// const GB = 'rgba(16,185,129,0.1)';
+// const GBORDER = 'rgba(16,185,129,0.18)';
+// const CARD = 'rgba(255,255,255,0.025)';
+// const BORDER = 'rgba(255,255,255,0.06)';
+// const inputBase = {
+//   background: 'rgba(255,255,255,0.04)',
+//   border: '1px solid rgba(255,255,255,0.08)',
+//   borderRadius: '0.75rem',
+//   color: '#fff',
+//   fontSize: '0.875rem',
+//   outline: 'none',
+//   width: '100%',
+// };
+
 // export default function EditQuizPage() {
 //   const router = useRouter();
 //   const params = useParams();
+
 //   const [quiz, setQuiz] = useState<Quiz | null>(null);
 //   const [loading, setLoading] = useState(true);
 //   const [saving, setSaving] = useState(false);
@@ -59,339 +63,127 @@
 //   const [error, setError] = useState('');
 //   const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set());
 //   const [hasChanges, setHasChanges] = useState(false);
-//   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
-//   // Load quiz data
 //   useEffect(() => {
 //     const storedUser = localStorage.getItem('user');
 //     const token = localStorage.getItem('token');
-
-//     if (!token || !storedUser) {
-//       router.push('/login');
-//       return;
-//     }
-
+//     if (!token || !storedUser) { router.push('/login'); return; }
 //     const id = params?.id as string;
-//     console.log('📥 Quiz ID from params:', id);
-    
-//     if (!id) {
-//       setError('Invalid quiz ID');
-//       setLoading(false);
-//       return;
-//     }
-
+//     if (!id) { setError('Invalid quiz ID'); setLoading(false); return; }
 //     fetchQuiz(id);
 //   }, [params?.id, router]);
 
 //   const fetchQuiz = async (id: string) => {
 //     try {
 //       setLoading(true);
-//       console.log('📤 Fetching quiz with ID:', id);
-      
 //       const res = await fetch(`/api/quizzes/${id}`);
-//       console.log('📥 Response status:', res.status);
-      
 //       const data = await res.json();
-//       console.log('📥 Quiz data received:', data);
-
-//       if (!res.ok || !data.success) {
-//         setError(data.error || 'Quiz not found!');
-//         setLoading(false);
-//         return;
-//       }
-
+//       if (!res.ok || !data.success) { setError(data.error || 'Quiz not found!'); setLoading(false); return; }
 //       const quizData = data.data;
-//       console.log('✅ Quiz data loaded:', quizData);
-      
 //       setQuiz(quizData);
 //       setTitle(quizData.title || '');
 //       setDescription(quizData.description || '');
 //       setDuration(quizData.duration || 30);
-      
-//       const formattedQuestions = (quizData.questions || []).map((q: any, index: number) => ({
-//         id: q.id || `q_${Date.now()}_${index}_${Math.random()}`,
+//       const formatted = (quizData.questions || []).map((q: any, i: number) => ({
+//         id: q.id || `q_${Date.now()}_${i}`,
 //         text: q.text || '',
 //         options: q.options || ['', '', '', ''],
 //         correctOption: q.correctOption ?? q.correctAnswer ?? 0,
 //         marks: q.marks || 10
 //       }));
-      
-//       setQuestions(formattedQuestions);
-//       setExpandedQuestions(new Set(formattedQuestions.map((_, i) => i))); // Expand all by default
+//       setQuestions(formatted);
+//       setExpandedQuestions(new Set(formatted.map((_: any, i: number) => i)));
 //       setHasChanges(false);
-//       setInitialDataLoaded(true);
-//       setLoading(false);
-//     } catch (error) {
-//       console.error('❌ Error fetching quiz:', error);
-//       setError('Error loading quiz');
-//       setLoading(false);
-//     }
+//     } catch { setError('Error loading quiz'); }
+//     finally { setLoading(false); }
 //   };
 
-//   // Toggle question expansion
-//   const toggleQuestion = (index: number) => {
-//     const newExpanded = new Set(expandedQuestions);
-//     if (newExpanded.has(index)) {
-//       newExpanded.delete(index);
-//     } else {
-//       newExpanded.add(index);
-//     }
-//     setExpandedQuestions(newExpanded);
+//   const toggleQuestion = (i: number) => {
+//     setExpandedQuestions(prev => { const s = new Set(prev); s.has(i) ? s.delete(i) : s.add(i); return s; });
+//   };
+//   const toggleAll = () => {
+//     setExpandedQuestions(prev => prev.size === questions.length ? new Set() : new Set(questions.map((_, i) => i)));
 //   };
 
-//   // Expand/collapse all
-//   const toggleAllQuestions = (e: React.MouseEvent) => {
-//     e.preventDefault();
-//     e.stopPropagation();
-    
-//     if (expandedQuestions.size === questions.length) {
-//       setExpandedQuestions(new Set());
-//     } else {
-//       setExpandedQuestions(new Set(questions.map((_, i) => i)));
-//     }
-//   };
-
-//   // Add new question
-//   const addQuestion = (e: React.MouseEvent) => {
-//     e.preventDefault();
-//     e.stopPropagation();
-    
-//     const newQuestion: Question = {
-//       id: `q_${Date.now()}_${questions.length}_${Math.random()}`,
-//       text: '',
-//       options: ['', '', '', ''],
-//       correctOption: 0,
-//       marks: 10
-//     };
-//     setQuestions([...questions, newQuestion]);
-//     setExpandedQuestions(new Set([...expandedQuestions, questions.length]));
-//     setHasChanges(true);
-//     showToast.success('New question added');
-//   };
-
-//   // Duplicate question
-//   const duplicateQuestion = (e: React.MouseEvent, index: number) => {
-//     e.preventDefault();
-//     e.stopPropagation();
-    
-//     const questionToDuplicate = { ...questions[index], id: `q_${Date.now()}_${questions.length}_${Math.random()}` };
-//     const newQuestions = [...questions];
-//     newQuestions.splice(index + 1, 0, questionToDuplicate);
-//     setQuestions(newQuestions);
-//     setExpandedQuestions(new Set([...expandedQuestions, index + 1]));
-//     setHasChanges(true);
-//     showToast.success('Question duplicated');
-//   };
-
-//   // Remove question
-//   const removeQuestion = (e: React.MouseEvent, index: number) => {
-//     e.preventDefault();
-//     e.stopPropagation();
-    
-//     if (questions.length <= 1) {
-//       showToast.error('Quiz must have at least one question');
-//       return;
-//     }
-    
-//     if (confirm('Are you sure you want to delete this question?')) {
-//       const updatedQuestions = questions.filter((_, i) => i !== index);
-//       setQuestions(updatedQuestions);
-      
-//       // Update expanded questions set
-//       const newExpanded = new Set(expandedQuestions);
-//       newExpanded.delete(index);
-//       setExpandedQuestions(newExpanded);
-      
-//       setHasChanges(true);
-//       showToast.success('Question removed');
-//     }
-//   };
-
-//   // Update question field
-//   const updateQuestion = (index: number, field: keyof Question, value: any) => {
-//     const updated = [...questions];
-//     updated[index] = { ...updated[index], [field]: value };
-//     setQuestions(updated);
+//   const addQuestion = () => {
+//     const newQ: Question = { id: `q_${Date.now()}`, text: '', options: ['', '', '', ''], correctOption: 0, marks: 10 };
+//     setQuestions(prev => [...prev, newQ]);
+//     setExpandedQuestions(prev => { const s = new Set(prev); s.add(questions.length); return s; });
 //     setHasChanges(true);
 //   };
 
-//   // Update option
-//   const updateOption = (qIndex: number, oIndex: number, value: string) => {
-//     const updated = [...questions];
-//     if (!updated[qIndex].options) {
-//       updated[qIndex].options = ['', '', '', ''];
-//     }
-//     updated[qIndex].options[oIndex] = value;
-//     setQuestions(updated);
+//   const removeQuestion = (i: number) => {
+//     setQuestions(prev => prev.filter((_, idx) => idx !== i));
 //     setHasChanges(true);
 //   };
 
-//   // Move question up
-//   const moveQuestionUp = (e: React.MouseEvent, index: number) => {
-//     e.preventDefault();
-//     e.stopPropagation();
-    
-//     if (index === 0) return;
-//     const updated = [...questions];
-//     [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
-//     setQuestions(updated);
-    
-//     // Update expanded questions set
-//     const newExpanded = new Set(expandedQuestions);
-//     if (newExpanded.has(index)) {
-//       newExpanded.delete(index);
-//       newExpanded.add(index - 1);
-//     }
-//     setExpandedQuestions(newExpanded);
-    
+//   const duplicateQuestion = (i: number) => {
+//     const copy = { ...questions[i], id: `q_${Date.now()}` };
+//     setQuestions(prev => { const arr = [...prev]; arr.splice(i + 1, 0, copy); return arr; });
 //     setHasChanges(true);
 //   };
 
-//   // Move question down
-//   const moveQuestionDown = (e: React.MouseEvent, index: number) => {
-//     e.preventDefault();
-//     e.stopPropagation();
-    
-//     if (index === questions.length - 1) return;
-//     const updated = [...questions];
-//     [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]];
-//     setQuestions(updated);
-    
-//     // Update expanded questions set
-//     const newExpanded = new Set(expandedQuestions);
-//     if (newExpanded.has(index)) {
-//       newExpanded.delete(index);
-//       newExpanded.add(index + 1);
-//     }
-//     setExpandedQuestions(newExpanded);
-    
+//   const updateQuestion = (i: number, field: keyof Question, val: any) => {
+//     setQuestions(prev => prev.map((q, idx) => idx === i ? { ...q, [field]: val } : q));
 //     setHasChanges(true);
 //   };
 
-//   // Save quiz
-//   const handleSave = async (e: React.MouseEvent) => {
-//     e.preventDefault();
-//     e.stopPropagation();
-    
+//   const updateOption = (qi: number, oi: number, val: string) => {
+//     setQuestions(prev => prev.map((q, idx) => idx === qi ? { ...q, options: q.options.map((o, j) => j === oi ? val : o) } : q));
+//     setHasChanges(true);
+//   };
+
+//   const moveQ = (i: number, dir: 'up' | 'down') => {
+//     const j = dir === 'up' ? i - 1 : i + 1;
+//     if (j < 0 || j >= questions.length) return;
+//     setQuestions(prev => { const a = [...prev]; [a[i], a[j]] = [a[j], a[i]]; return a; });
+//     setHasChanges(true);
+//   };
+
+//   const handleSave = async () => {
 //     const id = params?.id as string;
-    
-//     if (!id) {
-//       showToast.error('Quiz ID not found');
-//       return;
-//     }
-
-//     // Validation
-//     if (!title.trim()) {
-//       showToast.error('Please enter a quiz title');
-//       return;
-//     }
-
+//     if (!id) { showToast.error('Quiz ID not found'); return; }
+//     if (!title.trim()) { showToast.error('Please enter a quiz title'); return; }
 //     for (let i = 0; i < questions.length; i++) {
-//       if (!questions[i].text?.trim()) {
-//         showToast.error(`Question ${i + 1} is empty`);
-//         return;
-//       }
-//       for (let j = 0; j < (questions[i].options || []).length; j++) {
-//         if (!questions[i].options[j]?.trim()) {
-//           showToast.error(`Option ${j + 1} of Question ${i + 1} is empty`);
-//           return;
-//         }
+//       if (!questions[i].text?.trim()) { showToast.error(`Question ${i + 1} is empty`); return; }
+//       for (let j = 0; j < questions[i].options.length; j++) {
+//         if (!questions[i].options[j]?.trim()) { showToast.error(`Option ${j + 1} of Q${i + 1} is empty`); return; }
 //       }
 //     }
-    
 //     setSaving(true);
-
 //     try {
-//       // Format questions for API
-//       const formattedQuestions = questions.map(q => ({
-//         text: q.text,
-//         options: q.options,
-//         correctAnswer: q.correctOption,
-//         marks: q.marks
-//       }));
-
-//       const totalMarks = formattedQuestions.reduce((sum, q) => sum + (q.marks || 0), 0);
-      
-//       const payload = {
-//         title: title.trim(),
-//         description: description.trim(),
-//         duration: Number(duration),
-//         totalMarks,
-//         questions: formattedQuestions
-//       };
-
-//       console.log('📤 Saving quiz with payload:', payload);
-
+//       const formattedQ = questions.map(q => ({ text: q.text, options: q.options, correctAnswer: q.correctOption, marks: q.marks }));
+//       const totalMarks = formattedQ.reduce((s, q) => s + (q.marks || 0), 0);
 //       const res = await fetch(`/api/quizzes/${id}`, {
-//         method: 'PUT',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify(payload)
+//         method: 'PUT', headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ title: title.trim(), description: description.trim(), duration: Number(duration), totalMarks, questions: formattedQ })
 //       });
-
 //       const data = await res.json();
-
-//       if (res.ok && data.success) {
-//         showToast.success('Quiz updated successfully! 🎉');
-//         setHasChanges(false);
-//         setTimeout(() => router.push('/teacher/dashboard'), 1500);
-//       } else {
-//         console.error('❌ Save failed:', data);
-//         showToast.error(data.error || 'Failed to update quiz');
-//         setSaving(false);
-//       }
-//     } catch (error) {
-//       console.error('❌ Error updating quiz:', error);
-//       showToast.error('Network error. Please try again.');
-//       setSaving(false);
-//     }
+//       if (res.ok && data.success) { showToast.success('Quiz updated successfully!'); setHasChanges(false); setTimeout(() => router.push('/teacher/dashboard'), 1500); }
+//       else { showToast.error(data.error || 'Failed to update quiz'); setSaving(false); }
+//     } catch { showToast.error('Network error. Please try again.'); setSaving(false); }
 //   };
 
-//   // Delete quiz
 //   const handleDelete = async () => {
 //     const id = params?.id as string;
-    
-//     if (!id) {
-//       showToast.error('Quiz ID not found');
-//       return;
-//     }
-    
+//     if (!id) { showToast.error('Quiz ID not found'); return; }
 //     setDeleting(true);
-
 //     try {
-//       const res = await fetch(`/api/quizzes/${id}`, {
-//         method: 'DELETE'
-//       });
-
+//       const res = await fetch(`/api/quizzes/${id}`, { method: 'DELETE' });
 //       const data = await res.json();
-
-//       if (res.ok && data.success) {
-//         showToast.success('Quiz deleted successfully! ✅');
-//         setTimeout(() => router.push('/teacher/dashboard'), 1500);
-//       } else {
-//         showToast.error(data.error || 'Failed to delete quiz');
-//         setDeleting(false);
-//         setShowDeleteConfirm(false);
-//       }
-//     } catch (error) {
-//       console.error('❌ Error deleting quiz:', error);
-//       showToast.error('Network error. Please try again.');
-//       setDeleting(false);
-//       setShowDeleteConfirm(false);
-//     }
+//       if (res.ok && data.success) { showToast.success('Quiz deleted!'); setTimeout(() => router.push('/teacher/dashboard'), 1500); }
+//       else { showToast.error(data.error || 'Failed to delete'); setDeleting(false); setShowDeleteConfirm(false); }
+//     } catch { showToast.error('Network error'); setDeleting(false); setShowDeleteConfirm(false); }
 //   };
 
-//   // Calculate total marks
-//   const totalMarks = questions.reduce((sum, q) => sum + (Number(q.marks) || 0), 0);
+//   const totalMarks = questions.reduce((s, q) => s + (Number(q.marks) || 0), 0);
 
 //   if (loading) {
 //     return (
-//       <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
-//         <Toaster />
-//         <div className="relative">
-//           <div className="w-16 h-16 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin"></div>
-//           <div className="absolute inset-0 flex items-center justify-center">
-//             <Sparkles className="w-6 h-6 text-purple-500 animate-pulse" />
-//           </div>
+//       <div className="min-h-screen flex items-center justify-center" style={{ background: '#070709' }}>
+//         <div className="flex flex-col items-center gap-4">
+//           <div className="w-10 h-10 rounded-full border-2 animate-spin" style={{ borderColor: 'rgba(16,185,129,0.2)', borderTopColor: G }} />
+//           <p className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.2)' }}>Loading</p>
 //         </div>
 //       </div>
 //     );
@@ -399,15 +191,13 @@
 
 //   if (error || !quiz) {
 //     return (
-//       <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
-//         <Toaster />
+//       <div className="min-h-screen flex items-center justify-center" style={{ background: '#070709' }}>
 //         <div className="text-center">
-//           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-//           <p className="text-red-400 mb-4">{error || 'Quiz not found!'}</p>
-//           <button
-//             onClick={() => router.push('/teacher/dashboard')}
-//             className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white font-medium hover:from-purple-500 hover:to-blue-500 transition-all"
-//           >
+//           <AlertCircle className="w-10 h-10 mx-auto mb-4" style={{ color: '#f87171' }} />
+//           <p className="text-white mb-4">{error || 'Quiz not found!'}</p>
+//           <button onClick={() => router.push('/teacher/dashboard')}
+//             className="px-4 py-2 rounded-xl text-sm font-medium"
+//             style={{ background: GB, color: G, border: `1px solid ${GBORDER}` }}>
 //             Go to Dashboard
 //           </button>
 //         </div>
@@ -416,417 +206,304 @@
 //   }
 
 //   return (
-//     <div className="min-h-screen bg-[#0A0A0F]">
-//       <Toaster />
-      
-//       {/* Animated Background */}
-//       <div className="fixed inset-0">
-//         <div className="absolute top-20 left-10 w-96 h-96 bg-purple-600/10 rounded-full filter blur-3xl animate-pulse"></div>
-//         <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-600/10 rounded-full filter blur-3xl animate-pulse animation-delay-2000"></div>
-//         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f1f2e_1px,transparent_1px),linear-gradient(to_bottom,#1f1f2e_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-//       </div>
+//     <div className="min-h-screen" style={{ background: '#070709', fontFamily: "'DM Sans','Inter',sans-serif" }}>
+//       <Toaster position="top-right" />
 
-//       {/* Header */}
-//       <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#111117]/80 border-b border-[#2a2a35]">
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//           <div className="flex justify-between items-center h-16 sm:h-20">
-//             {/* Logo & Back */}
-//             <div className="flex items-center gap-3 sm:gap-4">
-//               <button
-//                 onClick={() => {
-//                   if (hasChanges) {
-//                     if (confirm('You have unsaved changes. Leave anyway?')) {
-//                       router.back();
-//                     }
-//                   } else {
-//                     router.back();
-//                   }
-//                 }}
-//                 className="p-2 hover:bg-[#1a1a23] rounded-xl transition-colors group"
-//               >
-//                 <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-white" />
-//               </button>
-//               <div className="flex items-center gap-2 sm:gap-3">
-//                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-600/20">
-//                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-//                 </div>
-//                 <div>
-//                   <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-//                     Edit Quiz
-//                   </h1>
-//                   <p className="text-xs sm:text-sm text-gray-500">
-//                     {hasChanges ? '⚠️ Unsaved changes' : 'Update your quiz questions'}
-//                   </p>
-//                 </div>
-//               </div>
-//             </div>
+//       {/* Sticky Header */}
+//       <header className="sticky top-0 z-30 backdrop-blur-xl"
+//         style={{ background: 'rgba(7,7,9,0.9)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+//         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+//           <button onClick={() => router.back()}
+//             className="p-2 rounded-xl transition-all shrink-0"
+//             style={{ color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.07)' }}
+//             onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+//             onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}>
+//             <ArrowLeft className="w-4 h-4" />
+//           </button>
 
-//             {/* Desktop Actions */}
-//             <div className="hidden sm:flex items-center gap-3">
-//               <button
-//                 onClick={() => setShowDeleteConfirm(true)}
-//                 disabled={deleting}
-//                 className="flex items-center gap-2 px-4 py-2 bg-[#1a1a23] border border-[#2a2a35] rounded-xl text-red-400 hover:bg-red-600/20 hover:border-red-500/50 transition-all disabled:opacity-50"
-//               >
-//                 <Trash2 className="w-4 h-4" />
-//                 <span>Delete</span>
-//               </button>
-//               <button
-//                 onClick={handleSave}
-//                 disabled={saving || !hasChanges}
-//                 className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-white font-medium transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
-//                   hasChanges 
-//                     ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 shadow-purple-600/25'
-//                     : 'bg-gray-600 cursor-not-allowed'
-//                 }`}
-//               >
-//                 {saving ? (
-//                   <>
-//                     <RefreshCw className="w-4 h-4 animate-spin" />
-//                     <span>Saving...</span>
-//                   </>
-//                 ) : (
-//                   <>
-//                     <Save className="w-4 h-4" />
-//                     <span>{hasChanges ? 'Save Changes' : 'No Changes'}</span>
-//                   </>
-//                 )}
-//               </button>
-//             </div>
+//           <div className="flex-1 min-w-0">
+//             <h1 className="text-sm font-semibold text-white truncate">Edit Quiz</h1>
+//             <p className="text-[11px] truncate" style={{ color: 'rgba(255,255,255,0.25)' }}>{quiz.title}</p>
+//           </div>
+
+//           <div className="flex items-center gap-2 shrink-0">
+//             {hasChanges && (
+//               <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: G }} title="Unsaved changes" />
+//             )}
+//             <button onClick={() => setShowDeleteConfirm(true)}
+//               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm transition-all"
+//               style={{ color: '#f87171', border: '1px solid rgba(239,68,68,0.15)', background: 'rgba(239,68,68,0.06)' }}
+//               onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.12)'}
+//               onMouseLeave={e => e.currentTarget.style.background = 'rgba(239,68,68,0.06)'}>
+//               <Trash2 className="w-3.5 h-3.5" />
+//               <span className="hidden sm:block">Delete</span>
+//             </button>
+//             <button onClick={handleSave} disabled={saving || !hasChanges}
+//               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
+//               style={{ background: `linear-gradient(135deg,${G},#34d399)`, color: '#fff', boxShadow: hasChanges ? `0 4px 16px rgba(16,185,129,0.25)` : 'none' }}>
+//               <Save className="w-3.5 h-3.5" />
+//               {saving ? 'Saving...' : 'Save'}
+//             </button>
 //           </div>
 //         </div>
 //       </header>
 
-//       {/* Form */}
-//       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-//         <div className="space-y-5 sm:space-y-6">
-//           {/* Quiz Details Card */}
-//           <div className="bg-[#111117] border border-[#2a2a35] rounded-xl overflow-hidden">
-//             <div className="p-4 sm:p-6 border-b border-[#2a2a35] bg-[#1a1a23]/50">
-//               <h2 className="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
-//                 <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
-//                 Quiz Details
-//               </h2>
-//               <p className="text-xs sm:text-sm text-gray-400 mt-1">Basic information about your quiz</p>
+//       <div className="max-w-4xl mx-auto px-4 py-6 space-y-5">
+
+//         {/* Quiz Details Card */}
+//         <div className="rounded-2xl p-5" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+//           <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+//             <FileText className="w-4 h-4" style={{ color: G }} />
+//             Quiz Details
+//           </h2>
+
+//           <div className="space-y-3">
+//             <div>
+//               <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.4)' }}>Title *</label>
+//               <input type="text" value={title} placeholder="Quiz title"
+//                 onChange={e => { setTitle(e.target.value); setHasChanges(true); }}
+//                 style={{ ...inputBase, padding: '0.625rem 0.875rem' }}
+//                 onFocus={e => e.currentTarget.style.borderColor = GBORDER}
+//                 onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'} />
 //             </div>
-            
-//             <div className="p-4 sm:p-6 space-y-4">
-//               <div>
-//                 <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5 ml-1">
-//                   Quiz Title <span className="text-red-400">*</span>
-//                 </label>
-//                 <input
-//                   type="text"
-//                   value={title}
-//                   onChange={(e) => {
-//                     setTitle(e.target.value);
-//                     setHasChanges(true);
-//                   }}
-//                   className="w-full px-4 py-2.5 sm:py-3 bg-[#1a1a23] border border-[#2a2a35] rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm sm:text-base"
-//                   placeholder="e.g., JavaScript Fundamentals"
-//                   required
-//                 />
-//               </div>
 
-//               <div>
-//                 <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5 ml-1">
-//                   Description
-//                 </label>
-//                 <textarea
-//                   value={description}
-//                   onChange={(e) => {
-//                     setDescription(e.target.value);
-//                     setHasChanges(true);
-//                   }}
-//                   rows={3}
-//                   className="w-full px-4 py-2.5 sm:py-3 bg-[#1a1a23] border border-[#2a2a35] rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm sm:text-base resize-y"
-//                   placeholder="Describe what this quiz covers..."
-//                 />
-//               </div>
+//             <div>
+//               <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.4)' }}>Description</label>
+//               <textarea value={description} rows={3} placeholder="Quiz description (optional)"
+//                 onChange={e => { setDescription(e.target.value); setHasChanges(true); }}
+//                 style={{ ...inputBase, padding: '0.625rem 0.875rem', resize: 'vertical', minHeight: '80px' }}
+//                 onFocus={e => e.currentTarget.style.borderColor = GBORDER}
+//                 onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'} />
+//             </div>
 
-//               <div>
-//                 <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5 ml-1">
-//                   <Clock className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1" />
-//                   Duration (minutes)
+//             <div className="flex items-center gap-3">
+//               <div className="flex-1">
+//                 <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.4)' }}>
+//                   <Clock className="w-3 h-3 inline mr-1" />Duration (minutes)
 //                 </label>
-//                 <input
-//                   type="number"
-//                   value={duration}
-//                   onChange={(e) => {
-//                     setDuration(Number(e.target.value));
-//                     setHasChanges(true);
-//                   }}
-//                   min="1"
-//                   className="w-24 sm:w-32 px-4 py-2.5 sm:py-3 bg-[#1a1a23] border border-[#2a2a35] rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm sm:text-base"
-//                   required
-//                 />
+//                 <input type="number" value={duration} min="1"
+//                   onChange={e => { setDuration(Number(e.target.value)); setHasChanges(true); }}
+//                   style={{ ...inputBase, padding: '0.625rem 0.875rem', width: 'auto', minWidth: '120px' }}
+//                   onFocus={e => e.currentTarget.style.borderColor = GBORDER}
+//                   onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'} />
+//               </div>
+//               <div className="text-right">
+//                 <p className="text-xs mb-1" style={{ color: 'rgba(255,255,255,0.3)' }}>Total Marks</p>
+//                 <p className="text-xl font-bold" style={{ color: G }}>{totalMarks}</p>
 //               </div>
 //             </div>
 //           </div>
+//         </div>
 
-//           {/* Questions Card */}
-//           <div className="bg-[#111117] border border-[#2a2a35] rounded-xl overflow-hidden">
-//             <div className="p-4 sm:p-6 border-b border-[#2a2a35] bg-[#1a1a23]/50">
-//               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-//                 <div>
-//                   <h2 className="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
-//                     <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
-//                     Questions
-//                   </h2>
-//                   <p className="text-xs sm:text-sm text-gray-400 mt-1">
-//                     {questions.length} question{questions.length !== 1 ? 's' : ''} • Total Marks: {totalMarks}
-//                   </p>
-//                 </div>
-//                 <div className="flex items-center gap-2">
-//                   <button
-//                     type="button"
-//                     onClick={toggleAllQuestions}
-//                     className="flex items-center gap-1 px-3 py-1.5 bg-[#1a1a23] hover:bg-[#252530] border border-[#2a2a35] rounded-lg text-gray-400 hover:text-white transition-all text-xs sm:text-sm"
-//                   >
-//                     {expandedQuestions.size === questions.length ? (
-//                       <>Collapse All <ChevronUp className="w-3 h-3" /></>
-//                     ) : (
-//                       <>Expand All <ChevronDown className="w-3 h-3" /></>
-//                     )}
-//                   </button>
-//                   <button
-//                     type="button"
-//                     onClick={addQuestion}
-//                     className="flex items-center gap-1 px-3 py-1.5 bg-green-600/10 hover:bg-green-600 border border-green-600/20 hover:border-green-500 rounded-lg text-green-400 hover:text-white transition-all text-xs sm:text-sm"
-//                   >
-//                     <PlusCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-//                     Add Question
-//                   </button>
-//                 </div>
-//               </div>
+//         {/* Questions Section */}
+//         <div>
+//           <div className="flex items-center justify-between mb-3">
+//             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+//               <HelpCircle className="w-4 h-4" style={{ color: G }} />
+//               Questions
+//               <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: GB, color: G }}>
+//                 {questions.length}
+//               </span>
+//             </h2>
+//             <div className="flex items-center gap-2">
+//               <button onClick={toggleAll}
+//                 className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+//                 style={{ color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.07)' }}
+//                 onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+//                 onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}>
+//                 {expandedQuestions.size === questions.length ? 'Collapse All' : 'Expand All'}
+//               </button>
+//               <button onClick={addQuestion}
+//                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+//                 style={{ background: GB, color: G, border: `1px solid ${GBORDER}` }}
+//                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(16,185,129,0.15)'}
+//                 onMouseLeave={e => e.currentTarget.style.background = GB}>
+//                 <PlusCircle className="w-3.5 h-3.5" />
+//                 Add Question
+//               </button>
 //             </div>
-            
-//             <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-//               {questions.map((q, qIndex) => (
-//                 <div
-//                   key={q.id}
-//                   className="bg-[#1a1a23] border border-[#2a2a35] rounded-xl overflow-hidden hover:border-purple-500/50 transition-all"
-//                 >
-//                   {/* Question Header - Always Visible */}
-//                   <div 
-//                     className="p-4 sm:p-5 bg-[#1a1a23] cursor-pointer hover:bg-[#252530] transition-colors"
-//                     onClick={() => toggleQuestion(qIndex)}
-//                   >
-//                     <div className="flex items-center justify-between">
-//                       <div className="flex items-center gap-3 flex-1">
-//                         <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-purple-600/20 to-blue-600/20 rounded-lg flex items-center justify-center">
-//                           <span className="text-xs sm:text-sm font-medium text-purple-400">{qIndex + 1}</span>
-//                         </div>
-//                         <div className="flex-1">
-//                           <div className="flex items-center gap-2">
-//                             <h3 className="text-sm sm:text-base font-medium text-white">
-//                               {q.text ? (q.text.length > 50 ? q.text.substring(0, 50) + '...' : q.text) : 'New Question'}
-//                             </h3>
-//                             {!q.text && (
-//                               <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 rounded-full text-[10px] border border-yellow-500/30">
-//                                 Empty
-//                               </span>
-//                             )}
+//           </div>
+
+//           <div className="space-y-3">
+//             {questions.map((q, i) => (
+//               <div key={q.id} className="rounded-2xl overflow-hidden" style={{ background: CARD, border: `1px solid ${BORDER}` }}>
+//                 {/* Question Header */}
+//                 <div className="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
+//                   style={{ borderBottom: expandedQuestions.has(i) ? `1px solid ${BORDER}` : 'none' }}
+//                   onClick={() => toggleQuestion(i)}>
+//                   <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shrink-0"
+//                     style={{ background: GB, color: G }}>{i + 1}</div>
+//                   <p className="flex-1 text-sm truncate" style={{ color: q.text ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.3)' }}>
+//                     {q.text || 'New Question'}
+//                   </p>
+//                   <div className="flex items-center gap-1 shrink-0">
+//                     <button onClick={e => { e.stopPropagation(); moveQ(i, 'up'); }} disabled={i === 0}
+//                       className="p-1.5 rounded-lg transition-all disabled:opacity-20"
+//                       style={{ color: 'rgba(255,255,255,0.3)' }}
+//                       onMouseEnter={e => { if (i !== 0) e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+//                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+//                       <ChevronUp className="w-3.5 h-3.5" />
+//                     </button>
+//                     <button onClick={e => { e.stopPropagation(); moveQ(i, 'down'); }} disabled={i === questions.length - 1}
+//                       className="p-1.5 rounded-lg transition-all disabled:opacity-20"
+//                       style={{ color: 'rgba(255,255,255,0.3)' }}
+//                       onMouseEnter={e => { if (i !== questions.length - 1) e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+//                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+//                       <ChevronDown className="w-3.5 h-3.5" />
+//                     </button>
+//                     {expandedQuestions.has(i) ? <ChevronUp className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.3)' }} /> : <ChevronDown className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.3)' }} />}
+//                   </div>
+//                 </div>
+
+//                 {/* Question Body */}
+//                 {expandedQuestions.has(i) && (
+//                   <div className="p-4 space-y-4">
+//                     {/* Question Text */}
+//                     <div>
+//                       <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.4)' }}>Question Text *</label>
+//                       <textarea value={q.text} rows={2} placeholder="Enter your question here..."
+//                         onChange={e => updateQuestion(i, 'text', e.target.value)}
+//                         style={{ ...inputBase, padding: '0.625rem 0.875rem', resize: 'vertical' }}
+//                         onFocus={e => e.currentTarget.style.borderColor = GBORDER}
+//                         onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'} />
+//                     </div>
+
+//                     {/* Options */}
+//                     <div>
+//                       <label className="block text-xs font-medium mb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>Answer Options</label>
+//                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+//                         {q.options.map((opt, oi) => (
+//                           <div key={oi} className="flex items-center gap-2">
+//                             <div className="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shrink-0"
+//                               style={{ background: q.correctOption === oi ? GB : 'rgba(255,255,255,0.04)', color: q.correctOption === oi ? G : 'rgba(255,255,255,0.3)', border: `1px solid ${q.correctOption === oi ? GBORDER : 'rgba(255,255,255,0.08)'}` }}>
+//                               {String.fromCharCode(65 + oi)}
+//                             </div>
+//                             <input type="text" value={opt} placeholder={`Option ${oi + 1}`}
+//                               onChange={e => updateOption(i, oi, e.target.value)}
+//                               style={{ ...inputBase, padding: '0.5rem 0.75rem', flex: 1 }}
+//                               onFocus={e => e.currentTarget.style.borderColor = GBORDER}
+//                               onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'} />
 //                           </div>
-//                           <div className="flex items-center gap-2 mt-1 text-[10px] sm:text-xs text-gray-500">
-//                             <span>{q.options?.filter(o => o).length || 0}/4 options</span>
-//                             <span>•</span>
-//                             <span>{q.marks} marks</span>
-//                           </div>
-//                         </div>
+//                         ))}
 //                       </div>
-//                       <div className="flex items-center gap-1">
-//                         <button
-//                           onClick={(e) => moveQuestionUp(e, qIndex)}
-//                           disabled={qIndex === 0}
-//                           className="p-1 hover:bg-[#2a2a35] rounded disabled:opacity-30"
-//                         >
-//                           <ChevronUp className="w-4 h-4" />
-//                         </button>
-//                         <button
-//                           onClick={(e) => moveQuestionDown(e, qIndex)}
-//                           disabled={qIndex === questions.length - 1}
-//                           className="p-1 hover:bg-[#2a2a35] rounded disabled:opacity-30"
-//                         >
-//                           <ChevronDown className="w-4 h-4" />
-//                         </button>
-//                         {expandedQuestions.has(qIndex) ? (
-//                           <ChevronUp className="w-4 h-4 text-gray-400" />
-//                         ) : (
-//                           <ChevronDown className="w-4 h-4 text-gray-400" />
-//                         )}
+//                     </div>
+
+//                     {/* Correct Answer + Marks */}
+//                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+//                       <div className="flex-1">
+//                         <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.4)' }}>
+//                           <CheckCircle className="w-3 h-3 inline mr-1" style={{ color: G }} />
+//                           Correct Answer
+//                         </label>
+//                         <select value={q.correctOption} onChange={e => updateQuestion(i, 'correctOption', Number(e.target.value))}
+//                           style={{ ...inputBase, padding: '0.5rem 0.75rem', cursor: 'pointer', width: 'auto', minWidth: '160px' }}>
+//                           {q.options.map((_, oi) => (
+//                             <option key={oi} value={oi} style={{ background: '#1a1a2e' }}>
+//                               Option {String.fromCharCode(65 + oi)}
+//                             </option>
+//                           ))}
+//                         </select>
 //                       </div>
+//                       <div>
+//                         <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.4)' }}>Marks</label>
+//                         <input type="number" value={q.marks} min="1"
+//                           onChange={e => updateQuestion(i, 'marks', Number(e.target.value))}
+//                           style={{ ...inputBase, padding: '0.5rem 0.75rem', width: '80px' }}
+//                           onFocus={e => e.currentTarget.style.borderColor = GBORDER}
+//                           onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'} />
+//                       </div>
+//                     </div>
+
+//                     {/* Actions */}
+//                     <div className="flex items-center gap-2 pt-1">
+//                       <button onClick={() => duplicateQuestion(i)}
+//                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all"
+//                         style={{ color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.07)' }}
+//                         onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+//                         onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}>
+//                         <Copy className="w-3 h-3" /> Duplicate
+//                       </button>
+//                       <button onClick={() => removeQuestion(i)}
+//                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all"
+//                         style={{ color: '#f87171', border: '1px solid rgba(239,68,68,0.15)' }}
+//                         onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
+//                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+//                         <Trash2 className="w-3 h-3" /> Remove
+//                       </button>
 //                     </div>
 //                   </div>
+//                 )}
+//               </div>
+//             ))}
 
-//                   {/* Question Details - Expandable */}
-//                   {expandedQuestions.has(qIndex) && (
-//                     <div className="p-4 sm:p-5 border-t border-[#2a2a35] bg-[#111117]">
-//                       {/* Question Text */}
-//                       <div className="mb-4">
-//                         <label className="block text-xs text-gray-500 mb-1.5 ml-1">Question Text</label>
-//                         <input
-//                           type="text"
-//                           value={q.text || ''}
-//                           onChange={(e) => {
-//                             updateQuestion(qIndex, 'text', e.target.value);
-//                           }}
-//                           onClick={(e) => e.stopPropagation()}
-//                           className="w-full px-4 py-2.5 sm:py-3 bg-[#1a1a23] border border-[#2a2a35] rounded-lg text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm sm:text-base"
-//                           placeholder="Enter your question"
-//                           required
-//                         />
-//                       </div>
+//             {/* Add question button at bottom */}
+//             {questions.length > 0 && (
+//               <button onClick={addQuestion}
+//                 className="w-full py-3 rounded-2xl text-sm font-medium transition-all flex items-center justify-center gap-2"
+//                 style={{ border: `1px dashed rgba(16,185,129,0.2)`, color: 'rgba(16,185,129,0.5)', background: 'transparent' }}
+//                 onMouseEnter={e => { e.currentTarget.style.borderColor = GBORDER; e.currentTarget.style.color = G; e.currentTarget.style.background = GB; }}
+//                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(16,185,129,0.2)'; e.currentTarget.style.color = 'rgba(16,185,129,0.5)'; e.currentTarget.style.background = 'transparent'; }}>
+//                 <PlusCircle className="w-4 h-4" />
+//                 Add Question
+//               </button>
+//             )}
 
-//                       {/* Options Grid */}
-//                       <div className="mb-4">
-//                         <label className="block text-xs text-gray-500 mb-1.5 ml-1">Options</label>
-//                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-//                           {q.options?.map((opt: string, oIndex: number) => (
-//                             <div key={oIndex} className="flex items-center gap-2">
-//                               <span className="text-xs sm:text-sm font-medium text-gray-500 w-5">
-//                                 {String.fromCharCode(65 + oIndex)}.
-//                               </span>
-//                               <input
-//                                 type="text"
-//                                 value={opt || ''}
-//                                 onChange={(e) => {
-//                                   updateOption(qIndex, oIndex, e.target.value);
-//                                 }}
-//                                 onClick={(e) => e.stopPropagation()}
-//                                 placeholder={`Option ${oIndex + 1}`}
-//                                 className="flex-1 px-4 py-2 sm:py-2.5 bg-[#1a1a23] border border-[#2a2a35] rounded-lg text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm"
-//                                 required
-//                               />
-//                             </div>
-//                           ))}
-//                         </div>
-//                       </div>
+//             {questions.length === 0 && (
+//               <div className="text-center py-16 rounded-2xl" style={{ border: `1px dashed rgba(255,255,255,0.06)` }}>
+//                 <HelpCircle className="w-10 h-10 mx-auto mb-3" style={{ color: 'rgba(255,255,255,0.1)' }} />
+//                 <p className="text-sm mb-3" style={{ color: 'rgba(255,255,255,0.3)' }}>No questions yet</p>
+//                 <button onClick={addQuestion}
+//                   className="px-4 py-2 rounded-xl text-sm font-medium"
+//                   style={{ background: GB, color: G, border: `1px solid ${GBORDER}` }}>
+//                   Add First Question
+//                 </button>
+//               </div>
+//             )}
+//           </div>
+//         </div>
 
-//                       {/* Correct Answer & Marks */}
-//                       <div className="flex flex-col sm:flex-row gap-4 mb-4">
-//                         <div className="flex-1">
-//                           <label className="block text-xs text-gray-500 mb-1.5 ml-1">
-//                             <CheckCircle className="w-3 h-3 inline mr-1" />
-//                             Correct Answer
-//                           </label>
-//                           <select
-//                             value={q.correctOption || 0}
-//                             onChange={(e) => {
-//                               updateQuestion(qIndex, 'correctOption', Number(e.target.value));
-//                             }}
-//                             onClick={(e) => e.stopPropagation()}
-//                             className="w-full px-4 py-2 sm:py-2.5 bg-[#1a1a23] border border-[#2a2a35] rounded-lg text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm"
-//                           >
-//                             {q.options?.map((_: any, i: number) => (
-//                               <option key={i} value={i}>Option {String.fromCharCode(65 + i)}</option>
-//                             ))}
-//                           </select>
-//                         </div>
-//                         <div className="w-full sm:w-28">
-//                           <label className="block text-xs text-gray-500 mb-1.5 ml-1">Marks</label>
-//                           <input
-//                             type="number"
-//                             value={q.marks || 10}
-//                             onChange={(e) => {
-//                               updateQuestion(qIndex, 'marks', Number(e.target.value));
-//                             }}
-//                             onClick={(e) => e.stopPropagation()}
-//                             min="1"
-//                             className="w-full px-4 py-2 sm:py-2.5 bg-[#1a1a23] border border-[#2a2a35] rounded-lg text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm"
-//                             required
-//                           />
-//                         </div>
-//                       </div>
-
-//                       {/* Question Actions */}
-//                       <div className="flex justify-end gap-2 pt-2 border-t border-[#2a2a35]">
-//                         <button
-//                           onClick={(e) => duplicateQuestion(e, qIndex)}
-//                           className="flex items-center gap-1 px-3 py-1.5 bg-[#1a1a23] hover:bg-blue-600/20 border border-[#2a2a35] hover:border-blue-500/50 rounded-lg text-gray-400 hover:text-blue-400 transition-all text-xs"
-//                         >
-//                           <Copy className="w-3 h-3" />
-//                           Duplicate
-//                         </button>
-//                         <button
-//                           onClick={(e) => removeQuestion(e, qIndex)}
-//                           className="flex items-center gap-1 px-3 py-1.5 bg-[#1a1a23] hover:bg-red-600/20 border border-[#2a2a35] hover:border-red-500/50 rounded-lg text-gray-400 hover:text-red-400 transition-all text-xs"
-//                         >
-//                           <Trash2 className="w-3 h-3" />
-//                           Remove
-//                         </button>
-//                       </div>
-//                     </div>
-//                   )}
-//                 </div>
-//               ))}
-//             </div>
+//         {/* Bottom Save bar */}
+//         <div className="sticky bottom-4 flex justify-end">
+//           <div className="flex items-center gap-3 px-4 py-3 rounded-2xl backdrop-blur-xl"
+//             style={{ background: 'rgba(7,7,9,0.9)', border: `1px solid rgba(255,255,255,0.07)` }}>
+//             <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
+//               {questions.length} questions · {totalMarks} marks
+//             </span>
+//             <button onClick={handleSave} disabled={saving || !hasChanges}
+//               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
+//               style={{ background: `linear-gradient(135deg,${G},#34d399)`, color: '#fff' }}>
+//               <Save className="w-4 h-4" />
+//               {saving ? 'Saving...' : 'Save Changes'}
+//             </button>
 //           </div>
 //         </div>
 //       </div>
 
-//       {/* Mobile Actions */}
-//       <div className="fixed bottom-0 left-0 right-0 bg-[#111117] border-t border-[#2a2a35] p-4 sm:hidden">
-//         <div className="flex gap-3">
-//           <button
-//             onClick={() => setShowDeleteConfirm(true)}
-//             disabled={deleting}
-//             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#1a1a23] border border-[#2a2a35] rounded-xl text-red-400 hover:bg-red-600/20 hover:border-red-500/50 transition-all disabled:opacity-50"
-//           >
-//             <Trash2 className="w-5 h-5" />
-//             <span>Delete</span>
-//           </button>
-//           <button
-//             onClick={handleSave}
-//             disabled={saving || !hasChanges}
-//             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white font-medium transition-all disabled:opacity-50 ${
-//               hasChanges 
-//                 ? 'bg-gradient-to-r from-purple-600 to-blue-600'
-//                 : 'bg-gray-600'
-//             }`}
-//           >
-//             {saving ? (
-//               <>
-//                 <RefreshCw className="w-4 h-4 animate-spin" />
-//                 <span>Saving...</span>
-//               </>
-//             ) : (
-//               <>
-//                 <Save className="w-5 h-5" />
-//                 <span>Save</span>
-//               </>
-//             )}
-//           </button>
-//         </div>
-//       </div>
-
-//       {/* Delete Confirmation Modal */}
+//       {/* Delete Confirm Modal */}
 //       {showDeleteConfirm && (
-//         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-//           <div className="bg-[#111117] border border-[#2a2a35] rounded-xl max-w-md w-full p-6">
-//             <div className="flex items-center gap-3 mb-4">
-//               <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center">
-//                 <AlertCircle className="w-5 h-5 text-red-400" />
-//               </div>
-//               <h3 className="text-lg font-semibold text-white">Delete Quiz?</h3>
+//         <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
+//           style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
+//           onClick={() => setShowDeleteConfirm(false)}>
+//           <div className="w-full max-w-sm rounded-2xl p-6"
+//             style={{ background: '#0d1117', border: '1px solid rgba(239,68,68,0.2)' }}
+//             onClick={e => e.stopPropagation()}>
+//             <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
+//               style={{ background: 'rgba(239,68,68,0.1)' }}>
+//               <Trash2 className="w-6 h-6" style={{ color: '#f87171' }} />
 //             </div>
-            
-//             <p className="text-sm text-gray-400 mb-4">
-//               Are you sure you want to delete "{quiz?.title}"? This action cannot be undone.
+//             <h3 className="text-base font-semibold text-white text-center mb-2">Delete Quiz?</h3>
+//             <p className="text-sm text-center mb-6" style={{ color: 'rgba(255,255,255,0.4)' }}>
+//               "{quiz?.title}" will be permanently deleted. This cannot be undone.
 //             </p>
-
 //             <div className="flex gap-3">
-//               <button
-//                 onClick={() => setShowDeleteConfirm(false)}
-//                 className="flex-1 px-4 py-2.5 bg-[#1a1a23] border border-[#2a2a35] rounded-lg text-gray-300 hover:bg-[#252530] transition-all text-sm"
-//               >
+//               <button onClick={() => setShowDeleteConfirm(false)}
+//                 className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-all"
+//                 style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.07)' }}>
 //                 Cancel
 //               </button>
-//               <button
-//                 onClick={handleDelete}
-//                 disabled={deleting}
-//                 className="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-500 rounded-lg text-white font-medium hover:from-red-500 hover:to-red-400 transition-all text-sm disabled:opacity-50"
-//               >
+//               <button onClick={handleDelete} disabled={deleting}
+//                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
+//                 style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.25)' }}>
 //                 {deleting ? 'Deleting...' : 'Delete'}
 //               </button>
 //             </div>
@@ -839,26 +516,21 @@
 
 
 
+
+
+
+
+
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Toaster } from 'react-hot-toast';
-import { 
-  Save, 
-  Trash2, 
-  ArrowLeft, 
-  PlusCircle,
-  Sparkles,
-  HelpCircle,
-  Clock,
-  FileText,
-  CheckCircle,
-  AlertCircle,
-  ChevronDown,
-  ChevronUp,
-  Copy,
-  RefreshCw
+import {
+  Save, Trash2, ArrowLeft, PlusCircle, HelpCircle,
+  Clock, FileText, CheckCircle, AlertCircle,
+  ChevronDown, ChevronUp, Copy, GraduationCap
 } from 'lucide-react';
 import { showToast } from '@/lib/toast';
 
@@ -885,7 +557,7 @@ interface Quiz {
 export default function EditQuizPage() {
   const router = useRouter();
   const params = useParams();
-  
+
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -899,550 +571,609 @@ export default function EditQuizPage() {
   const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set());
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Load quiz data
+  // ── Load quiz ──────────────────────────────────────────────────
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-
-    if (!token || !storedUser) {
-      router.push('/login');
-      return;
-    }
-
+    if (!token || !storedUser) { router.push('/login'); return; }
     const id = params?.id as string;
-    console.log('📥 Quiz ID from params:', id);
-    
-    if (!id) {
-      setError('Invalid quiz ID');
-      setLoading(false);
-      return;
-    }
-
+    if (!id) { setError('Invalid quiz ID'); setLoading(false); return; }
     fetchQuiz(id);
   }, [params?.id, router]);
 
   const fetchQuiz = async (id: string) => {
     try {
       setLoading(true);
-      console.log('📤 Fetching quiz with ID:', id);
-      
       const res = await fetch(`/api/quizzes/${id}`);
-      console.log('📥 Response status:', res.status);
-      
       const data = await res.json();
-      console.log('📥 Quiz data received:', data);
-
-      if (!res.ok || !data.success) {
-        setError(data.error || 'Quiz not found!');
-        setLoading(false);
-        return;
-      }
-
+      if (!res.ok || !data.success) { setError(data.error || 'Quiz not found!'); setLoading(false); return; }
       const quizData = data.data;
-      console.log('✅ Quiz data loaded:', quizData);
-      
       setQuiz(quizData);
       setTitle(quizData.title || '');
       setDescription(quizData.description || '');
       setDuration(quizData.duration || 30);
-      
-      const formattedQuestions = (quizData.questions || []).map((q: any, index: number) => ({
-        id: q.id || `q_${Date.now()}_${index}_${Math.random()}`,
+      const formatted = (quizData.questions || []).map((q: any, i: number) => ({
+        id: q.id || `q_${Date.now()}_${i}_${Math.random()}`,
         text: q.text || '',
         options: q.options || ['', '', '', ''],
         correctOption: q.correctOption ?? q.correctAnswer ?? 0,
-        marks: q.marks || 10
+        marks: q.marks || 10,
       }));
-      
-      setQuestions(formattedQuestions);
-      setExpandedQuestions(new Set(formattedQuestions.map((_, i) => i)));
+      setQuestions(formatted);
+      setExpandedQuestions(new Set(formatted.map((_: any, i: number) => i)));
       setHasChanges(false);
       setLoading(false);
-    } catch (error) {
-      console.error('❌ Error fetching quiz:', error);
+    } catch {
       setError('Error loading quiz');
       setLoading(false);
     }
   };
 
-  // Toggle question expansion
-  const toggleQuestion = (index: number) => {
+  // ── Question helpers (logic untouched) ────────────────────────
+  const toggleQuestion = (i: number) => {
     setExpandedQuestions(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index);
-      } else {
-        newSet.add(index);
-      }
-      return newSet;
+      const s = new Set(prev);
+      s.has(i) ? s.delete(i) : s.add(i);
+      return s;
     });
   };
 
-  // Expand/collapse all
   const toggleAllQuestions = () => {
-    if (expandedQuestions.size === questions.length) {
-      setExpandedQuestions(new Set());
-    } else {
-      setExpandedQuestions(new Set(questions.map((_, i) => i)));
-    }
+    setExpandedQuestions(
+      expandedQuestions.size === questions.length
+        ? new Set()
+        : new Set(questions.map((_, i) => i))
+    );
   };
 
-  // Add new question
   const addQuestion = () => {
-    const newQuestion: Question = {
+    const q: Question = {
       id: `q_${Date.now()}_${questions.length}_${Math.random()}`,
-      text: '',
-      options: ['', '', '', ''],
-      correctOption: 0,
-      marks: 10
+      text: '', options: ['', '', '', ''], correctOption: 0, marks: 10,
     };
-    setQuestions([...questions, newQuestion]);
+    setQuestions([...questions, q]);
     setExpandedQuestions(prev => new Set([...prev, questions.length]));
     setHasChanges(true);
     showToast.success('New question added');
   };
 
-  // Duplicate question
   const duplicateQuestion = (index: number) => {
-    const questionToDuplicate = { 
-      ...questions[index], 
-      id: `q_${Date.now()}_${questions.length}_${Math.random()}` 
-    };
-    const newQuestions = [...questions];
-    newQuestions.splice(index + 1, 0, questionToDuplicate);
-    setQuestions(newQuestions);
+    const q = { ...questions[index], id: `q_${Date.now()}_${questions.length}_${Math.random()}` };
+    const updated = [...questions];
+    updated.splice(index + 1, 0, q);
+    setQuestions(updated);
     setExpandedQuestions(prev => new Set([...prev, index + 1]));
     setHasChanges(true);
     showToast.success('Question duplicated');
   };
 
-  // Remove question
   const removeQuestion = (index: number) => {
-    if (questions.length <= 1) {
-      showToast.error('Quiz must have at least one question');
-      return;
-    }
-    
-    if (confirm('Are you sure you want to delete this question?')) {
+    if (questions.length <= 1) { showToast.error('Quiz must have at least one question'); return; }
+    if (confirm('Delete this question?')) {
       setQuestions(questions.filter((_, i) => i !== index));
-      setExpandedQuestions(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(index);
-        return newSet;
-      });
+      setExpandedQuestions(prev => { const s = new Set(prev); s.delete(index); return s; });
       setHasChanges(true);
       showToast.success('Question removed');
     }
   };
 
-  // Update question field
   const updateQuestion = (index: number, field: keyof Question, value: any) => {
-    setQuestions(prev => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: value };
-      return updated;
-    });
+    setQuestions(prev => { const u = [...prev]; u[index] = { ...u[index], [field]: value }; return u; });
     setHasChanges(true);
   };
 
-  // Update option
   const updateOption = (qIndex: number, oIndex: number, value: string) => {
     setQuestions(prev => {
-      const updated = [...prev];
-      if (!updated[qIndex].options) {
-        updated[qIndex].options = ['', '', '', ''];
-      }
-      updated[qIndex].options[oIndex] = value;
-      return updated;
+      const u = [...prev];
+      if (!u[qIndex].options) u[qIndex].options = ['', '', '', ''];
+      u[qIndex].options[oIndex] = value;
+      return u;
     });
     setHasChanges(true);
   };
 
-  // Move question up
   const moveQuestionUp = (index: number) => {
     if (index === 0) return;
-    
-    setQuestions(prev => {
-      const updated = [...prev];
-      [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
-      return updated;
-    });
-    
+    setQuestions(prev => { const u = [...prev]; [u[index-1], u[index]] = [u[index], u[index-1]]; return u; });
     setExpandedQuestions(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index);
-        newSet.add(index - 1);
-      }
-      return newSet;
+      const s = new Set(prev);
+      if (s.has(index)) { s.delete(index); s.add(index-1); }
+      return s;
     });
-    
     setHasChanges(true);
   };
 
-  // Move question down
   const moveQuestionDown = (index: number) => {
     if (index === questions.length - 1) return;
-    
-    setQuestions(prev => {
-      const updated = [...prev];
-      [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]];
-      return updated;
-    });
-    
+    setQuestions(prev => { const u = [...prev]; [u[index], u[index+1]] = [u[index+1], u[index]]; return u; });
     setExpandedQuestions(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index);
-        newSet.add(index + 1);
-      }
-      return newSet;
+      const s = new Set(prev);
+      if (s.has(index)) { s.delete(index); s.add(index+1); }
+      return s;
     });
-    
     setHasChanges(true);
   };
 
-  // Save quiz
+  // ── Save ──────────────────────────────────────────────────────
   const handleSave = async () => {
     const id = params?.id as string;
-    
-    if (!id) {
-      showToast.error('Quiz ID not found');
-      return;
-    }
-
-    if (!title.trim()) {
-      showToast.error('Please enter a quiz title');
-      return;
-    }
-
+    if (!id) { showToast.error('Quiz ID not found'); return; }
+    if (!title.trim()) { showToast.error('Please enter a quiz title'); return; }
     for (let i = 0; i < questions.length; i++) {
-      if (!questions[i].text?.trim()) {
-        showToast.error(`Question ${i + 1} is empty`);
-        return;
-      }
+      if (!questions[i].text?.trim()) { showToast.error(`Question ${i+1} is empty`); return; }
       for (let j = 0; j < (questions[i].options || []).length; j++) {
-        if (!questions[i].options[j]?.trim()) {
-          showToast.error(`Option ${j + 1} of Question ${i + 1} is empty`);
-          return;
-        }
+        if (!questions[i].options[j]?.trim()) { showToast.error(`Option ${j+1} of Question ${i+1} is empty`); return; }
       }
     }
-    
     setSaving(true);
-
     try {
       const formattedQuestions = questions.map(q => ({
-        text: q.text,
-        options: q.options,
-        correctAnswer: q.correctOption,
-        marks: q.marks
+        text: q.text, options: q.options,
+        correctAnswer: q.correctOption, marks: q.marks,
       }));
-
-      const totalMarks = formattedQuestions.reduce((sum, q) => sum + (q.marks || 0), 0);
-      
-      const payload = {
-        title: title.trim(),
-        description: description.trim(),
-        duration: Number(duration),
-        totalMarks,
-        questions: formattedQuestions
-      };
-
-      console.log('📤 Saving quiz with payload:', payload);
-
+      const totalMarks = formattedQuestions.reduce((s, q) => s + (q.marks || 0), 0);
       const res = await fetch(`/api/quizzes/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ title: title.trim(), description: description.trim(), duration: Number(duration), totalMarks, questions: formattedQuestions }),
       });
-
       const data = await res.json();
-
       if (res.ok && data.success) {
         showToast.success('Quiz updated successfully! 🎉');
         setHasChanges(false);
         setTimeout(() => router.push('/teacher/dashboard'), 1500);
       } else {
-        console.error('❌ Save failed:', data);
         showToast.error(data.error || 'Failed to update quiz');
         setSaving(false);
       }
-    } catch (error) {
-      console.error('❌ Error updating quiz:', error);
+    } catch {
       showToast.error('Network error. Please try again.');
       setSaving(false);
     }
   };
 
-  // Delete quiz
+  // ── Delete ────────────────────────────────────────────────────
   const handleDelete = async () => {
     const id = params?.id as string;
-    
-    if (!id) {
-      showToast.error('Quiz ID not found');
-      return;
-    }
-    
+    if (!id) { showToast.error('Quiz ID not found'); return; }
     setDeleting(true);
-
     try {
-      const res = await fetch(`/api/quizzes/${id}`, {
-        method: 'DELETE'
-      });
-
+      const res = await fetch(`/api/quizzes/${id}`, { method: 'DELETE' });
       const data = await res.json();
-
       if (res.ok && data.success) {
-        showToast.success('Quiz deleted successfully! ✅');
+        showToast.success('Quiz deleted successfully!');
         setTimeout(() => router.push('/teacher/dashboard'), 1500);
       } else {
         showToast.error(data.error || 'Failed to delete quiz');
         setDeleting(false);
         setShowDeleteConfirm(false);
       }
-    } catch (error) {
-      console.error('❌ Error deleting quiz:', error);
+    } catch {
       showToast.error('Network error. Please try again.');
       setDeleting(false);
       setShowDeleteConfirm(false);
     }
   };
 
-  const totalMarks = questions.reduce((sum, q) => sum + (Number(q.marks) || 0), 0);
+  const totalMarks = questions.reduce((s, q) => s + (Number(q.marks) || 0), 0);
 
+  // ── Loading state ─────────────────────────────────────────────
   if (loading) {
-    return <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-[#070709] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+            <GraduationCap className="w-6 h-6 text-white animate-pulse" />
+          </div>
+          <div className="flex gap-1.5">
+            {[0,1,2].map(i => (
+              <div key={i} className="w-1.5 h-1.5 rounded-full bg-emerald-500/60 animate-bounce"
+                style={{ animationDelay: `${i * 0.15}s` }} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
+  // ── Error state ───────────────────────────────────────────────
   if (error || !quiz) {
     return (
-      <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-400 mb-4">{error || 'Quiz not found!'}</p>
-          <button onClick={() => router.push('/teacher/dashboard')}>
-            Go to Dashboard
+      <div className="min-h-screen bg-[#070709] flex items-center justify-center p-4">
+        <div className="text-center bg-white/[0.02] border border-white/[0.06] rounded-2xl p-8 max-w-sm w-full">
+          <div className="w-12 h-12 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-6 h-6 text-red-400" />
+          </div>
+          <p className="text-white/70 mb-5 text-sm">{error || 'Quiz not found!'}</p>
+          <button
+            onClick={() => router.push('/teacher/dashboard')}
+            className="px-5 py-2.5 bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 rounded-xl text-sm font-medium hover:bg-emerald-500/25 transition-all"
+          >
+            Back to Dashboard
           </button>
         </div>
       </div>
     );
   }
 
+  // ── Main UI ───────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#0A0A0F]">
-      <Toaster />
-      
-      <div className="max-w-5xl mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <button onClick={() => router.back()}>
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-          <h1 className="text-xl font-bold">Edit Quiz</h1>
-          <div className="flex gap-2">
-            <button 
-              onClick={() => setShowDeleteConfirm(true)}
-              className="px-4 py-2 bg-red-600 text-white rounded"
-            >
-              Delete
-            </button>
-            <button 
-              onClick={handleSave}
-              disabled={saving || !hasChanges}
-              className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-            >
-              {saving ? 'Saving...' : 'Save'}
-            </button>
-          </div>
-        </div>
+    <div className="min-h-screen bg-[#070709] text-white" style={{ fontFamily: "'DM Sans', 'Sora', sans-serif" }}>
+      <Toaster position="top-right" />
 
-        {/* Quiz Details */}
-        <div className="bg-gray-900 p-6 rounded-lg mb-6">
-          <h2 className="text-lg mb-4">Quiz Details</h2>
-          
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => {
-              setTitle(e.target.value);
-              setHasChanges(true);
-            }}
-            placeholder="Quiz Title"
-            className="w-full p-2 mb-4 bg-gray-800 rounded"
-          />
-
-          <textarea
-            value={description}
-            onChange={(e) => {
-              setDescription(e.target.value);
-              setHasChanges(true);
-            }}
-            placeholder="Description"
-            className="w-full p-2 mb-4 bg-gray-800 rounded"
-            rows={3}
-          />
-
-          <input
-            type="number"
-            value={duration}
-            onChange={(e) => {
-              setDuration(Number(e.target.value));
-              setHasChanges(true);
-            }}
-            min="1"
-            className="w-24 p-2 bg-gray-800 rounded"
-          />
-        </div>
-
-        {/* Questions Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg">
-            Questions ({questions.length}) - Total Marks: {totalMarks}
-          </h2>
-          <div className="flex gap-2">
-            <button
-              onClick={toggleAllQuestions}
-              className="px-3 py-1 bg-gray-700 rounded"
-            >
-              {expandedQuestions.size === questions.length ? 'Collapse All' : 'Expand All'}
-            </button>
-            <button
-              onClick={addQuestion}
-              className="px-3 py-1 bg-green-600 rounded"
-            >
-              Add Question
-            </button>
-          </div>
-        </div>
-
-        {/* Questions List */}
-        <div className="space-y-4">
-          {questions.map((q, index) => (
-            <div key={q.id} className="bg-gray-900 rounded-lg overflow-hidden">
-              {/* Question Header */}
-              <div 
-                className="p-4 bg-gray-800 cursor-pointer flex justify-between items-center"
-                onClick={() => toggleQuestion(index)}
-              >
-                <div>
-                  <span className="font-bold mr-2">Q{index + 1}:</span>
-                  {q.text || 'New Question'}
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      moveQuestionUp(index);
-                    }}
-                    disabled={index === 0}
-                    className="p-1 hover:bg-gray-700 rounded disabled:opacity-30"
-                  >
-                    <ChevronUp className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      moveQuestionDown(index);
-                    }}
-                    disabled={index === questions.length - 1}
-                    className="p-1 hover:bg-gray-700 rounded disabled:opacity-30"
-                  >
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-                  {expandedQuestions.has(index) ? <ChevronUp /> : <ChevronDown />}
-                </div>
-              </div>
-
-              {/* Question Details */}
-              {expandedQuestions.has(index) && (
-                <div className="p-4">
-                  <input
-                    type="text"
-                    value={q.text}
-                    onChange={(e) => updateQuestion(index, 'text', e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
-                    placeholder="Question text"
-                    className="w-full p-2 mb-4 bg-gray-800 rounded"
-                  />
-
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    {q.options.map((opt, optIndex) => (
-                      <div key={optIndex} className="flex items-center gap-2">
-                        <span>{String.fromCharCode(65 + optIndex)}.</span>
-                        <input
-                          type="text"
-                          value={opt}
-                          onChange={(e) => updateOption(index, optIndex, e.target.value)}
-                          onClick={(e) => e.stopPropagation()}
-                          placeholder={`Option ${optIndex + 1}`}
-                          className="flex-1 p-2 bg-gray-800 rounded"
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex gap-4 mb-4">
-                    <select
-                      value={q.correctOption}
-                      onChange={(e) => updateQuestion(index, 'correctOption', Number(e.target.value))}
-                      onClick={(e) => e.stopPropagation()}
-                      className="p-2 bg-gray-800 rounded"
-                    >
-                      {q.options.map((_, i) => (
-                        <option key={i} value={i}>Option {String.fromCharCode(65 + i)}</option>
-                      ))}
-                    </select>
-
-                    <input
-                      type="number"
-                      value={q.marks}
-                      onChange={(e) => updateQuestion(index, 'marks', Number(e.target.value))}
-                      onClick={(e) => e.stopPropagation()}
-                      min="1"
-                      className="w-20 p-2 bg-gray-800 rounded"
-                    />
-                  </div>
-
-                  <div className="flex justify-end gap-2">
-                    <button
-                      onClick={() => duplicateQuestion(index)}
-                      className="px-3 py-1 bg-blue-600 rounded"
-                    >
-                      Duplicate
-                    </button>
-                    <button
-                      onClick={() => removeQuestion(index)}
-                      className="px-3 py-1 bg-red-600 rounded"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+      {/* Ambient glow */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 right-1/3 w-[500px] h-[400px] bg-emerald-600/5 rounded-full blur-[130px]" />
+        <div className="absolute bottom-0 left-1/4 w-[400px] h-[300px] bg-teal-600/4 rounded-full blur-[100px]" />
       </div>
 
-      {/* Delete Modal */}
+      {/* ── Navbar ── */}
+      <nav className="sticky top-0 z-50 border-b border-white/[0.04] bg-[#070709]/85 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => router.back()}
+              className="p-2 rounded-xl text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                <GraduationCap className="w-3 h-3 text-white" />
+              </div>
+              <div className="hidden sm:block">
+                <span className="text-sm font-semibold text-white/80">Edit Quiz</span>
+                {hasChanges && (
+                  <span className="ml-2 text-[9px] px-1.5 py-0.5 bg-amber-500/15 text-amber-400 border border-amber-500/20 rounded-full">
+                    unsaved
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="flex items-center gap-1.5 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/35 rounded-xl text-red-400 text-xs font-medium transition-all"
+            >
+              <Trash2 className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">Delete</span>
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving || !hasChanges}
+              className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/25 rounded-xl text-emerald-400 text-xs font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Save className="w-3.5 h-3.5 shrink-0" />
+              {saving ? 'Saving…' : 'Save Changes'}
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <div className="relative z-10 max-w-4xl mx-auto px-4 py-6 pb-20 space-y-4">
+
+        {/* ── Quiz title + stats bar ── */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+          <div>
+            <h1 className="text-lg sm:text-xl font-bold text-white">{quiz.title}</h1>
+            <p className="text-xs text-white/30 mt-0.5">
+              {questions.length} question{questions.length !== 1 ? 's' : ''} · {totalMarks} total marks · {duration} min
+            </p>
+          </div>
+          {hasChanges && (
+            <div className="flex items-center gap-1.5 text-xs text-amber-400/80">
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              Unsaved changes
+            </div>
+          )}
+        </div>
+
+        {/* ── Quiz Details Card ── */}
+        <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-white/[0.05] flex items-center gap-2">
+            <FileText className="w-3.5 h-3.5 text-emerald-400" />
+            <h2 className="text-sm font-semibold text-white">Quiz Details</h2>
+          </div>
+          <div className="p-4 space-y-3">
+            {/* Title */}
+            <div>
+              <label className="text-xs text-white/40 mb-1.5 block">Quiz Title *</label>
+              <input
+                type="text"
+                value={title}
+                onChange={e => { setTitle(e.target.value); setHasChanges(true); }}
+                placeholder="Enter quiz title..."
+                className="w-full px-3.5 py-2.5 bg-white/[0.03] border border-white/[0.07] hover:border-white/[0.12] focus:border-emerald-500/50 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none transition-colors"
+              />
+            </div>
+            {/* Description */}
+            <div>
+              <label className="text-xs text-white/40 mb-1.5 block">Description</label>
+              <textarea
+                value={description}
+                onChange={e => { setDescription(e.target.value); setHasChanges(true); }}
+                placeholder="Brief description of the quiz..."
+                rows={3}
+                className="w-full px-3.5 py-2.5 bg-white/[0.03] border border-white/[0.07] hover:border-white/[0.12] focus:border-emerald-500/50 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none transition-colors resize-none"
+              />
+            </div>
+            {/* Duration */}
+            <div className="flex items-center gap-3">
+              <div>
+                <label className="text-xs text-white/40 mb-1.5 block">Duration (minutes)</label>
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25" />
+                    <input
+                      type="number"
+                      value={duration}
+                      onChange={e => { setDuration(Number(e.target.value)); setHasChanges(true); }}
+                      min="1"
+                      className="w-28 pl-9 pr-3 py-2.5 bg-white/[0.03] border border-white/[0.07] hover:border-white/[0.12] focus:border-emerald-500/50 rounded-xl text-sm text-white focus:outline-none transition-colors"
+                    />
+                  </div>
+                  <span className="text-xs text-white/25">minutes</span>
+                </div>
+              </div>
+              {/* Total marks badge */}
+              <div className="ml-auto text-right">
+                <p className="text-xs text-white/30 mb-1">Total Marks</p>
+                <p className="text-lg font-bold text-emerald-400">{totalMarks}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Questions Section ── */}
+        <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl overflow-hidden">
+          {/* Header */}
+          <div className="px-4 py-3 border-b border-white/[0.05] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <HelpCircle className="w-3.5 h-3.5 text-emerald-400" />
+              <h2 className="text-sm font-semibold text-white">
+                Questions <span className="text-white/30 font-normal">({questions.length})</span>
+              </h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleAllQuestions}
+                className="text-xs text-white/35 hover:text-white/60 transition-colors px-2 py-1 rounded-lg hover:bg-white/[0.04]"
+              >
+                {expandedQuestions.size === questions.length ? 'Collapse all' : 'Expand all'}
+              </button>
+              <button
+                onClick={addQuestion}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs font-medium transition-all"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                Add
+              </button>
+            </div>
+          </div>
+
+          {/* Questions list */}
+          <div className="divide-y divide-white/[0.04]">
+            {questions.map((q, index) => (
+              <div key={q.id}>
+                {/* Question header row */}
+                <div
+                  className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-white/[0.02] transition-colors select-none"
+                  onClick={() => toggleQuestion(index)}
+                >
+                  {/* Number badge */}
+                  <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                    <span className="text-[10px] font-bold text-emerald-400">{index + 1}</span>
+                  </div>
+
+                  {/* Question text preview */}
+                  <p className="flex-1 text-sm text-white/70 truncate min-w-0">
+                    {q.text || <span className="text-white/25 italic">Empty question</span>}
+                  </p>
+
+                  {/* Marks badge */}
+                  <span className="text-[10px] px-2 py-0.5 bg-white/[0.04] text-white/35 rounded-full shrink-0 hidden sm:block">
+                    {q.marks}pts
+                  </span>
+
+                  {/* Move + expand controls */}
+                  <div className="flex items-center gap-1 shrink-0" onClick={e => e.stopPropagation()}>
+                    <button
+                      onClick={() => moveQuestionUp(index)}
+                      disabled={index === 0}
+                      className="p-1 rounded-lg text-white/25 hover:text-white/60 hover:bg-white/[0.06] disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+                    >
+                      <ChevronUp className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => moveQuestionDown(index)}
+                      disabled={index === questions.length - 1}
+                      className="p-1 rounded-lg text-white/25 hover:text-white/60 hover:bg-white/[0.06] disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+                    >
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Expand icon */}
+                  <div className="text-white/20 shrink-0">
+                    {expandedQuestions.has(index)
+                      ? <ChevronUp className="w-4 h-4" />
+                      : <ChevronDown className="w-4 h-4" />}
+                  </div>
+                </div>
+
+                {/* Expanded question body */}
+                {expandedQuestions.has(index) && (
+                  <div className="px-4 pb-4 space-y-4 bg-white/[0.01]">
+                    {/* Question text */}
+                    <div>
+                      <label className="text-xs text-white/35 mb-1.5 block">Question Text *</label>
+                      <textarea
+                        value={q.text}
+                        onChange={e => updateQuestion(index, 'text', e.target.value)}
+                        onClick={e => e.stopPropagation()}
+                        placeholder="Type your question here..."
+                        rows={2}
+                        className="w-full px-3.5 py-2.5 bg-white/[0.03] border border-white/[0.07] hover:border-white/[0.12] focus:border-emerald-500/50 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none transition-colors resize-none"
+                      />
+                    </div>
+
+                    {/* Options grid — 1 col on mobile, 2 on sm+ */}
+                    <div>
+                      <label className="text-xs text-white/35 mb-2 block">Answer Options</label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {q.options.map((opt, optIndex) => (
+                          <div
+                            key={optIndex}
+                            className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-colors ${
+                              q.correctOption === optIndex
+                                ? 'bg-emerald-500/8 border-emerald-500/30'
+                                : 'bg-white/[0.02] border-white/[0.06] hover:border-white/[0.1]'
+                            }`}
+                          >
+                            {/* Option letter */}
+                            <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                              q.correctOption === optIndex
+                                ? 'bg-emerald-500/20 text-emerald-400'
+                                : 'bg-white/[0.04] text-white/30'
+                            }`}>
+                              {String.fromCharCode(65 + optIndex)}
+                            </div>
+                            <input
+                              type="text"
+                              value={opt}
+                              onChange={e => updateOption(index, optIndex, e.target.value)}
+                              onClick={e => e.stopPropagation()}
+                              placeholder={`Option ${String.fromCharCode(65 + optIndex)}`}
+                              className="flex-1 bg-transparent text-sm text-white placeholder:text-white/20 focus:outline-none min-w-0"
+                            />
+                            {q.correctOption === optIndex && (
+                              <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Correct answer + marks */}
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <div className="flex-1">
+                        <label className="text-xs text-white/35 mb-1.5 block">Correct Answer</label>
+                        <select
+                          value={q.correctOption}
+                          onChange={e => updateQuestion(index, 'correctOption', Number(e.target.value))}
+                          onClick={e => e.stopPropagation()}
+                          className="w-full px-3 py-2.5 bg-white/[0.03] border border-white/[0.07] hover:border-white/[0.12] focus:border-emerald-500/50 rounded-xl text-sm text-white focus:outline-none transition-colors appearance-none cursor-pointer"
+                        >
+                          {q.options.map((_, i) => (
+                            <option key={i} value={i} className="bg-[#0f1012]">
+                              Option {String.fromCharCode(65 + i)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-xs text-white/35 mb-1.5 block">Marks</label>
+                        <input
+                          type="number"
+                          value={q.marks}
+                          onChange={e => updateQuestion(index, 'marks', Number(e.target.value))}
+                          onClick={e => e.stopPropagation()}
+                          min="1"
+                          className="w-full sm:w-24 px-3 py-2.5 bg-white/[0.03] border border-white/[0.07] hover:border-white/[0.12] focus:border-emerald-500/50 rounded-xl text-sm text-white focus:outline-none transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Question actions */}
+                    <div className="flex items-center justify-end gap-2 pt-1">
+                      <button
+                        onClick={() => duplicateQuestion(index)}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] text-white/40 hover:text-white/70 text-xs transition-all"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                        Duplicate
+                      </button>
+                      <button
+                        onClick={() => removeQuestion(index)}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/8 hover:bg-red-500/15 border border-red-500/15 hover:border-red-500/25 text-red-400/70 hover:text-red-400 text-xs transition-all"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Add question footer button */}
+          <div className="p-4 border-t border-white/[0.04]">
+            <button
+              onClick={addQuestion}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-white/[0.1] hover:border-emerald-500/30 text-white/30 hover:text-emerald-400 text-sm transition-all hover:bg-emerald-500/5"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Add another question
+            </button>
+          </div>
+        </div>
+
+        {/* ── Floating save bar (mobile) ── */}
+        {hasChanges && (
+          <div className="fixed bottom-4 left-4 right-4 z-50 sm:hidden">
+            <div className="flex items-center gap-3 bg-[#0f1012]/95 border border-emerald-500/20 rounded-2xl px-4 py-3 backdrop-blur-xl shadow-2xl shadow-black/50">
+              <div className="flex items-center gap-1.5 flex-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-xs text-white/50">Unsaved changes</span>
+              </div>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500/20 border border-emerald-500/35 text-emerald-400 rounded-xl text-xs font-semibold transition-all disabled:opacity-50"
+              >
+                <Save className="w-3.5 h-3.5" />
+                {saving ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Delete Confirmation Modal ── */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-          <div className="bg-gray-900 p-6 rounded-lg max-w-md">
-            <h3 className="text-lg mb-4">Delete Quiz?</h3>
-            <p className="mb-4">Are you sure you want to delete "{quiz?.title}"?</p>
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
+          <div
+            className="bg-[#0f0f12] border border-white/[0.08] rounded-t-3xl sm:rounded-2xl p-6 w-full sm:max-w-sm shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Mobile drag handle */}
+            <div className="w-10 h-1 bg-white/10 rounded-full mx-auto mb-5 sm:hidden" />
+            <div className="w-11 h-11 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-5 h-5 text-red-400" />
+            </div>
+            <h3 className="text-base font-semibold text-white text-center mb-2">Delete Quiz?</h3>
+            <p className="text-sm text-white/40 text-center mb-6">
+              "<span className="text-white/60">{quiz?.title}</span>" will be permanently deleted along with all results.
+            </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 px-4 py-2 bg-gray-700 rounded"
+                className="flex-1 px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white/60 text-sm hover:bg-white/[0.08] transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="flex-1 px-4 py-2 bg-red-600 rounded"
+                className="flex-1 px-4 py-3 bg-red-500/15 border border-red-500/25 rounded-xl text-red-400 text-sm hover:bg-red-500/25 transition-all disabled:opacity-50 font-medium"
               >
-                {deleting ? 'Deleting...' : 'Delete'}
+                {deleting ? 'Deleting…' : 'Delete'}
               </button>
             </div>
           </div>

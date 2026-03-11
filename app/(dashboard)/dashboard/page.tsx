@@ -697,62 +697,680 @@
 
 
 
+// 'use client';
+
+// import { useEffect, useState, useRef } from 'react';
+// import { useRouter } from 'next/navigation';
+// import Link from 'next/link';
+// import { motion, AnimatePresence } from 'framer-motion';
+// import { Toaster, toast as hotToast } from 'react-hot-toast';
+// import {
+//   BookOpen,
+//   Award,
+//   Clock,
+//   LogOut,
+//   ChevronRight,
+//   Sparkles,
+//   BarChart3,
+//   Target,
+//   Activity,
+//   Star,
+//   CheckCircle,
+//   PlayCircle,
+//   Trophy,
+//   Flame,
+//   TrendingUp,
+//   User,
+//   Bell,
+//   Search,
+//   Filter,
+//   Lock,
+//   Zap,
+//   ArrowRight,
+//   GraduationCap,
+//   Timer
+// } from 'lucide-react';
+// import { showToast } from '@/lib/toast';
+
+// interface Quiz {
+//   id: string;
+//   title: string;
+//   description: string;
+//   duration: number;
+//   questions: any[];
+//   totalMarks: number;
+//   createdByName: string;
+//   difficulty?: 'beginner' | 'intermediate' | 'advanced';
+//   category?: string;
+//   attempts?: number;
+//   visibility?: string;
+// }
+
+// interface Result {
+//   id: string;
+//   quizTitle: string;
+//   percentage: number;
+//   score: number;
+//   totalMarks: number;
+//   submittedAt: string;
+// }
+
+// export default function StudentDashboard() {
+//   const router = useRouter();
+//   const [user, setUser] = useState<any>(null);
+//   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+//   const [results, setResults] = useState<Result[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [greeting, setGreeting] = useState('');
+//   const [searchQuery, setSearchQuery] = useState('');
+//   const [activeTab, setActiveTab] = useState<'all' | 'assigned' | 'public'>('all');
+//   const [showSearch, setShowSearch] = useState(false);
+
+//   useEffect(() => {
+//     const hour = new Date().getHours();
+//     if (hour < 12) setGreeting('Good morning');
+//     else if (hour < 18) setGreeting('Good afternoon');
+//     else setGreeting('Good evening');
+
+//     const storedUser = localStorage.getItem('user');
+//     const token = localStorage.getItem('token');
+//     if (!token || !storedUser) { router.push('/login'); return; }
+
+//     const userData = JSON.parse(storedUser);
+//     setUser(userData);
+//     fetchData(userData.id);
+//   }, [router]);
+
+//   const fetchData = async (userId: string) => {
+//     try {
+//       const [quizzesRes, resultsRes] = await Promise.all([
+//         fetch(`/api/quizzes/student?studentId=${userId}`),
+//         fetch(`/api/results/user/${userId}`)
+//       ]);
+
+//       const quizzesData = await quizzesRes.json();
+//       const resultsData = await resultsRes.json();
+
+//       if (quizzesData.success) {
+//         setQuizzes(quizzesData.data);
+//       }
+//       if (resultsData.success) {
+//         setResults(resultsData.data);
+//       }
+//     } catch (error) {
+//       showToast.error('Failed to load data');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleLogout = () => {
+//     localStorage.removeItem('token');
+//     localStorage.removeItem('user');
+//     sessionStorage.clear();
+//     router.push('/login');
+//   };
+
+//   const handleStartQuiz = (quizId: string) => {
+//     router.push(`/quiz/${quizId}`);
+//   };
+
+//   const formatDate = (dateString: string) => {
+//     const date = new Date(dateString);
+//     const now = new Date();
+//     const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+//     if (diffDays === 0) return 'Today';
+//     if (diffDays === 1) return 'Yesterday';
+//     if (diffDays < 7) return `${diffDays}d ago`;
+//     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+//   };
+
+//   // Stats
+//   const completedQuizIds = results.map(r => r.quizTitle);
+//   const availableQuizzes = quizzes.filter(q => !results.some(r => r.quizTitle === q.title));
+//   const completedCount = results.length;
+//   const averageScore = results.length
+//     ? Math.round(results.reduce((acc, r) => acc + r.percentage, 0) / results.length)
+//     : 0;
+//   const totalPoints = results.reduce((acc, r) => acc + r.score, 0);
+//   const assignedCount = quizzes.filter(q => q.visibility === 'assigned').length;
+
+//   // Filtered quizzes
+//   const filteredQuizzes = availableQuizzes.filter(q => {
+//     const matchesSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//       q.description?.toLowerCase().includes(searchQuery.toLowerCase());
+//     const matchesTab =
+//       activeTab === 'all' ? true :
+//       activeTab === 'assigned' ? q.visibility === 'assigned' :
+//       q.visibility === 'public';
+//     return matchesSearch && matchesTab;
+//   });
+
+//   // Streak
+//   const calculateStreak = () => {
+//     if (!results.length) return 0;
+//     const sorted = [...results].sort((a, b) =>
+//       new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+//     );
+//     let streak = 1;
+//     let cur = new Date(sorted[0].submittedAt);
+//     for (let i = 1; i < sorted.length; i++) {
+//       const prev = new Date(sorted[i].submittedAt);
+//       const diff = Math.floor((cur.getTime() - prev.getTime()) / 86400000);
+//       if (diff === 1) { streak++; cur = prev; }
+//       else if (diff > 1) break;
+//     }
+//     return streak;
+//   };
+//   const streak = calculateStreak();
+
+//   if (loading) {
+//     return (
+//       <div className="min-h-screen bg-[#070709] flex items-center justify-center">
+//         <div className="flex flex-col items-center gap-4">
+//           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
+//             <GraduationCap className="w-6 h-6 text-white animate-pulse" />
+//           </div>
+//           <div className="flex gap-1.5">
+//             {[0,1,2].map(i => (
+//               <div key={i} className="w-1.5 h-1.5 rounded-full bg-violet-500/60 animate-bounce"
+//                 style={{ animationDelay: `${i * 0.15}s` }} />
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-[#070709] text-white" style={{ fontFamily: "'DM Sans', 'Sora', sans-serif" }}>
+//       <Toaster position="top-right" />
+
+//       {/* Background */}
+//       <div className="fixed inset-0 pointer-events-none overflow-hidden">
+//         <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-violet-600/8 rounded-full blur-[120px]" />
+//         <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-indigo-600/6 rounded-full blur-[100px]" />
+//         <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-purple-500/5 rounded-full blur-[80px]" />
+//         {/* Grid */}
+//         <div className="absolute inset-0 opacity-[0.03]"
+//           style={{
+//             backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+//             backgroundSize: '60px 60px'
+//           }} />
+//       </div>
+
+//       <div className="relative z-10">
+//         {/* Top Nav */}
+//         <nav className="sticky top-0 z-50 border-b border-white/[0.04] bg-[#070709]/80 backdrop-blur-xl">
+//           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+//             {/* Logo */}
+//             <div className="flex items-center gap-3 shrink-0">
+//               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+//                 <GraduationCap className="w-4 h-4 text-white" />
+//               </div>
+//               <span className="font-semibold text-white/90 hidden sm:block text-sm tracking-wide">QuizPortal</span>
+//             </div>
+
+//             {/* Search — hidden on mobile unless toggled */}
+//             <AnimatePresence>
+//               {showSearch && (
+//                 <motion.div
+//                   initial={{ opacity: 0, width: 0 }}
+//                   animate={{ opacity: 1, width: '100%' }}
+//                   exit={{ opacity: 0, width: 0 }}
+//                   className="flex-1 max-w-md"
+//                 >
+//                   <input
+//                     autoFocus
+//                     type="text"
+//                     value={searchQuery}
+//                     onChange={e => setSearchQuery(e.target.value)}
+//                     placeholder="Search quizzes..."
+//                     className="w-full px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-violet-500/50"
+//                     onBlur={() => { if (!searchQuery) setShowSearch(false); }}
+//                   />
+//                 </motion.div>
+//               )}
+//             </AnimatePresence>
+
+//             {/* Right Actions */}
+//             <div className="flex items-center gap-2 shrink-0">
+//               <button
+//                 onClick={() => setShowSearch(!showSearch)}
+//                 className="p-2 rounded-xl text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all"
+//               >
+//                 <Search className="w-4 h-4" />
+//               </button>
+
+//               <Link href="/profile">
+//                 <div className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-all cursor-pointer">
+//                   <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white text-xs font-bold">
+//                     {user?.name?.charAt(0)?.toUpperCase() || 'S'}
+//                   </div>
+//                   <span className="text-xs text-white/60 hidden sm:block max-w-[100px] truncate">{user?.name}</span>
+//                 </div>
+//               </Link>
+
+//               <button
+//                 onClick={handleLogout}
+//                 className="p-2 rounded-xl text-white/30 hover:text-red-400/70 hover:bg-red-500/5 transition-all"
+//                 title="Logout"
+//               >
+//                 <LogOut className="w-4 h-4" />
+//               </button>
+//             </div>
+//           </div>
+//         </nav>
+
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+//           {/* Hero Header */}
+//           <motion.div
+//             initial={{ opacity: 0, y: 16 }}
+//             animate={{ opacity: 1, y: 0 }}
+//             className="flex flex-col sm:flex-row sm:items-end justify-between gap-4"
+//           >
+//             <div>
+//               <p className="text-white/30 text-sm mb-1 tracking-wide">{greeting} 👋</p>
+//               <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+//                 {user?.name?.split(' ')[0]}<span className="text-violet-400">.</span>
+//               </h1>
+//               <p className="text-white/30 text-sm mt-2">
+//                 {availableQuizzes.length > 0
+//                   ? `${availableQuizzes.length} quiz${availableQuizzes.length !== 1 ? 'zes' : ''} waiting for you`
+//                   : 'All caught up! Great work.'}
+//               </p>
+//             </div>
+
+//             {/* Mini progress ring */}
+//             <div className="flex items-center gap-3 bg-white/[0.02] border border-white/[0.05] rounded-2xl px-5 py-3">
+//               <div className="relative w-12 h-12">
+//                 <svg className="w-12 h-12 -rotate-90" viewBox="0 0 44 44">
+//                   <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
+//                   <circle cx="22" cy="22" r="18" fill="none" stroke="url(#grad)" strokeWidth="3"
+//                     strokeDasharray={`${Math.min(100, averageScore) * 1.13} 113`}
+//                     strokeLinecap="round" />
+//                   <defs>
+//                     <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+//                       <stop offset="0%" stopColor="#8b5cf6" />
+//                       <stop offset="100%" stopColor="#6366f1" />
+//                     </linearGradient>
+//                   </defs>
+//                 </svg>
+//                 <div className="absolute inset-0 flex items-center justify-center">
+//                   <span className="text-xs font-bold text-white">{averageScore}%</span>
+//                 </div>
+//               </div>
+//               <div>
+//                 <p className="text-xs text-white/40">avg score</p>
+//                 <p className="text-sm font-medium text-white">{completedCount} done</p>
+//               </div>
+//             </div>
+//           </motion.div>
+
+//           {/* Stats Row */}
+//           <motion.div
+//             initial={{ opacity: 0, y: 12 }}
+//             animate={{ opacity: 1, y: 0 }}
+//             transition={{ delay: 0.1 }}
+//             className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+//           >
+//             {[
+//               { label: 'Available', value: availableQuizzes.length, icon: BookOpen, color: 'text-violet-400', bg: 'bg-violet-500/10', border: 'border-violet-500/20' },
+//               { label: 'Completed', value: completedCount, icon: CheckCircle, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+//               { label: 'Assigned', value: assignedCount, icon: Target, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
+//               { label: 'Streak', value: `${streak}d`, icon: Flame, color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20' },
+//             ].map((stat, i) => (
+//               <motion.div
+//                 key={stat.label}
+//                 initial={{ opacity: 0, y: 10 }}
+//                 animate={{ opacity: 1, y: 0 }}
+//                 transition={{ delay: 0.1 + i * 0.05 }}
+//                 whileHover={{ y: -2 }}
+//                 className={`relative overflow-hidden bg-white/[0.02] border ${stat.border} rounded-2xl p-4 hover:bg-white/[0.04] transition-all`}
+//               >
+//                 <div className={`w-8 h-8 ${stat.bg} rounded-xl flex items-center justify-center mb-3`}>
+//                   <stat.icon className={`w-4 h-4 ${stat.color}`} />
+//                 </div>
+//                 <p className="text-xl sm:text-2xl font-bold text-white">{stat.value}</p>
+//                 <p className="text-xs text-white/30 mt-0.5">{stat.label}</p>
+//               </motion.div>
+//             ))}
+//           </motion.div>
+
+//           {/* Main Content Grid */}
+//           <div className="grid lg:grid-cols-3 gap-6">
+
+//             {/* Left: Quizzes Panel */}
+//             <motion.div
+//               initial={{ opacity: 0, y: 16 }}
+//               animate={{ opacity: 1, y: 0 }}
+//               transition={{ delay: 0.2 }}
+//               className="lg:col-span-2 space-y-4"
+//             >
+//               {/* Panel Header */}
+//               <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl overflow-hidden">
+//                 <div className="p-5 border-b border-white/[0.05]">
+//                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+//                     <div>
+//                       <h2 className="text-base font-semibold text-white">Available Quizzes</h2>
+//                       <p className="text-xs text-white/30 mt-0.5">Pick a challenge and start learning</p>
+//                     </div>
+//                     {/* Tabs */}
+//                     <div className="flex items-center gap-1 bg-white/[0.03] rounded-xl p-1 w-fit">
+//                       {(['all', 'assigned', 'public'] as const).map(tab => (
+//                         <button
+//                           key={tab}
+//                           onClick={() => setActiveTab(tab)}
+//                           className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+//                             activeTab === tab
+//                               ? 'bg-violet-500/20 text-violet-400 border border-violet-500/30'
+//                               : 'text-white/30 hover:text-white/60'
+//                           }`}
+//                         >
+//                           {tab}
+//                         </button>
+//                       ))}
+//                     </div>
+//                   </div>
+//                 </div>
+
+//                 {/* Search bar inside panel */}
+//                 {searchQuery && (
+//                   <div className="px-5 py-2 border-b border-white/[0.05] bg-white/[0.01]">
+//                     <p className="text-xs text-white/30">
+//                       Showing results for "<span className="text-violet-400">{searchQuery}</span>"
+//                     </p>
+//                   </div>
+//                 )}
+
+//                 {/* Quiz List */}
+//                 {filteredQuizzes.length === 0 ? (
+//                   <div className="p-12 text-center">
+//                     <div className="w-14 h-14 bg-white/[0.02] rounded-2xl flex items-center justify-center mx-auto mb-4">
+//                       <BookOpen className="w-7 h-7 text-white/20" />
+//                     </div>
+//                     <p className="text-white/40 text-sm">
+//                       {searchQuery ? 'No quizzes match your search' : 'No quizzes available'}
+//                     </p>
+//                     {activeTab !== 'all' && (
+//                       <button
+//                         onClick={() => setActiveTab('all')}
+//                         className="mt-3 text-xs text-violet-400 hover:text-violet-300"
+//                       >
+//                         View all quizzes
+//                       </button>
+//                     )}
+//                   </div>
+//                 ) : (
+//                   <div className="divide-y divide-white/[0.04]">
+//                     {filteredQuizzes.slice(0, 6).map((quiz, i) => (
+//                       <motion.div
+//                         key={quiz.id}
+//                         initial={{ opacity: 0 }}
+//                         animate={{ opacity: 1 }}
+//                         transition={{ delay: i * 0.06 }}
+//                         className="p-5 hover:bg-white/[0.02] transition-colors group"
+//                       >
+//                         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+//                           {/* Quiz Icon */}
+//                           <div className="hidden sm:flex w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.06] items-center justify-center shrink-0 group-hover:border-violet-500/30 transition-colors">
+//                             {quiz.visibility === 'assigned'
+//                               ? <Lock className="w-4 h-4 text-amber-400/70" />
+//                               : <BookOpen className="w-4 h-4 text-violet-400/70" />
+//                             }
+//                           </div>
+
+//                           <div className="flex-1 min-w-0">
+//                             <div className="flex flex-wrap items-center gap-2 mb-1">
+//                               <h3 className="text-sm font-semibold text-white group-hover:text-violet-300 transition-colors truncate">
+//                                 {quiz.title}
+//                               </h3>
+//                               {quiz.visibility === 'assigned' && (
+//                                 <span className="text-[10px] px-2 py-0.5 bg-amber-500/10 text-amber-400 rounded-full border border-amber-500/20 shrink-0">
+//                                   assigned
+//                                 </span>
+//                               )}
+//                             </div>
+//                             {quiz.description && (
+//                               <p className="text-xs text-white/30 mb-2 line-clamp-1">{quiz.description}</p>
+//                             )}
+//                             <div className="flex flex-wrap items-center gap-3 text-[11px] text-white/20">
+//                               <span className="flex items-center gap-1">
+//                                 <Timer className="w-3 h-3" /> {quiz.duration}m
+//                               </span>
+//                               <span className="flex items-center gap-1">
+//                                 <BarChart3 className="w-3 h-3" /> {quiz.questions?.length || 0} Qs
+//                               </span>
+//                               <span className="flex items-center gap-1">
+//                                 <Star className="w-3 h-3" /> {quiz.totalMarks} marks
+//                               </span>
+//                               <span className="text-white/10">by {quiz.createdByName}</span>
+//                             </div>
+//                           </div>
+
+//                           <motion.button
+//                             whileHover={{ scale: 1.03 }}
+//                             whileTap={{ scale: 0.97 }}
+//                             onClick={() => handleStartQuiz(quiz.id)}
+//                             className="flex items-center gap-2 px-4 py-2 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20 hover:border-violet-500/40 rounded-xl text-violet-400 text-sm font-medium transition-all whitespace-nowrap shrink-0"
+//                           >
+//                             <PlayCircle className="w-4 h-4" />
+//                             Start
+//                           </motion.button>
+//                         </div>
+//                       </motion.div>
+//                     ))}
+//                   </div>
+//                 )}
+
+//                 {filteredQuizzes.length > 6 && (
+//                   <div className="p-4 border-t border-white/[0.04]">
+//                     <Link href="/quizzes" className="flex items-center justify-center gap-2 text-xs text-white/30 hover:text-violet-400 transition-colors">
+//                       View {filteredQuizzes.length - 6} more quizzes
+//                       <ArrowRight className="w-3 h-3" />
+//                     </Link>
+//                   </div>
+//                 )}
+//               </div>
+
+//               {/* Completed Quizzes Preview */}
+//               {results.length > 0 && (
+//                 <motion.div
+//                   initial={{ opacity: 0 }}
+//                   animate={{ opacity: 1 }}
+//                   transition={{ delay: 0.35 }}
+//                   className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5"
+//                 >
+//                   <div className="flex items-center justify-between mb-4">
+//                     <h3 className="text-sm font-semibold text-white">Completed</h3>
+//                     <Link href="/results" className="text-xs text-white/30 hover:text-violet-400 flex items-center gap-1 transition-colors">
+//                       All results <ChevronRight className="w-3 h-3" />
+//                     </Link>
+//                   </div>
+//                   <div className="space-y-2">
+//                     {results.slice(0, 3).map(result => (
+//                       <Link href={`/results/${result.id}`} key={result.id}>
+//                         <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors group">
+//                           <div className="flex items-center gap-3 min-w-0">
+//                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+//                               result.percentage >= 70 ? 'bg-emerald-500/10' : 'bg-yellow-500/10'
+//                             }`}>
+//                               <Trophy className={`w-4 h-4 ${result.percentage >= 70 ? 'text-emerald-400' : 'text-yellow-400'}`} />
+//                             </div>
+//                             <div className="min-w-0">
+//                               <p className="text-sm text-white/70 truncate group-hover:text-white transition-colors">{result.quizTitle}</p>
+//                               <p className="text-xs text-white/25">{formatDate(result.submittedAt)}</p>
+//                             </div>
+//                           </div>
+//                           <div className={`text-sm font-bold px-3 py-1 rounded-lg ${
+//                             result.percentage >= 70
+//                               ? 'bg-emerald-500/10 text-emerald-400'
+//                               : 'bg-yellow-500/10 text-yellow-400'
+//                           }`}>
+//                             {result.percentage}%
+//                           </div>
+//                         </div>
+//                       </Link>
+//                     ))}
+//                   </div>
+//                 </motion.div>
+//               )}
+//             </motion.div>
+
+//             {/* Right Sidebar */}
+//             <motion.div
+//               initial={{ opacity: 0, y: 16 }}
+//               animate={{ opacity: 1, y: 0 }}
+//               transition={{ delay: 0.3 }}
+//               className="space-y-4"
+//             >
+//               {/* Score Overview */}
+//               <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5">
+//                 <h3 className="text-sm font-semibold text-white mb-4">Performance</h3>
+
+//                 {results.length === 0 ? (
+//                   <div className="text-center py-6">
+//                     <Award className="w-8 h-8 text-white/15 mx-auto mb-3" />
+//                     <p className="text-xs text-white/30">Complete a quiz to see your stats</p>
+//                   </div>
+//                 ) : (
+//                   <div className="space-y-4">
+//                     {/* Score bar */}
+//                     <div>
+//                       <div className="flex justify-between text-xs mb-2">
+//                         <span className="text-white/40">Average score</span>
+//                         <span className="font-bold text-violet-400">{averageScore}%</span>
+//                       </div>
+//                       <div className="h-2 bg-white/[0.04] rounded-full overflow-hidden">
+//                         <motion.div
+//                           initial={{ width: 0 }}
+//                           animate={{ width: `${averageScore}%` }}
+//                           transition={{ delay: 0.5, duration: 0.8, ease: 'easeOut' }}
+//                           className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full"
+//                         />
+//                       </div>
+//                     </div>
+
+//                     {/* Points */}
+//                     <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl">
+//                       <div className="flex items-center gap-2">
+//                         <Zap className="w-4 h-4 text-amber-400" />
+//                         <span className="text-xs text-white/50">Total points</span>
+//                       </div>
+//                       <span className="text-sm font-bold text-white">{totalPoints}</span>
+//                     </div>
+
+//                     {/* Recent scores */}
+//                     <div>
+//                       <p className="text-xs text-white/30 mb-2">Recent scores</p>
+//                       <div className="space-y-1.5">
+//                         {results.slice(0, 4).map((r, i) => (
+//                           <div key={r.id} className="flex items-center gap-2">
+//                             <div className="flex-1 h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+//                               <motion.div
+//                                 initial={{ width: 0 }}
+//                                 animate={{ width: `${r.percentage}%` }}
+//                                 transition={{ delay: 0.6 + i * 0.1, duration: 0.6 }}
+//                                 className={`h-full rounded-full ${r.percentage >= 70 ? 'bg-emerald-400' : 'bg-yellow-400'}`}
+//                               />
+//                             </div>
+//                             <span className="text-[10px] text-white/30 w-8 text-right">{r.percentage}%</span>
+//                           </div>
+//                         ))}
+//                       </div>
+//                     </div>
+//                   </div>
+//                 )}
+//               </div>
+
+//               {/* Streak Card */}
+//               <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/5 border border-orange-500/15 rounded-2xl p-5">
+//                 <div className="flex items-center justify-between mb-3">
+//                   <h3 className="text-sm font-semibold text-white">Study Streak</h3>
+//                   <Flame className="w-4 h-4 text-orange-400" />
+//                 </div>
+//                 <div className="flex items-end gap-2 mb-3">
+//                   <span className="text-4xl font-black text-white">{streak}</span>
+//                   <span className="text-white/40 text-sm mb-1">days</span>
+//                 </div>
+//                 {/* 7-day mini chart */}
+//                 <div className="flex items-end gap-1 h-8">
+//                   {Array.from({ length: 7 }, (_, i) => {
+//                     const day = new Date();
+//                     day.setDate(day.getDate() - (6 - i));
+//                     const hasResult = results.some(r => {
+//                       const d = new Date(r.submittedAt);
+//                       return d.toDateString() === day.toDateString();
+//                     });
+//                     return (
+//                       <div key={i} className="flex-1 flex flex-col items-center gap-1">
+//                         <div className={`w-full rounded-sm transition-all ${
+//                           hasResult ? 'bg-orange-400 h-full' : 'bg-white/[0.06] h-2'
+//                         }`} />
+//                       </div>
+//                     );
+//                   })}
+//                 </div>
+//                 <p className="text-[10px] text-white/25 mt-2">Last 7 days activity</p>
+//               </div>
+
+//               {/* Quick Links */}
+//               <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 space-y-1">
+//                 <p className="text-xs text-white/30 mb-3 px-1">Quick Links</p>
+//                 {[
+//                   { label: 'All Quizzes', href: '/quizzes', icon: BookOpen },
+//                   { label: 'My Results', href: '/results', icon: BarChart3 },
+//                   { label: 'My Profile', href: '/profile', icon: User },
+//                 ].map(link => (
+//                   <Link key={link.href} href={link.href}>
+//                     <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-white/[0.04] transition-colors group cursor-pointer">
+//                       <div className="flex items-center gap-3">
+//                         <link.icon className="w-4 h-4 text-white/30 group-hover:text-violet-400 transition-colors" />
+//                         <span className="text-sm text-white/50 group-hover:text-white/80 transition-colors">{link.label}</span>
+//                       </div>
+//                       <ChevronRight className="w-3.5 h-3.5 text-white/20 group-hover:text-white/40 transition-colors" />
+//                     </div>
+//                   </Link>
+//                 ))}
+//               </div>
+//             </motion.div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Toaster, toast as hotToast } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 import {
-  BookOpen,
-  Award,
-  Clock,
-  LogOut,
-  ChevronRight,
-  Sparkles,
-  BarChart3,
-  Target,
-  Activity,
-  Star,
-  CheckCircle,
-  PlayCircle,
-  Trophy,
-  Flame,
-  TrendingUp,
-  User,
-  Bell,
-  Search,
-  Filter,
-  Lock,
-  Zap,
-  ArrowRight,
-  GraduationCap,
-  Timer
+  BookOpen, Award, Clock, LogOut, ChevronRight, BarChart3,
+  Target, Star, CheckCircle, PlayCircle, Trophy, Flame,
+  TrendingUp, User, Search, Lock, ArrowRight,
+  GraduationCap, Timer, X, Zap,
 } from 'lucide-react';
 import { showToast } from '@/lib/toast';
 
 interface Quiz {
-  id: string;
-  title: string;
-  description: string;
-  duration: number;
-  questions: any[];
-  totalMarks: number;
-  createdByName: string;
-  difficulty?: 'beginner' | 'intermediate' | 'advanced';
-  category?: string;
-  attempts?: number;
-  visibility?: string;
+  id: string; title: string; description: string;
+  duration: number; questions: any[]; totalMarks: number;
+  createdByName: string; difficulty?: string; category?: string;
+  attempts?: number; visibility?: string;
 }
-
 interface Result {
-  id: string;
-  quizTitle: string;
-  percentage: number;
-  score: number;
-  totalMarks: number;
-  submittedAt: string;
+  id: string; quizTitle: string; percentage: number;
+  score: number; totalMarks: number; submittedAt: string;
 }
 
 export default function StudentDashboard() {
@@ -765,17 +1383,15 @@ export default function StudentDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'assigned' | 'public'>('all');
   const [showSearch, setShowSearch] = useState(false);
+  // mobile bottom tab
+  const [mobileView, setMobileView] = useState<'quizzes' | 'results' | 'stats'>('quizzes');
 
   useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) setGreeting('Good morning');
-    else if (hour < 18) setGreeting('Good afternoon');
-    else setGreeting('Good evening');
-
+    const h = new Date().getHours();
+    setGreeting(h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening');
     const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
     if (!token || !storedUser) { router.push('/login'); return; }
-
     const userData = JSON.parse(storedUser);
     setUser(userData);
     fetchData(userData.id);
@@ -785,19 +1401,13 @@ export default function StudentDashboard() {
     try {
       const [quizzesRes, resultsRes] = await Promise.all([
         fetch(`/api/quizzes/student?studentId=${userId}`),
-        fetch(`/api/results/user/${userId}`)
+        fetch(`/api/results/user/${userId}`),
       ]);
-
       const quizzesData = await quizzesRes.json();
       const resultsData = await resultsRes.json();
-
-      if (quizzesData.success) {
-        setQuizzes(quizzesData.data);
-      }
-      if (resultsData.success) {
-        setResults(resultsData.data);
-      }
-    } catch (error) {
+      if (quizzesData.success) setQuizzes(quizzesData.data);
+      if (resultsData.success) setResults(resultsData.data);
+    } catch {
       showToast.error('Failed to load data');
     } finally {
       setLoading(false);
@@ -811,59 +1421,51 @@ export default function StudentDashboard() {
     router.push('/login');
   };
 
-  const handleStartQuiz = (quizId: string) => {
-    router.push(`/quiz/${quizId}`);
-  };
+  const handleStartQuiz = (quizId: string) => router.push(`/quiz/${quizId}`);
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays}d ago`;
+  const formatDate = (d: string) => {
+    const date = new Date(d);
+    const diff = Math.floor((Date.now() - date.getTime()) / 86400000);
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    if (diff < 7) return `${diff}d ago`;
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  // Stats
-  const completedQuizIds = results.map(r => r.quizTitle);
+  // ── Derived stats ──────────────────────────────────────────────
   const availableQuizzes = quizzes.filter(q => !results.some(r => r.quizTitle === q.title));
   const completedCount = results.length;
   const averageScore = results.length
-    ? Math.round(results.reduce((acc, r) => acc + r.percentage, 0) / results.length)
-    : 0;
-  const totalPoints = results.reduce((acc, r) => acc + r.score, 0);
+    ? Math.round(results.reduce((a, r) => a + r.percentage, 0) / results.length) : 0;
+  const totalPoints = results.reduce((a, r) => a + r.score, 0);
   const assignedCount = quizzes.filter(q => q.visibility === 'assigned').length;
 
-  // Filtered quizzes
   const filteredQuizzes = availableQuizzes.filter(q => {
-    const matchesSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       q.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTab =
-      activeTab === 'all' ? true :
-      activeTab === 'assigned' ? q.visibility === 'assigned' :
-      q.visibility === 'public';
-    return matchesSearch && matchesTab;
+    const matchTab = activeTab === 'all' ? true :
+      activeTab === 'assigned' ? q.visibility === 'assigned' : q.visibility === 'public';
+    return matchSearch && matchTab;
   });
 
-  // Streak
   const calculateStreak = () => {
     if (!results.length) return 0;
     const sorted = [...results].sort((a, b) =>
-      new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
-    );
-    let streak = 1;
-    let cur = new Date(sorted[0].submittedAt);
+      new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+    let streak = 1; let cur = new Date(sorted[0].submittedAt);
     for (let i = 1; i < sorted.length; i++) {
       const prev = new Date(sorted[i].submittedAt);
       const diff = Math.floor((cur.getTime() - prev.getTime()) / 86400000);
-      if (diff === 1) { streak++; cur = prev; }
-      else if (diff > 1) break;
+      if (diff === 1) { streak++; cur = prev; } else if (diff > 1) break;
     }
     return streak;
   };
   const streak = calculateStreak();
+  const recentResults = [...results]
+    .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
+    .slice(0, 6);
 
+  // ── Loading ────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen bg-[#070709] flex items-center justify-center">
@@ -882,187 +1484,185 @@ export default function StudentDashboard() {
     );
   }
 
+  // ── Main ───────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#070709] text-white" style={{ fontFamily: "'DM Sans', 'Sora', sans-serif" }}>
       <Toaster position="top-right" />
 
-      {/* Background */}
+      {/* Ambient bg */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-violet-600/8 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-indigo-600/6 rounded-full blur-[100px]" />
-        <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-purple-500/5 rounded-full blur-[80px]" />
-        {/* Grid */}
-        <div className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
-            backgroundSize: '60px 60px'
-          }} />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[500px] bg-violet-600/7 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[400px] bg-indigo-600/5 rounded-full blur-[100px]" />
       </div>
 
-      <div className="relative z-10">
-        {/* Top Nav */}
-        <nav className="sticky top-0 z-50 border-b border-white/[0.04] bg-[#070709]/80 backdrop-blur-xl">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-            {/* Logo */}
-            <div className="flex items-center gap-3 shrink-0">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
-                <GraduationCap className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-semibold text-white/90 hidden sm:block text-sm tracking-wide">QuizPortal</span>
+      {/* ── Navbar ── */}
+      <nav className="sticky top-0 z-50 border-b border-white/[0.04] bg-[#070709]/80 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+              <GraduationCap className="w-3.5 h-3.5 text-white" />
             </div>
+            <span className="font-semibold text-white/90 text-sm hidden sm:block">QuizPortal</span>
+          </div>
 
-            {/* Search — hidden on mobile unless toggled */}
-            <AnimatePresence>
-              {showSearch && (
-                <motion.div
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: '100%' }}
-                  exit={{ opacity: 0, width: 0 }}
-                  className="flex-1 max-w-md"
-                >
+          {/* Inline search — expands on mobile */}
+          <AnimatePresence>
+            {showSearch && (
+              <motion.div
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: '100%' }}
+                exit={{ opacity: 0, width: 0 }}
+                className="flex-1 max-w-sm"
+              >
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
                   <input
                     autoFocus
                     type="text"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Search quizzes..."
-                    className="w-full px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-violet-500/50"
+                    className="w-full pl-9 pr-9 py-2 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-violet-500/50"
                     onBlur={() => { if (!searchQuery) setShowSearch(false); }}
                   />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => setShowSearch(!showSearch)}
-                className="p-2 rounded-xl text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all"
-              >
-                <Search className="w-4 h-4" />
-              </button>
-
-              <Link href="/profile">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-all cursor-pointer">
-                  <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white text-xs font-bold">
-                    {user?.name?.charAt(0)?.toUpperCase() || 'S'}
-                  </div>
-                  <span className="text-xs text-white/60 hidden sm:block max-w-[100px] truncate">{user?.name}</span>
+                  {searchQuery && (
+                    <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
-              </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-              <button
-                onClick={handleLogout}
-                className="p-2 rounded-xl text-white/30 hover:text-red-400/70 hover:bg-red-500/5 transition-all"
-                title="Logout"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setShowSearch(!showSearch)}
+              className="p-2 rounded-xl text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+            <Link href="/profile">
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-all cursor-pointer">
+                <div className="w-5 h-5 rounded-md bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                  {user?.name?.charAt(0)?.toUpperCase() || 'S'}
+                </div>
+                <span className="text-xs text-white/60 hidden sm:block max-w-[80px] truncate">{user?.name}</span>
+              </div>
+            </Link>
+            <button onClick={handleLogout} className="p-2 rounded-xl text-white/30 hover:text-red-400/70 hover:bg-red-500/5 transition-all">
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-5 sm:py-8 pb-24 sm:pb-10 space-y-5 sm:space-y-8">
+
+        {/* ── Hero Header ── */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <p className="text-white/30 text-xs sm:text-sm mb-1">{greeting} 👋</p>
+            <h1 className="text-2xl sm:text-4xl font-bold text-white tracking-tight">
+              {user?.name?.split(' ')[0]}<span className="text-violet-400">.</span>
+            </h1>
+            <p className="text-white/30 text-xs sm:text-sm mt-1.5">
+              {availableQuizzes.length > 0
+                ? `${availableQuizzes.length} quiz${availableQuizzes.length !== 1 ? 'zes' : ''} waiting for you`
+                : 'All caught up! Great work.'}
+            </p>
+          </div>
+
+          {/* Progress ring */}
+          <div className="flex items-center gap-3 bg-white/[0.02] border border-white/[0.05] rounded-2xl px-4 py-3 w-fit">
+            <div className="relative w-11 h-11">
+              <svg className="w-11 h-11 -rotate-90" viewBox="0 0 44 44">
+                <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
+                <circle cx="22" cy="22" r="18" fill="none" stroke="url(#vgrad)" strokeWidth="3"
+                  strokeDasharray={`${Math.min(100, averageScore) * 1.13} 113`} strokeLinecap="round" />
+                <defs>
+                  <linearGradient id="vgrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#8b5cf6" />
+                    <stop offset="100%" stopColor="#6366f1" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-[10px] font-bold text-white">{averageScore}%</span>
+              </div>
+            </div>
+            <div>
+              <p className="text-[10px] text-white/40">avg score</p>
+              <p className="text-sm font-medium text-white">{completedCount} done</p>
             </div>
           </div>
-        </nav>
+        </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-
-          {/* Hero Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col sm:flex-row sm:items-end justify-between gap-4"
-          >
-            <div>
-              <p className="text-white/30 text-sm mb-1 tracking-wide">{greeting} 👋</p>
-              <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-                {user?.name?.split(' ')[0]}<span className="text-violet-400">.</span>
-              </h1>
-              <p className="text-white/30 text-sm mt-2">
-                {availableQuizzes.length > 0
-                  ? `${availableQuizzes.length} quiz${availableQuizzes.length !== 1 ? 'zes' : ''} waiting for you`
-                  : 'All caught up! Great work.'}
-              </p>
-            </div>
-
-            {/* Mini progress ring */}
-            <div className="flex items-center gap-3 bg-white/[0.02] border border-white/[0.05] rounded-2xl px-5 py-3">
-              <div className="relative w-12 h-12">
-                <svg className="w-12 h-12 -rotate-90" viewBox="0 0 44 44">
-                  <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
-                  <circle cx="22" cy="22" r="18" fill="none" stroke="url(#grad)" strokeWidth="3"
-                    strokeDasharray={`${Math.min(100, averageScore) * 1.13} 113`}
-                    strokeLinecap="round" />
-                  <defs>
-                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#8b5cf6" />
-                      <stop offset="100%" stopColor="#6366f1" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xs font-bold text-white">{averageScore}%</span>
-                </div>
-              </div>
-              <div>
-                <p className="text-xs text-white/40">avg score</p>
-                <p className="text-sm font-medium text-white">{completedCount} done</p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Stats Row */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="grid grid-cols-2 sm:grid-cols-4 gap-3"
-          >
-            {[
-              { label: 'Available', value: availableQuizzes.length, icon: BookOpen, color: 'text-violet-400', bg: 'bg-violet-500/10', border: 'border-violet-500/20' },
-              { label: 'Completed', value: completedCount, icon: CheckCircle, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-              { label: 'Assigned', value: assignedCount, icon: Target, color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
-              { label: 'Streak', value: `${streak}d`, icon: Flame, color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20' },
-            ].map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + i * 0.05 }}
-                whileHover={{ y: -2 }}
-                className={`relative overflow-hidden bg-white/[0.02] border ${stat.border} rounded-2xl p-4 hover:bg-white/[0.04] transition-all`}
-              >
-                <div className={`w-8 h-8 ${stat.bg} rounded-xl flex items-center justify-center mb-3`}>
-                  <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                </div>
-                <p className="text-xl sm:text-2xl font-bold text-white">{stat.value}</p>
-                <p className="text-xs text-white/30 mt-0.5">{stat.label}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* Main Content Grid */}
-          <div className="grid lg:grid-cols-3 gap-6">
-
-            {/* Left: Quizzes Panel */}
+        {/* ── Stats — 2×2 on mobile, 4 on lg ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+          {[
+            { label: 'Available', value: availableQuizzes.length, icon: BookOpen,     color: 'text-violet-400', bg: 'bg-violet-500/10', border: 'border-violet-500/20' },
+            { label: 'Completed', value: completedCount,          icon: CheckCircle,  color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+            { label: 'Assigned',  value: assignedCount,           icon: Target,       color: 'text-amber-400',   bg: 'bg-amber-500/10',   border: 'border-amber-500/20' },
+            { label: 'Streak',    value: `${streak}d`,            icon: Flame,        color: 'text-orange-400',  bg: 'bg-orange-500/10',  border: 'border-orange-500/20' },
+          ].map((stat, i) => (
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              key={stat.label}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="lg:col-span-2 space-y-4"
+              transition={{ delay: 0.05 + i * 0.05 }}
+              className={`bg-white/[0.02] border ${stat.border} rounded-2xl p-3.5 sm:p-4 hover:bg-white/[0.04] transition-all`}
             >
-              {/* Panel Header */}
+              <div className={`w-8 h-8 ${stat.bg} rounded-xl flex items-center justify-center mb-2.5`}>
+                <stat.icon className={`w-4 h-4 ${stat.color}`} />
+              </div>
+              <p className="text-xl sm:text-2xl font-bold text-white">{stat.value}</p>
+              <p className="text-[10px] sm:text-xs text-white/30 mt-0.5">{stat.label}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* ── Mobile tab bar ── */}
+        <div className="flex items-center gap-1 bg-white/[0.02] border border-white/[0.05] rounded-2xl p-1 sm:hidden">
+          {(['quizzes', 'results', 'stats'] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setMobileView(tab)}
+              className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all capitalize ${
+                mobileView === tab
+                  ? 'bg-violet-500/15 text-violet-400 border border-violet-500/25'
+                  : 'text-white/30'
+              }`}
+            >
+              {tab === 'quizzes' ? `Quizzes (${filteredQuizzes.length})` :
+               tab === 'results' ? `Results (${results.length})` : 'Stats'}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Main grid ── */}
+        <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
+
+          {/* ── Left column ── */}
+          <div className="lg:col-span-2 space-y-4">
+
+            {/* Available Quizzes — visible on desktop always, mobile only on 'quizzes' tab */}
+            <div className={`${mobileView !== 'quizzes' ? 'hidden lg:block' : ''}`}>
               <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl overflow-hidden">
-                <div className="p-5 border-b border-white/[0.05]">
+                {/* Panel header */}
+                <div className="p-4 sm:p-5 border-b border-white/[0.05]">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <h2 className="text-base font-semibold text-white">Available Quizzes</h2>
+                      <h2 className="text-sm font-semibold text-white">Available Quizzes</h2>
                       <p className="text-xs text-white/30 mt-0.5">Pick a challenge and start learning</p>
                     </div>
-                    {/* Tabs */}
+                    {/* Filter tabs */}
                     <div className="flex items-center gap-1 bg-white/[0.03] rounded-xl p-1 w-fit">
                       {(['all', 'assigned', 'public'] as const).map(tab => (
                         <button
                           key={tab}
                           onClick={() => setActiveTab(tab)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                          className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                             activeTab === tab
                               ? 'bg-violet-500/20 text-violet-400 border border-violet-500/30'
                               : 'text-white/30 hover:text-white/60'
@@ -1073,31 +1673,27 @@ export default function StudentDashboard() {
                       ))}
                     </div>
                   </div>
+                  {/* Active search indicator */}
+                  {searchQuery && (
+                    <div className="flex items-center gap-2 mt-3">
+                      <p className="text-xs text-white/30">
+                        Results for "<span className="text-violet-400">{searchQuery}</span>"
+                      </p>
+                      <button onClick={() => setSearchQuery('')} className="text-white/25 hover:text-white/50">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
-                {/* Search bar inside panel */}
-                {searchQuery && (
-                  <div className="px-5 py-2 border-b border-white/[0.05] bg-white/[0.01]">
-                    <p className="text-xs text-white/30">
-                      Showing results for "<span className="text-violet-400">{searchQuery}</span>"
-                    </p>
-                  </div>
-                )}
-
-                {/* Quiz List */}
                 {filteredQuizzes.length === 0 ? (
-                  <div className="p-12 text-center">
-                    <div className="w-14 h-14 bg-white/[0.02] rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <BookOpen className="w-7 h-7 text-white/20" />
+                  <div className="p-10 text-center">
+                    <div className="w-12 h-12 bg-white/[0.02] rounded-2xl flex items-center justify-center mx-auto mb-3">
+                      <BookOpen className="w-6 h-6 text-white/20" />
                     </div>
-                    <p className="text-white/40 text-sm">
-                      {searchQuery ? 'No quizzes match your search' : 'No quizzes available'}
-                    </p>
+                    <p className="text-white/40 text-sm">{searchQuery ? 'No quizzes match' : 'No quizzes available'}</p>
                     {activeTab !== 'all' && (
-                      <button
-                        onClick={() => setActiveTab('all')}
-                        className="mt-3 text-xs text-violet-400 hover:text-violet-300"
-                      >
+                      <button onClick={() => setActiveTab('all')} className="mt-3 text-xs text-violet-400 hover:text-violet-300">
                         View all quizzes
                       </button>
                     )}
@@ -1105,61 +1701,46 @@ export default function StudentDashboard() {
                 ) : (
                   <div className="divide-y divide-white/[0.04]">
                     {filteredQuizzes.slice(0, 6).map((quiz, i) => (
-                      <motion.div
-                        key={quiz.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: i * 0.06 }}
-                        className="p-5 hover:bg-white/[0.02] transition-colors group"
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                          {/* Quiz Icon */}
+                      <div key={quiz.id} className="p-4 sm:p-5 hover:bg-white/[0.02] transition-colors group">
+                        <div className="flex items-center gap-3">
+                          {/* Icon — hidden on mobile */}
                           <div className="hidden sm:flex w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.06] items-center justify-center shrink-0 group-hover:border-violet-500/30 transition-colors">
                             {quiz.visibility === 'assigned'
                               ? <Lock className="w-4 h-4 text-amber-400/70" />
-                              : <BookOpen className="w-4 h-4 text-violet-400/70" />
-                            }
+                              : <BookOpen className="w-4 h-4 text-violet-400/70" />}
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <div className="flex flex-wrap items-center gap-2 mb-1">
-                              <h3 className="text-sm font-semibold text-white group-hover:text-violet-300 transition-colors truncate">
+                            <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                              <h3 className="text-sm font-semibold text-white group-hover:text-violet-300 transition-colors">
                                 {quiz.title}
                               </h3>
                               {quiz.visibility === 'assigned' && (
-                                <span className="text-[10px] px-2 py-0.5 bg-amber-500/10 text-amber-400 rounded-full border border-amber-500/20 shrink-0">
+                                <span className="text-[9px] px-1.5 py-0.5 bg-amber-500/10 text-amber-400 rounded-full border border-amber-500/20 shrink-0">
                                   assigned
                                 </span>
                               )}
                             </div>
                             {quiz.description && (
-                              <p className="text-xs text-white/30 mb-2 line-clamp-1">{quiz.description}</p>
+                              <p className="text-xs text-white/30 mb-1.5 line-clamp-1">{quiz.description}</p>
                             )}
-                            <div className="flex flex-wrap items-center gap-3 text-[11px] text-white/20">
-                              <span className="flex items-center gap-1">
-                                <Timer className="w-3 h-3" /> {quiz.duration}m
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <BarChart3 className="w-3 h-3" /> {quiz.questions?.length || 0} Qs
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Star className="w-3 h-3" /> {quiz.totalMarks} marks
-                              </span>
-                              <span className="text-white/10">by {quiz.createdByName}</span>
+                            <div className="flex flex-wrap items-center gap-2.5 text-[10px] sm:text-[11px] text-white/20">
+                              <span className="flex items-center gap-1"><Timer className="w-3 h-3" /> {quiz.duration}m</span>
+                              <span className="flex items-center gap-1"><BarChart3 className="w-3 h-3" /> {quiz.questions?.length || 0} Qs</span>
+                              <span className="flex items-center gap-1"><Star className="w-3 h-3" /> {quiz.totalMarks}pts</span>
+                              <span className="text-white/10 hidden sm:inline">by {quiz.createdByName}</span>
                             </div>
                           </div>
 
-                          <motion.button
-                            whileHover={{ scale: 1.03 }}
-                            whileTap={{ scale: 0.97 }}
+                          <button
                             onClick={() => handleStartQuiz(quiz.id)}
-                            className="flex items-center gap-2 px-4 py-2 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20 hover:border-violet-500/40 rounded-xl text-violet-400 text-sm font-medium transition-all whitespace-nowrap shrink-0"
+                            className="flex items-center gap-1.5 px-3 py-2 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20 hover:border-violet-500/40 rounded-xl text-violet-400 text-xs font-medium transition-all whitespace-nowrap shrink-0"
                           >
-                            <PlayCircle className="w-4 h-4" />
+                            <PlayCircle className="w-3.5 h-3.5 shrink-0" />
                             Start
-                          </motion.button>
+                          </button>
                         </div>
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -1173,27 +1754,27 @@ export default function StudentDashboard() {
                   </div>
                 )}
               </div>
+            </div>
 
-              {/* Completed Quizzes Preview */}
-              {results.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.35 }}
-                  className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-semibold text-white">Completed</h3>
+            {/* Completed quizzes — mobile 'results' tab / desktop always */}
+            {results.length > 0 && (
+              <div className={`${mobileView !== 'results' ? 'hidden lg:block' : ''}`}>
+                <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl overflow-hidden">
+                  <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 border-b border-white/[0.05]">
+                    <div>
+                      <h3 className="text-sm font-semibold text-white">Completed Quizzes</h3>
+                      <p className="text-xs text-white/25 mt-0.5">{results.length} submitted</p>
+                    </div>
                     <Link href="/results" className="text-xs text-white/30 hover:text-violet-400 flex items-center gap-1 transition-colors">
                       All results <ChevronRight className="w-3 h-3" />
                     </Link>
                   </div>
-                  <div className="space-y-2">
-                    {results.slice(0, 3).map(result => (
+                  <div className="divide-y divide-white/[0.04]">
+                    {recentResults.map(result => (
                       <Link href={`/results/${result.id}`} key={result.id}>
-                        <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors group">
+                        <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 hover:bg-white/[0.02] transition-colors group">
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
                               result.percentage >= 70 ? 'bg-emerald-500/10' : 'bg-yellow-500/10'
                             }`}>
                               <Trophy className={`w-4 h-4 ${result.percentage >= 70 ? 'text-emerald-400' : 'text-yellow-400'}`} />
@@ -1203,10 +1784,8 @@ export default function StudentDashboard() {
                               <p className="text-xs text-white/25">{formatDate(result.submittedAt)}</p>
                             </div>
                           </div>
-                          <div className={`text-sm font-bold px-3 py-1 rounded-lg ${
-                            result.percentage >= 70
-                              ? 'bg-emerald-500/10 text-emerald-400'
-                              : 'bg-yellow-500/10 text-yellow-400'
+                          <div className={`text-sm font-bold px-3 py-1 rounded-lg shrink-0 ${
+                            result.percentage >= 70 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-yellow-500/10 text-yellow-400'
                           }`}>
                             {result.percentage}%
                           </div>
@@ -1214,127 +1793,114 @@ export default function StudentDashboard() {
                       </Link>
                     ))}
                   </div>
-                </motion.div>
-              )}
-            </motion.div>
+                </div>
+              </div>
+            )}
+          </div>
 
-            {/* Right Sidebar */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="space-y-4"
-            >
-              {/* Score Overview */}
-              <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5">
-                <h3 className="text-sm font-semibold text-white mb-4">Performance</h3>
+          {/* ── Right sidebar — always on desktop, 'stats' tab on mobile ── */}
+          <div className={`space-y-4 ${mobileView !== 'stats' ? 'hidden lg:block' : ''}`}>
 
-                {results.length === 0 ? (
-                  <div className="text-center py-6">
-                    <Award className="w-8 h-8 text-white/15 mx-auto mb-3" />
-                    <p className="text-xs text-white/30">Complete a quiz to see your stats</p>
+            {/* Performance */}
+            <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 sm:p-5">
+              <h3 className="text-sm font-semibold text-white mb-4">Performance</h3>
+              {results.length === 0 ? (
+                <div className="text-center py-6">
+                  <Award className="w-8 h-8 text-white/15 mx-auto mb-3" />
+                  <p className="text-xs text-white/30">Complete a quiz to see your stats</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-white/40">Average score</span>
+                      <span className="font-bold text-violet-400">{averageScore}%</span>
+                    </div>
+                    <div className="h-2 bg-white/[0.04] rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${averageScore}%` }}
+                        transition={{ delay: 0.4, duration: 0.8, ease: 'easeOut' }}
+                        className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full"
+                      />
+                    </div>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    {/* Score bar */}
-                    <div>
-                      <div className="flex justify-between text-xs mb-2">
-                        <span className="text-white/40">Average score</span>
-                        <span className="font-bold text-violet-400">{averageScore}%</span>
-                      </div>
-                      <div className="h-2 bg-white/[0.04] rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${averageScore}%` }}
-                          transition={{ delay: 0.5, duration: 0.8, ease: 'easeOut' }}
-                          className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full"
-                        />
-                      </div>
+                  <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-amber-400" />
+                      <span className="text-xs text-white/50">Total points</span>
                     </div>
-
-                    {/* Points */}
-                    <div className="flex items-center justify-between p-3 bg-white/[0.02] rounded-xl">
-                      <div className="flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-amber-400" />
-                        <span className="text-xs text-white/50">Total points</span>
-                      </div>
-                      <span className="text-sm font-bold text-white">{totalPoints}</span>
-                    </div>
-
-                    {/* Recent scores */}
-                    <div>
-                      <p className="text-xs text-white/30 mb-2">Recent scores</p>
-                      <div className="space-y-1.5">
-                        {results.slice(0, 4).map((r, i) => (
-                          <div key={r.id} className="flex items-center gap-2">
-                            <div className="flex-1 h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
-                              <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${r.percentage}%` }}
-                                transition={{ delay: 0.6 + i * 0.1, duration: 0.6 }}
-                                className={`h-full rounded-full ${r.percentage >= 70 ? 'bg-emerald-400' : 'bg-yellow-400'}`}
-                              />
-                            </div>
-                            <span className="text-[10px] text-white/30 w-8 text-right">{r.percentage}%</span>
+                    <span className="text-sm font-bold text-white">{totalPoints}</span>
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/30 mb-2">Recent scores</p>
+                    <div className="space-y-1.5">
+                      {results.slice(0, 4).map((r, i) => (
+                        <div key={r.id} className="flex items-center gap-2">
+                          <div className="flex-1 h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${r.percentage}%` }}
+                              transition={{ delay: 0.5 + i * 0.1 }}
+                              className={`h-full rounded-full ${r.percentage >= 70 ? 'bg-emerald-400' : 'bg-yellow-400'}`}
+                            />
                           </div>
-                        ))}
-                      </div>
+                          <span className="text-[10px] text-white/30 w-8 text-right">{r.percentage}%</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+            </div>
 
-              {/* Streak Card */}
-              <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/5 border border-orange-500/15 rounded-2xl p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-white">Study Streak</h3>
-                  <Flame className="w-4 h-4 text-orange-400" />
-                </div>
-                <div className="flex items-end gap-2 mb-3">
-                  <span className="text-4xl font-black text-white">{streak}</span>
-                  <span className="text-white/40 text-sm mb-1">days</span>
-                </div>
-                {/* 7-day mini chart */}
-                <div className="flex items-end gap-1 h-8">
-                  {Array.from({ length: 7 }, (_, i) => {
-                    const day = new Date();
-                    day.setDate(day.getDate() - (6 - i));
-                    const hasResult = results.some(r => {
-                      const d = new Date(r.submittedAt);
-                      return d.toDateString() === day.toDateString();
-                    });
-                    return (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                        <div className={`w-full rounded-sm transition-all ${
-                          hasResult ? 'bg-orange-400 h-full' : 'bg-white/[0.06] h-2'
-                        }`} />
-                      </div>
-                    );
-                  })}
-                </div>
-                <p className="text-[10px] text-white/25 mt-2">Last 7 days activity</p>
+            {/* Streak */}
+            <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/5 border border-orange-500/15 rounded-2xl p-4 sm:p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-white">Study Streak</h3>
+                <Flame className="w-4 h-4 text-orange-400" />
               </div>
-
-              {/* Quick Links */}
-              <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 space-y-1">
-                <p className="text-xs text-white/30 mb-3 px-1">Quick Links</p>
-                {[
-                  { label: 'All Quizzes', href: '/quizzes', icon: BookOpen },
-                  { label: 'My Results', href: '/results', icon: BarChart3 },
-                  { label: 'My Profile', href: '/profile', icon: User },
-                ].map(link => (
-                  <Link key={link.href} href={link.href}>
-                    <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-white/[0.04] transition-colors group cursor-pointer">
-                      <div className="flex items-center gap-3">
-                        <link.icon className="w-4 h-4 text-white/30 group-hover:text-violet-400 transition-colors" />
-                        <span className="text-sm text-white/50 group-hover:text-white/80 transition-colors">{link.label}</span>
-                      </div>
-                      <ChevronRight className="w-3.5 h-3.5 text-white/20 group-hover:text-white/40 transition-colors" />
+              <div className="flex items-end gap-2 mb-3">
+                <span className="text-4xl font-black text-white">{streak}</span>
+                <span className="text-white/40 text-sm mb-1">days</span>
+              </div>
+              <div className="flex items-end gap-1 h-8">
+                {Array.from({ length: 7 }, (_, i) => {
+                  const day = new Date();
+                  day.setDate(day.getDate() - (6 - i));
+                  const hasResult = results.some(r => {
+                    const d = new Date(r.submittedAt);
+                    return d.toDateString() === day.toDateString();
+                  });
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                      <div className={`w-full rounded-sm ${hasResult ? 'bg-orange-400 h-full' : 'bg-white/[0.06] h-2'}`} />
                     </div>
-                  </Link>
-                ))}
+                  );
+                })}
               </div>
-            </motion.div>
+              <p className="text-[10px] text-white/25 mt-2">Last 7 days activity</p>
+            </div>
+
+            {/* Quick Links */}
+            <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 space-y-1">
+              <p className="text-xs text-white/30 mb-3 px-1">Quick Links</p>
+              {[
+                { label: 'All Quizzes', href: '/quizzes', icon: BookOpen,  color: 'text-violet-400' },
+                { label: 'My Results',  href: '/results', icon: BarChart3, color: 'text-emerald-400' },
+                { label: 'My Profile',  href: '/profile', icon: User,      color: 'text-sky-400'     },
+              ].map(link => (
+                <Link key={link.href} href={link.href}>
+                  <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-white/[0.04] transition-colors group cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <link.icon className={`w-4 h-4 ${link.color} opacity-60 group-hover:opacity-100 transition-opacity`} />
+                      <span className="text-sm text-white/45 group-hover:text-white/80 transition-colors">{link.label}</span>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 text-white/15 group-hover:text-white/35 transition-colors" />
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>
