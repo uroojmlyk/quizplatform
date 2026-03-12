@@ -1,5 +1,7 @@
 
 
+
+
 // 'use client';
 
 // import { useState, useEffect } from 'react';
@@ -74,8 +76,8 @@
 //     <div className="hidden lg:flex lg:w-[44%] relative flex-col justify-between p-14 overflow-hidden">
 //       <div className="absolute inset-0"
 //         style={{ background: `radial-gradient(ellipse 80% 60% at 0% 50%, ${T.accentGlow} 0%, transparent 65%), radial-gradient(ellipse 50% 70% at 100% 90%, rgba(16,185,129,0.05) 0%, transparent 60%)` }} />
-//       <div className="absolute inset-0 opacity-[0.025]"
-//         style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '52px 52px' }} />
+//       <div className="hidden sm:block absolute inset-0 opacity-[0.015]"
+//         style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)', backgroundSize: '52px 52px' }} />
 //       <div className="absolute right-0 top-16 bottom-16 w-px"
 //         style={{ background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.06) 30%, rgba(255,255,255,0.06) 70%, transparent)' }} />
 
@@ -446,19 +448,15 @@
 
 
 
-
-
-
-
-
+ 
 'use client';
-
+ 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, CheckCircle2, CheckCircle } from 'lucide-react';
-
+ 
 // ── Design tokens (same as login) ─────────────────────────────────
 const T = {
   bg: '#060809',
@@ -472,7 +470,7 @@ const T = {
   textMuted: 'rgba(255,255,255,0.32)',
   textDim: 'rgba(255,255,255,0.18)',
 };
-
+ 
 // ── Reusable input (identical to login) ───────────────────────────
 function AuthInput({ label, icon: Icon, error, isFocused, isValid, rightSlot, ...props }: {
   label: string; icon: any; error?: string;
@@ -500,18 +498,15 @@ function AuthInput({ label, icon: Icon, error, isFocused, isValid, rightSlot, ..
           }} />
         {rightSlot && <div className="absolute right-3.5 top-1/2 -translate-y-1/2">{rightSlot}</div>}
       </div>
-      <AnimatePresence mode="wait">
-        {error && (
-          <motion.p key="e" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="text-[11px] pl-1" style={{ color: 'rgba(239,68,68,0.75)' }}>
+      {error && (
+          <p className="text-[11px] pl-1" style={{ color: 'rgba(239,68,68,0.75)' }}>
             {error}
-          </motion.p>
+          </p>
         )}
-      </AnimatePresence>
     </div>
   );
 }
-
+ 
 // ── Left branding panel ───────────────────────────────────────────
 function BrandPanel() {
   const stats = [
@@ -520,16 +515,16 @@ function BrandPanel() {
     { val: '25K+', label: 'Quizzes' },
     { val: '98%', label: 'Satisfaction' },
   ];
-
+ 
   return (
     <div className="hidden lg:flex lg:w-[44%] relative flex-col justify-between p-14 overflow-hidden">
       <div className="absolute inset-0"
         style={{ background: `radial-gradient(ellipse 80% 60% at 0% 50%, ${T.accentGlow} 0%, transparent 65%), radial-gradient(ellipse 50% 70% at 100% 90%, rgba(16,185,129,0.05) 0%, transparent 60%)` }} />
-      <div className="hidden sm:block absolute inset-0 opacity-[0.015]"
-        style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)', backgroundSize: '52px 52px' }} />
+      <div className="absolute inset-0 opacity-[0.025]"
+        style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '52px 52px' }} />
       <div className="absolute right-0 top-16 bottom-16 w-px"
         style={{ background: 'linear-gradient(180deg, transparent, rgba(255,255,255,0.06) 30%, rgba(255,255,255,0.06) 70%, transparent)' }} />
-
+ 
       {/* Logo */}
       <div className="relative z-10 flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -538,7 +533,7 @@ function BrandPanel() {
         </div>
         <span className="text-sm font-semibold tracking-wide" style={{ color: 'rgba(255,255,255,0.65)' }}>QuizPortal</span>
       </div>
-
+ 
       {/* Hero */}
       <div className="relative z-10 space-y-8">
         <div>
@@ -556,35 +551,33 @@ function BrandPanel() {
             Join thousands of students and teachers already using QuizPortal.
           </p>
         </div>
-
+ 
         {/* Features */}
         <div className="space-y-3">
           {['Free forever — no credit card needed', 'Create unlimited quizzes with AI', 'Share with students in one click'].map((f, i) => (
-            <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 + i * 0.1 }} className="flex items-center gap-3">
+            <div key={i} className="flex items-center gap-3">
               <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
                 style={{ background: T.accentBg, border: `1px solid ${T.accentBorder}` }}>
                 <CheckCircle2 style={{ width: 11, height: 11, color: T.accent }} />
               </div>
               <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>{f}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
-
+ 
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-3">
           {stats.map((s, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 + i * 0.08 }}
+            <div key={i}
               className="rounded-xl p-3"
               style={{ background: T.accentBg, border: `1px solid ${T.accentBorder}` }}>
               <p className="text-lg font-bold" style={{ color: T.accentHover }}>{s.val}</p>
               <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{s.label}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
-
+ 
       {/* Quote */}
       <div className="relative z-10 pl-4" style={{ borderLeft: `2px solid ${T.accentBorder}` }}>
         <p className="text-xs italic leading-relaxed" style={{ color: T.textDim }}>
@@ -595,7 +588,7 @@ function BrandPanel() {
     </div>
   );
 }
-
+ 
 // ── SIGNUP PAGE ───────────────────────────────────────────────────
 export default function SignupPage() {
   const router = useRouter();
@@ -604,21 +597,21 @@ export default function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
-
+ 
   const [form, setForm] = useState({
     name: '', email: '', password: '', confirmPassword: '',
     role: 'student' as 'student' | 'teacher',
   });
-
+ 
   const [errors, setErrors] = useState({ name: '', email: '', password: '', confirmPassword: '' });
-
+ 
   const [validation, setValidation] = useState({
     name: null as boolean | null,
     email: null as boolean | null,
     password: null as boolean | null,
     confirmPassword: null as boolean | null,
   });
-
+ 
   // Real-time validation — preserved exactly from original
   useEffect(() => {
     setValidation(prev => ({
@@ -633,7 +626,7 @@ export default function SignupPage() {
         : null,
     }));
   }, [form]);
-
+ 
   const validateForm = () => {
     const e = { name: '', email: '', password: '', confirmPassword: '' };
     let valid = true;
@@ -649,7 +642,7 @@ export default function SignupPage() {
     setErrors(e);
     return valid;
   };
-
+ 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -683,7 +676,7 @@ export default function SignupPage() {
       setIsLoading(false);
     }
   };
-
+ 
   // Password strength — preserved exactly
   const getPasswordStrength = () => {
     if (!form.password) return null;
@@ -697,7 +690,7 @@ export default function SignupPage() {
     return { text: 'Weak', w: 'w-1/3', color: '#ef4444', label: '#ef4444' };
   };
   const strength = getPasswordStrength();
-
+ 
   const EyeBtn = (show: boolean, toggle: () => void) => (
     <button type="button" onClick={toggle}
       className="transition-colors p-0.5 rounded"
@@ -707,18 +700,18 @@ export default function SignupPage() {
       {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
     </button>
   );
-
+ 
   return (
     <div className="min-h-screen flex overflow-hidden"
       style={{ background: T.bg, fontFamily: "'DM Sans', 'Inter', system-ui, sans-serif" }}>
-
+ 
       <BrandPanel />
-
+ 
       {/* ─── Right: form ─── */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 relative overflow-y-auto">
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: `radial-gradient(ellipse 70% 45% at 50% 0%, ${T.accentGlow} 0%, transparent 60%)` }} />
-
+ 
         {/* Mobile logo */}
         <div className="lg:hidden flex items-center gap-2.5 mb-8 relative z-10">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center"
@@ -727,11 +720,9 @@ export default function SignupPage() {
           </div>
           <span className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.65)' }}>QuizPortal</span>
         </div>
-
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="w-full max-w-[410px] relative z-10">
-
+ 
+        <div className="w-full max-w-[410px] relative z-10">
+ 
           <div className="mb-7">
             <h1 className="text-[1.7rem] font-bold tracking-tight leading-tight mb-2"
               style={{ color: 'rgba(255,255,255,0.95)' }}>
@@ -739,23 +730,19 @@ export default function SignupPage() {
             </h1>
             <p className="text-sm" style={{ color: T.textMuted }}>Free forever. No credit card needed.</p>
           </div>
-
+ 
           {/* Success banner */}
-          <AnimatePresence>
-            {success && (
-              <motion.div initial={{ opacity: 0, y: -8, height: 0 }} animate={{ opacity: 1, y: 0, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mb-5 px-4 py-3.5 rounded-xl flex items-center gap-3"
-                style={{ background: T.accentBg, border: `1px solid ${T.accentBorder}` }}>
-                <CheckCircle className="w-4 h-4 shrink-0" style={{ color: T.accent }} />
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: T.accentHover }}>Account created!</p>
-                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Redirecting you…</p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
+          {success && (
+            <div className="mb-5 px-4 py-3.5 rounded-xl flex items-center gap-3"
+              style={{ background: T.accentBg, border: `1px solid ${T.accentBorder}` }}>
+              <CheckCircle className="w-4 h-4 shrink-0" style={{ color: T.accent }} />
+              <div>
+                <p className="text-sm font-semibold" style={{ color: T.accentHover }}>Account created!</p>
+                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Redirecting you…</p>
+              </div>
+            </div>
+          )}
+ 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name */}
             <AuthInput label="Full Name" icon={User} type="text" value={form.name} placeholder="Your name"
@@ -763,14 +750,14 @@ export default function SignupPage() {
               isValid={validation.name} error={errors.name}
               onChange={(e: any) => setForm(p => ({ ...p, name: e.target.value }))}
               onFocus={() => setFocusedField('name')} onBlur={() => setFocusedField(null)} />
-
+ 
             {/* Email */}
             <AuthInput label="Email" icon={Mail} type="email" value={form.email} placeholder="you@example.com"
               disabled={isLoading} isFocused={focusedField === 'email'}
               isValid={validation.email} error={errors.email}
               onChange={(e: any) => setForm(p => ({ ...p, email: e.target.value }))}
               onFocus={() => setFocusedField('email')} onBlur={() => setFocusedField(null)} />
-
+ 
             {/* Password */}
             <div className="space-y-2">
               <AuthInput label="Password" icon={Lock}
@@ -780,23 +767,21 @@ export default function SignupPage() {
                 rightSlot={EyeBtn(showPassword, () => setShowPassword(p => !p))}
                 onChange={(e: any) => setForm(p => ({ ...p, password: e.target.value }))}
                 onFocus={() => setFocusedField('password')} onBlur={() => setFocusedField(null)} />
-
-              {/* Strength bar */}
+ 
+              {/* Strength bar — CSS only, no framer */}
               {strength && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-1.5">
+                <div className="space-y-1.5">
                   <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
-                    <motion.div className={`h-full rounded-full ${strength.w}`}
-                      initial={{ width: 0 }} animate={{ width: undefined }}
-                      style={{ background: strength.color }}
-                      transition={{ duration: 0.3 }} />
+                    <div className={`h-full rounded-full transition-all duration-300 ${strength.w}`}
+                      style={{ background: strength.color }} />
                   </div>
                   <p className="text-[10px] pl-0.5 font-medium" style={{ color: strength.label }}>
                     {strength.text} password
                   </p>
-                </motion.div>
+                </div>
               )}
             </div>
-
+ 
             {/* Confirm password */}
             <AuthInput label="Confirm Password" icon={Lock}
               type={showConfirmPassword ? 'text' : 'password'} value={form.confirmPassword} placeholder="Repeat your password"
@@ -805,7 +790,7 @@ export default function SignupPage() {
               rightSlot={EyeBtn(showConfirmPassword, () => setShowConfirmPassword(p => !p))}
               onChange={(e: any) => setForm(p => ({ ...p, confirmPassword: e.target.value }))}
               onFocus={() => setFocusedField('confirm')} onBlur={() => setFocusedField(null)} />
-
+ 
             {/* Role selector */}
             <div className="space-y-1.5">
               <label className="block text-[11px] font-semibold uppercase tracking-widest"
@@ -815,7 +800,7 @@ export default function SignupPage() {
               <div className="grid grid-cols-2 gap-3">
                 {(['student', 'teacher'] as const).map(role => (
                   <button key={role} type="button" onClick={() => setForm(p => ({ ...p, role }))}
-                    className="py-3 rounded-xl text-sm font-semibold transition-all duration-200 capitalize"
+                    className="py-3 rounded-xl text-sm font-semibold transition-colors duration-200 capitalize"
                     style={form.role === role ? {
                       background: T.accentBg,
                       border: `1px solid ${T.accentBorder}`,
@@ -831,12 +816,11 @@ export default function SignupPage() {
                 ))}
               </div>
             </div>
-
+ 
             {/* Submit */}
             <div className="pt-1">
-              <motion.button type="submit" disabled={isLoading || success}
-                whileHover={{ scale: isLoading ? 1 : 1.015 }} whileTap={{ scale: isLoading ? 1 : 0.985 }}
-                className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 disabled:cursor-not-allowed"
+              <button type="submit" disabled={isLoading || success}
+                className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-colors duration-200 disabled:cursor-not-allowed"
                 style={{
                   background: isLoading || success ? T.accentBg : `linear-gradient(135deg, ${T.accent} 0%, ${T.accentHover} 100%)`,
                   color: isLoading || success ? T.accent : '#022c1e',
@@ -849,17 +833,17 @@ export default function SignupPage() {
                   : success
                   ? <><CheckCircle className="w-4 h-4" /><span>Account created!</span></>
                   : <><span>Create account</span><ArrowRight className="w-4 h-4" /></>}
-              </motion.button>
+              </button>
             </div>
           </form>
-
+ 
           {/* Divider */}
           <div className="my-6 flex items-center gap-4">
             <div className="flex-1 h-px" style={{ background: T.cardBorder }} />
             <span className="text-[10px] tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.15)' }}>or</span>
             <div className="flex-1 h-px" style={{ background: T.cardBorder }} />
           </div>
-
+ 
           {/* OAuth */}
           <div className="grid grid-cols-2 gap-3">
             {[
@@ -867,7 +851,7 @@ export default function SignupPage() {
               { label: 'GitHub', icon: <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" style={{ color: 'rgba(255,255,255,0.45)' }}><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" /></svg> },
             ].map(s => (
               <button key={s.label} type="button"
-                className="flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl text-sm transition-all"
+                className="flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl text-sm transition-colors"
                 style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${T.cardBorder}`, color: 'rgba(255,255,255,0.4)' }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.055)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = T.cardBorder; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; }}>
@@ -875,7 +859,7 @@ export default function SignupPage() {
               </button>
             ))}
           </div>
-
+ 
           <p className="text-center text-xs mt-7" style={{ color: 'rgba(255,255,255,0.22)' }}>
             Already have an account?{' '}
             <Link href="/login" className="font-semibold transition-colors"
@@ -885,7 +869,7 @@ export default function SignupPage() {
               Sign in
             </Link>
           </p>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
